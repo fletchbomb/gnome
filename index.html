@@ -53,15 +53,15 @@
   #header > *{pointer-events:auto;}
   #header h1{font-size:1.4rem;color:var(--gold);padding:7px 12px;border-radius:14px;background:rgba(15,52,96,.88);box-shadow:0 8px 20px rgba(0,0,0,.28);}
   #main{position:relative;height:100%;overflow:hidden;}
-  #board-area{position:absolute;inset:0;overflow:auto;padding:104px 328px 104px 16px;display:flex;align-items:safe center;justify-content:safe center;}
+  #board-area{position:absolute;inset:0;overflow:auto;padding:24px 24px 116px 188px;display:flex;align-items:safe center;justify-content:safe center;}
   #board-area.pan-ready{cursor:grab;}
   #board-area.is-panning{cursor:grabbing;user-select:none;}
   #board-area.is-panning,
   #board-area.is-panning *{cursor:grabbing !important;}
-  #sidebar{position:absolute;top:12px;right:12px;bottom:12px;width:82px;padding:0;overflow:visible;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:10px;background:transparent;border:none;z-index:45;pointer-events:none;}
+  #sidebar{position:fixed;left:50%;transform:translateX(-50%);top:auto;right:auto;bottom:12px;width:auto;padding:0;overflow:visible;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:10px;background:transparent;border:none;z-index:45;pointer-events:none;}
   #sidebar > *{pointer-events:auto;}
   #log-area{position:relative;left:auto;right:auto;bottom:auto;top:auto;width:100%;max-height:none;background:transparent;border:none;border-radius:0;padding:8px 0 0;z-index:auto;box-shadow:none;backdrop-filter:none;overflow:hidden;}
-  #top-left-shell{position:fixed;top:12px;left:12px;width:min(292px,calc(100vw - 24px));z-index:45;padding:10px 12px 9px;}
+  #top-left-shell{position:fixed;top:12px;left:auto;right:12px;width:min(292px,calc(100vw - 24px));z-index:45;padding:10px 12px 9px;}
   #top-left-shell #header{position:relative;inset:auto;background:transparent;border:none;box-shadow:none;padding:0;}
   #top-left-shell #header-summary{display:flex;flex-direction:column;gap:6px;width:100%;}
   #header-brand{display:none !important;}
@@ -87,13 +87,13 @@
   #patrol-tray{z-index:25;}
   .floating-panel{background:rgba(22,33,62,.94);border:1px solid rgba(73,103,141,.9);border-radius:16px;padding:10px 12px;box-shadow:0 12px 36px rgba(0,0,0,.35);}
   .gnome-stack{display:flex;flex-direction:column;gap:8px;}
-  #bottom-dock{position:fixed;left:12px;right:12px;bottom:12px;display:flex;justify-content:center;align-items:end;gap:12px;z-index:45;pointer-events:none;}
+  #bottom-dock{position:fixed;left:12px;right:auto;top:12px;bottom:auto;transform:none;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:10px;z-index:45;pointer-events:none;}
   #bottom-dock > *{pointer-events:auto;}
-  #gnome-panels{position:relative;left:auto;right:auto;bottom:auto;display:flex;justify-content:center;align-items:end;gap:10px;z-index:auto;pointer-events:none;}
+  #gnome-panels{position:relative;left:auto;right:auto;bottom:auto;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:10px;z-index:auto;pointer-events:none;}
   #gnome-panels > *{pointer-events:auto;}
   #actions .section-title, #gnomes-shell > .section-title{margin-bottom:0;}
-  #actions{display:flex;flex-direction:column;align-items:center;width:100%;}
-  #actions-shell .floating-title-row{width:100%;justify-content:center;}
+  #actions{display:flex;flex-direction:row;align-items:flex-end;justify-content:center;gap:8px;width:auto;}
+  #actions-shell .floating-title-row{display:none;}
   #actions-shell #current-gnome-info{width:100%;text-align:center;}
   #primary-action-grid{margin:0 auto;}
   #actions-shell .action-btn-grid, #actions-shell .action-btn.end-turn{margin-left:auto;margin-right:auto;}
@@ -116,8 +116,8 @@
 #screen-edge-vignette{position:fixed;inset:0;z-index:30;pointer-events:none;}
   #screen-edge-vignette::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom, rgba(6,10,20,.82) 0px, rgba(6,10,20,.52) 64px, rgba(6,10,20,.18) 118px, rgba(6,10,20,0) 168px),linear-gradient(to top, rgba(6,10,20,.72) 0px, rgba(6,10,20,.26) 72px, rgba(6,10,20,0) 148px),linear-gradient(to right, rgba(6,10,20,.56) 0px, rgba(6,10,20,.2) 72px, rgba(6,10,20,0) 138px),linear-gradient(to left, rgba(6,10,20,.56) 0px, rgba(6,10,20,.2) 72px, rgba(6,10,20,0) 138px);}
   #screen-edge-vignette::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center, rgba(0,0,0,0) 56%, rgba(0,0,0,.05) 82%, rgba(0,0,0,.11) 100%);}
-#actions-shell{align-self:flex-end;width:82px;display:flex;flex-direction:column;align-items:center;}
-.action-btn-grid{display:grid;grid-template-columns:61px;justify-content:center;justify-items:center;gap:7px;width:100%;}
+#actions-shell{align-self:center;width:auto;max-width:calc(100vw - 48px);display:flex;flex-direction:column;align-items:center;background:transparent;border:none;box-shadow:none;padding:0;}
+.action-btn-grid{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:7px;width:auto;max-width:calc(100vw - 160px);overflow-x:auto;padding-bottom:2px;}
 .action-group-label{font-size:.65rem;color:var(--muted);margin:2px 0 0;}
 .action-divider{border-color:#2a3a4a;margin:6px 0 4px;}
 .action-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:61px;height:61px;min-height:61px;padding:4px 3px;margin-bottom:0;background:#0a2040;border:1px solid #2a4a6a;border-radius:14px;color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:.6rem;cursor:pointer;text-align:center;transition:background .15s,border-color .15s,transform .12s,box-shadow .15s;}
@@ -130,11 +130,11 @@
 #actions-shell,#gnomes-shell{backdrop-filter:none;}
   @media (max-width: 1100px){
     #header{right:12px;}
-    #board-area{padding:110px 16px 150px;}
-    #sidebar{top:auto;bottom:12px;right:12px;max-height:55vh;width:82px;}
+    #board-area{padding:20px 16px 108px 148px;}
+    #sidebar{left:50%;bottom:12px;max-height:none;width:auto;}
     #top-left-shell{width:min(292px,calc(100vw - 24px));}
     #log-area,#log-area.collapsed{width:100%;}
-    #gnome-panels{flex-wrap:wrap;bottom:10px;}
+    #gnome-panels{gap:8px;}
   }
 
   /* BOARD */
@@ -772,8 +772,8 @@
     bottom: auto;
     right: auto;
     display: flex;
-    flex-direction: row;
-    align-items: flex-end;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 10px;
     z-index: auto;
     pointer-events: none;
@@ -785,18 +785,22 @@
     border: 2px solid rgba(255,116,116,.8);
     border-radius: 16px;
     padding: 8px 9px;
-    width: max-content;
-    min-width: 148px;
-    max-width: 168px;
+    width: 118px;
+    min-width: 118px;
+    max-width: 118px;
+    overflow: hidden;
     box-shadow: 0 10px 24px rgba(0,0,0,.28);
     font-family: 'Nunito', sans-serif;
     color: #eee;
     position: relative;
-    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-    transform-origin: bottom center;
+    transition: width .18s ease, transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    transform-origin: left center;
     cursor: default;
   }
   .patrol-ref-card:hover {
+    width: 168px;
+    min-width: 168px;
+    max-width: 168px;
     transform: translateY(-3px);
     box-shadow: 0 14px 28px rgba(0,0,0,.34);
     border-color: #ff9d9d;
@@ -827,10 +831,21 @@
   }
 
 
-  .gnome-card{background:var(--card);border-radius:16px;padding:8px 9px;border:2px solid transparent;box-shadow:0 10px 24px rgba(0,0,0,.28);min-height:0;width:max-content;min-width:148px;max-width:168px;}
+  .gnome-card{background:var(--card);border-radius:16px;padding:8px 9px;border:2px solid transparent;box-shadow:0 10px 24px rgba(0,0,0,.28);min-height:0;width:168px;min-width:168px;max-width:168px;overflow:hidden;transition:width .18s ease, box-shadow .18s ease, border-color .18s ease;}
+  .gnome-card:not(.active){width:118px;min-width:118px;max-width:118px;}
+  .gnome-card:not(.active):hover{width:168px;min-width:168px;max-width:168px;box-shadow:0 14px 28px rgba(0,0,0,.34);}
   .gnome-card.active{border-color:var(--gold);}
   .gnome-card.ko{opacity:.5;}
-  .gnome-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-weight:800;font-size:.88rem;}
+  .gnome-header{display:flex;align-items:center;gap:6px;margin-bottom:0;font-weight:800;font-size:.88rem;}
+  .hat-slot-inline{margin-left:auto;flex:0 0 auto;}
+  .gnome-card:not(.active) .hat-slot-inline{display:none;}
+  .gnome-card:not(.active):hover .hat-slot-inline{display:flex;}
+  .gnome-header-status{display:flex;align-items:center;gap:4px;flex:0 0 auto;}
+  .gnome-emoji{font-size:1rem;line-height:1;}
+  .gnome-name-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .gnome-card-body{max-height:180px;opacity:1;overflow:hidden;transition:max-height .18s ease, opacity .18s ease, margin-top .18s ease;margin-top:6px;}
+  .gnome-card:not(.active) .gnome-card-body{max-height:0;opacity:0;margin-top:0;pointer-events:none;}
+  .gnome-card:not(.active):hover .gnome-card-body{max-height:180px;opacity:1;margin-top:6px;pointer-events:auto;}
   .gnome-dot{width:13px;height:13px;border-radius:50%;}
   .gnome-header-right{margin-left:auto;display:flex;align-items:center;gap:3px;}
   .gnome-name-actions{margin-left:auto;font-size:.72rem;color:var(--gold);font-weight:900;white-space:nowrap;}
@@ -875,7 +890,7 @@
   #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;}
   #modal-overlay.show{display:flex;}
   #modal{background:var(--panel);border:2px solid var(--card);border-radius:14px;padding:18px;max-width:420px;width:90%;max-height:80vh;overflow-y:auto;}
-  body.weaver-manage-open #modal-overlay{align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.45);pointer-events:none;}
+  body.weaver-manage-open #modal-overlay{align-items:flex-start;justify-content:flex-end;padding:14px;background:rgba(0,0,0,.45);pointer-events:none;}
   body.weaver-manage-open #modal{width:min(390px, calc(100vw - 28px));max-height:calc(100vh - 28px);overflow:auto;pointer-events:auto;}
   body.weaver-manage-open #header,
   body.weaver-manage-open #board-area,
@@ -1049,7 +1064,7 @@
     <div id="board-area"><div id="board"></div></div>
     <div id="screen-edge-vignette"></div>
     <div id="sidebar">
-      <div id="actions-shell" class="floating-panel">
+      <div id="actions-shell">
         <div class="floating-title-row"><span class="section-title">Actions</span></div>
         <div id="current-gnome-info" style="font-size:.82rem;margin-bottom:2px;"></div>
         <div id="actions">
@@ -1914,17 +1929,14 @@ function renderGnomeNameInputs(n) {
   el('gnome-names').innerHTML = Array.from({length:n},(_,i)=>`
     <div class="gnome-name-row">
       <span>${GNOME_EMOJIS[i]}</span>
-      <input type="text" id="gname-${i}" value="${GNOME_NAMES_DEFAULT[i]}" maxlength="7"
+      <input type="text" id="gname-${i}" value="${GNOME_NAMES_DEFAULT[i]}"
         style="background:#0a2040;border:1px solid #2a4a6a;border-radius:6px;padding:4px 8px;color:var(--text);font-family:Nunito;font-size:.88rem;width:130px;">
     </div>`).join('');
 }
 
 function startGame() {
   applyThemeArchitectureShells();
-  const names = Array.from({length:setupPlayerCount},(_,i)=>{
-    const raw = document.getElementById(`gname-${i}`)?.value || GNOME_NAMES_DEFAULT[i];
-    return raw.slice(0,7);
-  });
+  const names = Array.from({length:setupPlayerCount},(_,i)=>document.getElementById(`gname-${i}`)?.value||GNOME_NAMES_DEFAULT[i]);
   warmUiPerformance().catch(() => undefined);
   el('screen-setup').classList.remove('show');
   initState(setupPlayerCount, names);
@@ -2562,31 +2574,38 @@ function renderGnomePanels() {
 
     const header = document.createElement('div');
     header.className = 'gnome-header';
-    header.innerHTML = `<div class="gnome-dot" style="background:${g.color}"></div><span>${g.name}</span>${isActive ? `<span class=\"gnome-name-actions\">${G.actionsLeft} Action${G.actionsLeft!==1?'s':''}</span>` : ''}${g.ko?'<span style=\"color:#ff6b6b;font-size:.7rem\">💀KO</span>':''}${g.hidden?'<span style=\"color:#aaa;font-size:.7rem\">🫣Hid</span>':''}${g.stickyBlocked?'<span style=\"color:#f59e0b;font-size:.7rem\">🫟Stuck</span>':''}`;
-
-    const headerRight = document.createElement('div');
-    headerRight.className = 'gnome-header-right';
+    header.appendChild(createElement('span', { className: 'gnome-emoji', text: g.emoji || '🧝' }));
+    header.appendChild(createElement('span', { className: 'gnome-name-text', text: g.name }));
     const hatSlot = document.createElement('div');
-    hatSlot.className = 'slot hat-slot' + (canManageInventory ? ' clickable' : '');
+    hatSlot.className = 'slot hat-slot hat-slot-inline' + (canManageInventory ? ' clickable' : '');
     hatSlot.title = hat ? `${hat.name}: ${hat.desc}` : 'No hat equipped';
     hatSlot.textContent = hat ? (hat.emoji || '🎩') : '—';
     if (!hat) hatSlot.style.opacity = '0.4';
     if (canManageInventory) hatSlot.onclick = (e) => { e.stopPropagation(); showInventoryItemPopup(hatSlot, g, i, 'hat', -1); };
-    headerRight.appendChild(hatSlot);
-    header.appendChild(headerRight);
+    header.appendChild(hatSlot);
+    const headerStatus = document.createElement('div');
+    headerStatus.className = 'gnome-header-status';
+    if (isActive) headerStatus.appendChild(createElement('span', { className: 'gnome-name-actions', text: `${G.actionsLeft} Action${G.actionsLeft!==1?'s':''}` }));
+    if (g.ko) headerStatus.appendChild(createElement('span', { text: '💀KO', attrs: { style: 'color:#ff6b6b;font-size:.7rem' } }));
+    if (g.hidden) headerStatus.appendChild(createElement('span', { text: '🫣Hid', attrs: { style: 'color:#aaa;font-size:.7rem' } }));
+    if (g.stickyBlocked) headerStatus.appendChild(createElement('span', { text: '🫟Stuck', attrs: { style: 'color:#f59e0b;font-size:.7rem' } }));
+    header.appendChild(headerStatus);
     card.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'gnome-card-body';
 
     const meta = document.createElement('div');
     meta.className = 'gnome-meta';
     if (G.phase === 'patrol' && !isActive) {
       meta.appendChild(createElement('div', { className: 'inline-badge', text: 'Waiting' }));
     }
-    if (meta.childNodes.length) card.appendChild(meta);
+    if (meta.childNodes.length) body.appendChild(meta);
 
     const satchelLabel = document.createElement('div');
     satchelLabel.style.cssText = 'font-size:.6rem;color:var(--muted);margin-bottom:2px;';
     satchelLabel.textContent = `Satchel (${g.satchel.slice(0,size).filter(Boolean).length}/${size})`;
-    card.appendChild(satchelLabel);
+    body.appendChild(satchelLabel);
 
     const slotsRow = document.createElement('div');
     slotsRow.className = 'satchel-slots';
@@ -2605,7 +2624,8 @@ function renderGnomePanels() {
       if (canManageInventory && item) slotEl.onclick = (e) => { e.stopPropagation(); showInventoryItemPopup(slotEl, g, i, item.type, s); };
       slotsRow.appendChild(slotEl);
     }
-    card.appendChild(slotsRow);
+    body.appendChild(slotsRow);
+    card.appendChild(body);
     container.appendChild(card);
   });
 
