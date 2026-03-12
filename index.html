@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v040</title>
+  <title>Gnome Invasion v059</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -53,7 +53,7 @@
   #header > *{pointer-events:auto;}
   #header h1{font-size:1.4rem;color:var(--gold);padding:7px 12px;border-radius:14px;background:rgba(15,52,96,.88);box-shadow:0 8px 20px rgba(0,0,0,.28);}
   #main{position:relative;height:100%;overflow:hidden;}
-  #board-area{position:absolute;inset:0;overflow:auto;padding:24px 24px 116px 188px;display:flex;align-items:safe center;justify-content:safe center;}
+  #board-area{position:absolute;inset:0;overflow:auto;padding:24px 24px 116px 24px;display:flex;align-items:safe center;justify-content:safe center;}
   #board-area.pan-ready{cursor:grab;}
   #board-area.is-panning{cursor:grabbing;user-select:none;}
   #board-area.is-panning,
@@ -117,7 +117,7 @@
   #screen-edge-vignette::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom, rgba(6,10,20,.82) 0px, rgba(6,10,20,.52) 64px, rgba(6,10,20,.18) 118px, rgba(6,10,20,0) 168px),linear-gradient(to top, rgba(6,10,20,.72) 0px, rgba(6,10,20,.26) 72px, rgba(6,10,20,0) 148px),linear-gradient(to right, rgba(6,10,20,.56) 0px, rgba(6,10,20,.2) 72px, rgba(6,10,20,0) 138px),linear-gradient(to left, rgba(6,10,20,.56) 0px, rgba(6,10,20,.2) 72px, rgba(6,10,20,0) 138px);}
   #screen-edge-vignette::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center, rgba(0,0,0,0) 56%, rgba(0,0,0,.05) 82%, rgba(0,0,0,.11) 100%);}
 #actions-shell{align-self:center;width:auto;max-width:calc(100vw - 48px);display:flex;flex-direction:column;align-items:center;background:transparent;border:none;box-shadow:none;padding:0;}
-.action-btn-grid{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:7px;width:auto;max-width:calc(100vw - 160px);overflow-x:auto;padding-bottom:2px;}
+.action-btn-grid{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:7px;width:auto;max-width:calc(100vw - 160px);overflow-x:auto;overflow-y:visible;padding-top:4px;padding-bottom:2px;}
 .action-group-label{font-size:.65rem;color:var(--muted);margin:2px 0 0;}
 .action-divider{border-color:#2a3a4a;margin:6px 0 4px;}
 .action-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:61px;height:61px;min-height:61px;padding:4px 3px;margin-bottom:0;background:#0a2040;border:1px solid #2a4a6a;border-radius:14px;color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:.6rem;cursor:pointer;text-align:center;transition:background .15s,border-color .15s,transform .12s,box-shadow .15s;}
@@ -130,7 +130,7 @@
 #actions-shell,#gnomes-shell{backdrop-filter:none;}
   @media (max-width: 1100px){
     #header{right:12px;}
-    #board-area{padding:20px 16px 108px 148px;}
+    #board-area{padding:20px 16px 108px 16px;}
     #sidebar{left:50%;bottom:12px;max-height:none;width:auto;}
     #top-left-shell{width:min(292px,calc(100vw - 24px));}
     #log-area,#log-area.collapsed{width:100%;}
@@ -138,10 +138,10 @@
   }
 
   /* BOARD */
-  #board{display:grid;gap:4px;position:relative;}
+   #board{display:grid;gap:var(--board-gap);position:relative;}
 
   /* CELL BASE */
-  .cell{width:162px;height:162px;border-radius:7px;position:relative;overflow:visible;}
+  .cell{width:var(--board-cell-size);height:var(--board-cell-size);border-radius:7px;position:relative;overflow:visible;}
 
   /* Empty cells */
   .cell.empty{background:#0d1525;border:1px dashed #1e2d40;cursor:default;}
@@ -275,8 +275,10 @@
   .patrol-facing-dot.E { right: 3px;  top: 50%;  transform: translateY(-50%); }
 
   /* DOOR INDICATORS — rendered as notches on the cell border, clickable */
-  .door{position:absolute;background:#f5a623;z-index:5;cursor:pointer;transition:background .15s;}
+  .door{position:absolute;background:#f5a623;z-index:5;cursor:pointer;transition:background .15s, opacity .15s, box-shadow .15s;}
   .door:hover{background:#ffe082;}
+  .door.disabled{background:#6b7280;opacity:.55;cursor:not-allowed;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);}
+  .door.disabled:hover{background:#6b7280;}
   .door.N{top:-3px;left:50%;transform:translateX(-50%);width:48px;height:8px;border-radius:3px 3px 0 0;}
   .door.S{bottom:-3px;left:50%;transform:translateX(-50%);width:48px;height:8px;border-radius:0 0 3px 3px;}
   .door.W{left:-3px;top:50%;transform:translateY(-50%);width:8px;height:48px;border-radius:3px 0 0 3px;}
@@ -841,9 +843,19 @@
   .gnome-card:not(.active) .hat-slot-inline{display:none;}
   .gnome-card:not(.active):hover .hat-slot-inline{display:flex;}
   .gnome-header-status{display:flex;align-items:center;gap:4px;flex:0 0 auto;}
+  .gnome-action-track{margin-top:7px;}
+  .gnome-action-label{font-size:.6rem;color:var(--muted);margin-bottom:3px;}
+  .gnome-action-slots{display:flex;gap:4px;width:100%;}
+  .gnome-action-slot{height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);flex:1 1 0;}
+  .gnome-action-slot.filled{background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(235,243,255,.78));border-color:rgba(255,255,255,.82);box-shadow:0 0 8px rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,.38);}
+  .gnome-emoji-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:1.05rem;height:1.05rem;flex:0 0 auto;}
   .gnome-emoji{font-size:1rem;line-height:1;}
-  .gnome-name-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .gnome-card-body{max-height:180px;opacity:1;overflow:hidden;transition:max-height .18s ease, opacity .18s ease, margin-top .18s ease;margin-top:6px;}
+  .gnome-status-stack{position:absolute;right:-0.28rem;bottom:-0.28rem;display:flex;flex-direction:column;gap:1px;pointer-events:none;}
+  .gnome-status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:.58rem;height:.58rem;padding:0 .06rem;border-radius:999px;background:rgba(10,32,64,.96);border:1px solid rgba(255,255,255,.16);font-size:.42rem;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.45);}
+  .gnome-status-badge.hidden{color:#d6dde8;}
+  .gnome-status-badge.sticky{color:#f59e0b;}
+  .gnome-name-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;line-height:1.05;}
+  .gnome-card-body{max-height:220px;opacity:1;overflow:hidden;transition:max-height .18s ease, opacity .18s ease, margin-top .18s ease;margin-top:6px;}
   .gnome-card:not(.active) .gnome-card-body{max-height:0;opacity:0;margin-top:0;pointer-events:none;}
   .gnome-card:not(.active):hover .gnome-card-body{max-height:180px;opacity:1;margin-top:6px;pointer-events:auto;}
   .gnome-dot{width:13px;height:13px;border-radius:50%;}
@@ -997,7 +1009,7 @@
 
 </head>
 <body>
-<!-- GPT build: v018 -->
+<!-- GPT build: v059 -->
 <div id="screen-setup" class="show">
   <div class="setup-card">
     <h2>🎩 Gnome Invasion</h2>
@@ -1005,14 +1017,14 @@
     <div style="margin:10px 0;">
       <div class="section-title">Players</div>
       <div class="player-select">
-        <button class="player-btn" onclick="selectPlayers(1)">1</button>
-        <button class="player-btn selected" onclick="selectPlayers(2)">2</button>
-        <button class="player-btn" onclick="selectPlayers(3)">3</button>
-        <button class="player-btn" onclick="selectPlayers(4)">4</button>
+        <button class="player-btn" data-command="selectPlayers" data-command-arg="1">1</button>
+        <button class="player-btn selected" data-command="selectPlayers" data-command-arg="2">2</button>
+        <button class="player-btn" data-command="selectPlayers" data-command-arg="3">3</button>
+        <button class="player-btn" data-command="selectPlayers" data-command-arg="4">4</button>
       </div>
     </div>
     <div id="gnome-names" style="margin:10px 0;"></div>
-    <button class="start-btn" onclick="startGame()">Start Invasion! 🧦</button>
+    <button class="start-btn" data-command="startGame">Start Invasion! 🧦</button>
   </div>
 </div>
 
@@ -1020,7 +1032,7 @@
   <div class="setup-card">
     <h2 id="end-title">Game Over</h2>
     <p id="end-message"></p>
-    <button class="start-btn" onclick="resetGame()">Play Again</button>
+    <button class="start-btn" data-command="resetGame">Play Again</button>
   </div>
 </div>
 
@@ -1053,7 +1065,7 @@
     <div id="log-area" class="collapsed">
       <div id="log-header">
         <span class="section-title">Log</span>
-        <button id="log-toggle" type="button" onclick="toggleLogCollapsed()">Expand</button>
+        <button id="log-toggle" type="button" data-command="toggleLogCollapsed">Expand</button>
       </div>
       <div id="log-latest"></div>
       <div id="log"></div>
@@ -1070,20 +1082,20 @@
         <div id="actions">
           <h3>Actions (<span id="actions-remaining">2</span> left)</h3>
           <div class="action-btn-grid" id="primary-action-grid">
-            <button class="action-btn" id="btn-move" onclick="selectAction('move')">🚶 Move</button>
-            <button class="action-btn" id="btn-scurry" onclick="selectAction('scurry')">💨 Scurry</button>
-            <button class="action-btn" id="btn-pickup" onclick="pickupInCurrentRoom()">🤏 Pick Up</button>
-            <button class="action-btn" id="btn-kick" onclick="doKick()">👟 Kick</button>
-            <button class="action-btn" id="btn-hide" onclick="doHide()">🫣 Hide</button>
-            <button class="action-btn" id="btn-vent" onclick="doVent()" style="display:none;background:#1a3a4a;border-color:#4dd0e1;">♨️ Vent</button>
-            <button class="action-btn" id="btn-shroom-confirm" onclick="shroomConfirm()" style="display:none;background:#2a1a4a;border-color:#a855f7;">🍄 Confirm</button>
-            <button class="action-btn" id="btn-deposit" onclick="depositUndies()" style="display:none;">🧺 Deposit</button>
-            <button class="action-btn" id="btn-weaver" onclick="openWeaver()" style="display:none;">🧌 Weaver</button>
-            <button class="action-btn" id="btn-hamper" onclick="hamperInteract()" style="display:none;">🧺 Hamper</button>
-            <button class="action-btn" id="btn-win-house" onclick="winHouse()" style="display:none;">🏁 Escape</button>
+            <button class="action-btn" id="btn-move" data-command="selectAction" data-command-arg="move">🚶 Move</button>
+            <button class="action-btn" id="btn-scurry" data-command="selectAction" data-command-arg="scurry">💨 Scurry</button>
+            <button class="action-btn" id="btn-pickup" data-command="pickupInCurrentRoom">🤏 Pick Up</button>
+            <button class="action-btn" id="btn-kick" data-command="doKick">👟 Kick</button>
+            <button class="action-btn" id="btn-hide" data-command="doHide">🫣 Hide</button>
+            <button class="action-btn" id="btn-vent" data-command="doVent" style="display:none;background:#1a3a4a;border-color:#4dd0e1;">♨️ Vent</button>
+            <button class="action-btn" id="btn-shroom-confirm" data-command="shroomConfirm" style="display:none;background:#2a1a4a;border-color:#a855f7;">🍄 Confirm</button>
+            <button class="action-btn" id="btn-deposit" data-command="depositUndies" style="display:none;">🧺 Deposit</button>
+            <button class="action-btn" id="btn-weaver" data-command="openWeaver" style="display:none;">🧌 Weaver</button>
+            <button class="action-btn" id="btn-hamper" data-command="hamperInteract" style="display:none;">🧺 Hamper</button>
+            <button class="action-btn" id="btn-win-house" data-command="winHouse" style="display:none;">🏁 Escape</button>
           </div>
           <hr class="action-divider">
-          <button class="action-btn end-turn" onclick="endGnomeTurn()">⏭ End Turn</button>
+          <button class="action-btn end-turn" id="btn-end" data-command="endGnomeTurn">⏭ End Turn</button>
         </div>
       </div>
 
@@ -1121,7 +1133,7 @@
 
 <div id="card-overlay">
   <div id="card-mat">
-    <div class="game-card" id="game-card-inner" onclick="dismissCard()">
+    <div class="game-card" id="game-card-inner" data-command="dismissCard">
       <div class="card-face">
         <!-- Main body -->
         <div class="card-body">
@@ -1133,7 +1145,7 @@
         </div>
         <!-- Footer button -->
         <div class="card-footer">
-          <button class="card-ok" onclick="event.stopPropagation();dismissCard()">Got it ✦</button>
+          <button class="card-ok" data-command="dismissCard" data-stop-propagation="true">Got it ✦</button>
         </div>
       </div>
     </div>
@@ -1275,23 +1287,23 @@ const ROOM_DEFS = [
 ];
 
 const GOODIES_DEFS = [
-  {id:1,name:'Shroom',      emoji:'🍄', desc:'Rotate a room tile 90°.'},
+  {id:1,name:'Shroom',      emoji:'🍄', desc:'Rotate a room 90°.'},
   {id:2,name:'Coffee Bean', emoji:'☕', desc:'+2 Actions this turn.'},
-  {id:3,name:'Dynamite',    emoji:'💥', desc:'Add a door to an adjacent wall.'},
-  {id:4,name:'Pipe',        emoji:'🪈', desc:'Reduce Trouble by 2.'},
+  {id:3,name:'Dynamite',    emoji:'💥', desc:'Add a Door.'},
+  {id:4,name:'Pipe',        emoji:'🪈', desc:'💢 -2 Trouble.'},
   {id:5,name:'Mouse Heart', emoji:'🐭', desc:'Revive a KO\'d Gnome.'},
-  {id:6,name:'Mop',         emoji:'🧹', desc:'Remove Sticky from this Room.'},
-  {id:7,name:'Nails',       emoji:'🔩', desc:'Remove Creaky from this Room.'},
+  {id:6,name:'Mop',         emoji:'🧹', desc:'Remove Sticky from this room.'},
+  {id:7,name:'Nails',       emoji:'🔩', desc:'Remove Creaky from this room.'},
 ];
 
 const HATS_DEFS = [
-  {id:1,name:'Red Cap',emoji:'🔺',desc:'Action: Scurry (move 2 rooms).',default:true},
+  {id:1,name:'Red Cap',emoji:'🔺',desc:'💨 Scurry 2 rooms.',default:true},
   {id:2,name:'Top Hat',emoji:'🎩',desc:'+2 Satchel slots.',satchelBonus:2},
   {id:3,name:'Fedora',emoji:'🪖',desc:'+2 Actions per turn.',actionBonus:2},
-  {id:4,name:'Party Hat',emoji:'🎉',desc:'Action: draw an Item.'},
-  {id:5,name:'Spiked Helm',emoji:'⛑️',desc:'Kicked into Patrol removes it.'},
-  {id:7,name:'Kid Hat',emoji:'👒',desc:'Invisible to Dog and Cat.'},
-  {id:8,name:'Dad Hat',emoji:'🔺',desc:'Carry Hamper in Satchel.'},
+  {id:4,name:'Party Hat',emoji:'🎉',desc:'Draw an Item.'},
+  {id:5,name:'Spiked Helm',emoji:'⛑️',desc:'Kick into Patrol to remove it.'},
+  {id:7,name:'Kid Hat',emoji:'👒',desc:'Invisible to Dog.'},
+  {id:8,name:'Dad Hat',emoji:'🔺',desc:'Carry the Hamper in your Satchel.'},
 ];
 
 const ROOM_DEF_BY_ID = Object.fromEntries(ROOM_DEFS.filter(Boolean).map(def => [def.id, def]));
@@ -1425,6 +1437,72 @@ function deferDocumentOneShotClick(handler, delay = 10) {
   setTimeout(() => document.addEventListener('click', handler, { once: true }), delay);
 }
 
+function parseCommandArg(raw) {
+  if (raw == null || raw === '') return undefined;
+  if (/^[\[{]/.test(raw)) {
+    try { return JSON.parse(raw); } catch (_err) {}
+  }
+  if (/^-?\d+$/.test(raw)) return Number(raw);
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  return raw;
+}
+
+function setButtonCommand(target, commandName, arg = undefined) {
+  const btn = typeof target === 'string' ? (el(target) || (target === 'btn-end' ? document.querySelector('.action-btn.end-turn') : null)) : target;
+  if (!btn) return null;
+  if (commandName) btn.dataset.command = commandName;
+  else delete btn.dataset.command;
+  if (arg === undefined) delete btn.dataset.commandArg;
+  else btn.dataset.commandArg = String(arg);
+  return btn;
+}
+
+function updateActionControl(target, { visible = true, disabled = false, label = null, icon = null, active = false, title = '', commandName, commandArg } = {}) {
+  const btn = typeof target === 'string' ? (el(target) || (target === 'btn-end' ? document.querySelector('.action-btn.end-turn') : null)) : target;
+  if (!btn) return null;
+  btn.style.display = visible ? 'block' : 'none';
+  btn.disabled = !!disabled;
+  btn.classList.toggle('active-action', !!active);
+  btn.classList.toggle('ready', target === 'btn-end' && !disabled && visible);
+  btn.title = title || '';
+  if (label != null || icon != null) setActionButtonContent(btn, label ?? btn.dataset.actionLabel ?? btn.textContent.trim(), icon);
+  if (commandName !== undefined) setButtonCommand(btn, commandName, commandArg);
+  return btn;
+}
+
+function clearInteractionModes({ log = false, render = false, clearScurry = false } = {}) {
+  let changed = false;
+  if (clearScurry && scurryState) { scurryState = null; changed = true; }
+  if (G.selectedAction) { G.selectedAction = null; changed = true; }
+  if (G.kickMode) { G.kickMode = null; changed = true; }
+  if (G.ventMode) { G.ventMode = false; changed = true; }
+  if (G.dynamiteMode) { G.dynamiteMode = false; changed = true; }
+  if (G.shroomMode) { G.shroomMode = false; changed = true; }
+  if (G.shroomPreview) { G.shroomPreview = null; changed = true; }
+  if (changed && log) addLog(log, 'system');
+  if (changed && render) renderAll();
+  return changed;
+}
+
+function initCommandBindings(root = document) {
+  root.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-command]');
+    if (!trigger || !root.contains(trigger)) return;
+    if (trigger.disabled) return;
+    if (trigger.dataset.stopPropagation === 'true') event.stopPropagation();
+    const commandName = trigger.dataset.command;
+    const command = UI_COMMANDS[commandName];
+    if (typeof command !== 'function') {
+      console.warn('Unknown UI command', commandName, trigger);
+      return;
+    }
+    const arg = parseCommandArg(trigger.dataset.commandArg);
+    command(trigger, arg, event);
+  });
+}
+
+
 const ACTION_BUTTON_META = {
   'btn-move': { icon: '🚶', label: 'Move' },
   'btn-scurry': { icon: '💨', label: 'Scurry' },
@@ -1439,6 +1517,433 @@ const ACTION_BUTTON_META = {
   'btn-win-house': { icon: '🏁', label: 'Escape' },
   'btn-end': { icon: '⏭', label: 'End Turn' },
 };
+
+const UI_COMMANDS = Object.freeze({
+  selectPlayers: (_node, value) => selectPlayers(Number(value)),
+  startGame: () => startGame(),
+  resetGame: () => resetGame(),
+  toggleLogCollapsed: () => toggleLogCollapsed(),
+  selectAction: (_node, value) => executeGameAction(value),
+  pickupInCurrentRoom: () => executeGameAction('pickup'),
+  doKick: () => executeGameAction('kick'),
+  cancelKick: () => cancelPendingBoardAction('kick'),
+  doHide: () => executeGameAction('hide'),
+  doVent: () => executeGameAction('vent'),
+  cancelVent: () => { G.ventMode = false; renderAll(); },
+  shroomConfirm: () => executeGameAction('shroomConfirm'),
+  depositUndies: () => executeGameAction('deposit'),
+  openWeaver: () => executeGameAction('weaver'),
+  hamperInteract: () => executeGameAction('hamper'),
+  winHouse: () => executeGameAction('winHouse'),
+  endGnomeTurn: () => executeGameAction('endTurn'),
+  dismissCard: () => dismissCard(),
+  useGoodieFromSlot: (_node, value) => executeGameAction('useGoodie', { slotIdx: Number(value) }),
+  kickTarget: (_node, value) => executeGameAction('kickTarget', value),
+  ventTarget: (_node, value) => executeGameAction('ventTarget', value),
+  shroomRotateTarget: (_node, value) => executeGameAction('shroomRotateTarget', value),
+  dynamiteBlast: (_node, value) => executeGameAction('dynamiteBlast', value),
+});
+
+
+function getActiveBoardInteractionId() {
+  if (G.kickMode) return 'kickTarget';
+  if (G.ventMode) return 'ventTarget';
+  if (G.dynamiteMode) return 'dynamiteBlast';
+  if (G.shroomMode) return 'shroomRotateTarget';
+  if (G.selectedAction === 'move' || G.selectedAction === 'scurry') return G.selectedAction;
+  return null;
+}
+
+function rotateShroomTarget(r, c) {
+  const tile = G.grid[r]?.[c];
+  if (!tile) return false;
+  const shroomTargets = getShroomTargets();
+  const isTarget = shroomTargets.some(([tr, tc]) => tr === r && tc === c);
+  if (!isTarget) return false;
+  const curRot = (G.shroomPreview?.r === r && G.shroomPreview?.c === c)
+    ? G.shroomPreview.rotation
+    : (tile.rotationOffset || 0);
+  G.shroomPreview = { r, c, rotation: (curRot + 1) % 4 };
+  renderAll();
+  return true;
+}
+
+function handleMoveLikeRoomSelection(actionId, r, c, tile) {
+  const gnome = G.gnomes[G.currentGnomeIdx];
+  if (!gnome || gnome.ko) return false;
+  if (gnome.stickyBlocked) {
+    addLog(`🫟 ${gnome.name} is stuck — cannot move this turn!`, 'bad');
+    return true;
+  }
+  const targets = getConnectedRooms(gnome.row, gnome.col);
+  const isTarget = targets.some(([tr, tc]) => tr === r && tc === c);
+  if (!isTarget) return false;
+  return executeGameAction(actionId === 'scurry' ? 'scurryMoveToRoom' : 'moveToRoom', { r, c });
+}
+
+function resolveActiveBoardRoomAction(r, c, tile) {
+  const actionId = getActiveBoardInteractionId();
+  if (!actionId) return false;
+  switch (actionId) {
+    case 'move':
+    case 'scurry':
+      return handleMoveLikeRoomSelection(actionId, r, c, tile);
+    case 'kickTarget': {
+      const isTarget = G.kickMode?.destinations?.some(([dr, dc]) => dr === r && dc === c);
+      if (!isTarget) return false;
+      executeGameAction('kickTarget', { r, c });
+      return true;
+    }
+    case 'ventTarget': {
+      const gnome = G.gnomes[G.currentGnomeIdx];
+      const isTarget = !!tile?.vent && !!gnome && !(gnome.row === r && gnome.col === c);
+      if (!isTarget) return false;
+      executeGameAction('ventTarget', { r, c });
+      return true;
+    }
+    case 'shroomRotateTarget':
+      return executeGameAction('shroomRotateTarget', { r, c });
+    default:
+      return false;
+  }
+}
+
+function resolveActiveRevealAction(r, c, fromDir, options = {}) {
+  const actionId = getActiveBoardInteractionId();
+  const implicit = !!options.implicit;
+  if (actionId !== 'move' && !implicit) return false;
+  return executeGameAction('revealRoom', { r, c, fromDir, implicit });
+}
+
+function isMoveIntentArmed(requiredAction, intent = {}) {
+  return G.selectedAction === requiredAction || !!intent?.implicit;
+}
+
+function getRevealCursorText(addsTrouble = false) {
+  return addsTrouble ? '🚪 Add Room, 💢 +1 Trouble' : '🚪 Add Room';
+}
+
+function stripLeadingIconText(label = '') {
+  return String(label).replace(/^[^\p{L}\p{N}]+/u, '').trim();
+}
+
+function getKickTargetText(target) {
+  return stripLeadingIconText(target?.label || target?.name || target || 'Item');
+}
+
+const UI_TEXT = Object.freeze({
+  action: Object.freeze({
+    move: '🚶 Move',
+    moveHere: '🚶 Move Here',
+    scurry: '💨 Scurry',
+    scurryHere: '💨 Scurry Here',
+    pickup: '🤏 Pick Up',
+    kick: '👟 Kick',
+    hide: '🫣 Hide',
+    vent: '♨️ Vent',
+    ventHere: '♨️ Vent Here',
+    deposit: '🧺 Deposit',
+    weaver: '🧌 Weaver',
+    hamper: '🧺 Hamper',
+    drop: '📤 Drop',
+    addDoor: '💥 Add Door',
+    rotate90: '🍄 Rotate 90°',
+    rotateAgainOrConfirm: '🍄 Rotate Again or Confirm',
+  }),
+  status: Object.freeze({
+    sticky: '🫟 Sticky — Can\'t move this turn.',
+    creaky: '📢 Creaky — 💢 +1 when entering with Undies',
+  }),
+  reveal: getRevealCursorText,
+  kickHere(target) {
+    return `👟 Kick ${getKickTargetText(target)} Here`;
+  },
+  kickChooseRoom(target) {
+    return `👟 Choose a room for ${getKickTargetText(target)}.`;
+  },
+});
+
+function createActionContext(intent = {}) {
+  const actorIdx = intent.actorIdx ?? G.currentGnomeIdx;
+  const gnome = actorIdx == null ? null : (G.gnomes?.[actorIdx] || null);
+  const tile = gnome ? (G.grid[gnome.row]?.[gnome.col] || null) : null;
+  return { intent, actorIdx, gnome, tile };
+}
+
+function validateGnomeTurnActionContext(ctx, { requireActions = true } = {}) {
+  if (G.phase !== 'gnome') return 'Not in gnome phase.';
+  if (!ctx.gnome || ctx.gnome.ko) return 'That gnome cannot act.';
+  if (requireActions && G.actionsLeft <= 0) return 'No actions left.';
+  return '';
+}
+
+function restoreGameState(snapshot, { render = true } = {}) {
+  G = snapshotStateForTests(snapshot);
+  if (render) renderAll();
+  return G;
+}
+
+function createGameActionIntent(actionId, payload = undefined) {
+  const action = GAME_ACTIONS[actionId];
+  if (!action) return null;
+  return action.createIntent ? action.createIntent(payload) : { actionId, payload };
+}
+
+function validateGameActionIntent(intent) {
+  const action = intent ? GAME_ACTIONS[intent.actionId] : null;
+  if (!action) return { ok: false, reason: `Unknown action: ${intent?.actionId || 'unknown'}` };
+  if (!action.validate) return { ok: true };
+  const result = action.validate(intent);
+  if (result === true || result == null) return { ok: true };
+  if (typeof result === 'string') return { ok: false, reason: result };
+  return result;
+}
+
+function performGameActionIntent(intent) {
+  const action = intent ? GAME_ACTIONS[intent.actionId] : null;
+  if (!action || typeof action.apply !== 'function') {
+    console.warn('Unknown game action intent', intent);
+    return false;
+  }
+  if (action.transactional === false) {
+    const result = action.apply(intent);
+    return result === undefined ? true : result;
+  }
+  const snapshot = snapshotStateForTests();
+  try {
+    const result = action.apply(intent);
+    return result === undefined ? true : result;
+  } catch (err) {
+    console.error(`Action failed: ${intent.actionId}`, err);
+    restoreGameState(snapshot);
+    addLog(`⚠️ ${intent.actionId} failed. State restored.`, 'bad');
+    return false;
+  }
+}
+
+const GAME_ACTIONS = Object.freeze({
+  move: {
+    transactional: false,
+    createIntent: () => ({ actionId: 'move' }),
+    apply: () => selectAction('move'),
+  },
+  scurry: {
+    transactional: false,
+    createIntent: () => ({ actionId: 'scurry' }),
+    apply: () => selectAction('scurry'),
+  },
+  moveToRoom: {
+    createIntent: payload => ({ actionId: 'moveToRoom', actorIdx: G.currentGnomeIdx, target: { r: Number(payload?.r), c: Number(payload?.c) }, implicit: !!payload?.implicit }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (!isMoveIntentArmed('move', intent)) return 'Move is not armed.';
+      if (ctx.gnome.stickyBlocked) return `🫟 ${ctx.gnome.name} is stuck — cannot move this turn!`;
+      const targets = getConnectedRooms(ctx.gnome.row, ctx.gnome.col);
+      if (!targets.some(([r, c]) => r === intent.target.r && c === intent.target.c)) return 'That room is not a legal move target.';
+      return { ok: true };
+    },
+    apply: intent => {
+      const gnome = G.gnomes[intent.actorIdx];
+      doMove(gnome, intent.target.r, intent.target.c);
+      G.selectedAction = null;
+      renderAll();
+      return true;
+    },
+  },
+  scurryMoveToRoom: {
+    createIntent: payload => ({ actionId: 'scurryMoveToRoom', actorIdx: G.currentGnomeIdx, target: { r: Number(payload?.r), c: Number(payload?.c) } }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (G.selectedAction !== 'scurry') return 'Scurry is not armed.';
+      if (G.messy) return `🏚️ Messy House! ${ctx.gnome.name} cannot Scurry.`;
+      if (ctx.gnome.stickyBlocked) return `🫟 ${ctx.gnome.name} is stuck — cannot move this turn!`;
+      const targets = getConnectedRooms(ctx.gnome.row, ctx.gnome.col);
+      if (!targets.some(([r, c]) => r === intent.target.r && c === intent.target.c)) return 'That room is not a legal scurry target.';
+      return { ok: true };
+    },
+    apply: intent => {
+      const gnome = G.gnomes[intent.actorIdx];
+      doScurryStep(gnome, intent.target.r, intent.target.c);
+      return true;
+    },
+  },
+  revealRoom: {
+    createIntent: payload => ({ actionId: 'revealRoom', actorIdx: G.currentGnomeIdx, target: { r: Number(payload?.r), c: Number(payload?.c) }, fromDir: payload?.fromDir, implicit: !!payload?.implicit }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (!isMoveIntentArmed('move', intent)) return 'Move is not armed.';
+      if (ctx.gnome.stickyBlocked) return `🫟 ${ctx.gnome.name} is stuck — cannot move this turn!`;
+      if (G.roomDeck.length === 0) return 'No rooms left to reveal!';
+      const revealable = getRevealableFrom(ctx.gnome.row, ctx.gnome.col);
+      if (!revealable.some(([r, c]) => r === intent.target.r && c === intent.target.c)) return 'That reveal is not legal from the current room.';
+      return { ok: true };
+    },
+    apply: intent => {
+      const gnome = G.gnomes[intent.actorIdx];
+      doReveal(gnome, intent.target.r, intent.target.c, intent.fromDir);
+      return true;
+    },
+  },
+  pickup: {
+    createIntent: () => ({ actionId: 'pickup', actorIdx: G.currentGnomeIdx }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      const free = findFirstFreeSatchelSlot(ctx.gnome);
+      if (free === -1) return `${ctx.gnome.name}'s satchel is full!`;
+      const tileHasItems = !!(ctx.tile?.undies > 0 || ctx.tile?.goodieIds?.length > 0 || ctx.tile?.hatIds?.length > 0);
+      if (!tileHasItems) return 'Nothing to pick up here!';
+      return { ok: true };
+    },
+    apply: () => pickupInCurrentRoom(),
+  },
+  kick: {
+    createIntent: () => ({ actionId: 'kick', actorIdx: G.currentGnomeIdx }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (!getKickTargetsForGnome(ctx.gnome).length) return 'Nothing to kick here!';
+      if (!getKickDestinationsForGnome(ctx.gnome).length) return 'No connected rooms to kick into!';
+      return { ok: true };
+    },
+    apply: () => doKick(),
+  },
+  kickTarget: {
+    createIntent: payload => ({ actionId: 'kickTarget', actorIdx: G.currentGnomeIdx, target: { r: Number(payload?.r), c: Number(payload?.c) } }),
+    validate: intent => {
+      if (!G.kickMode) return 'Kick is not armed.';
+      const isTarget = G.kickMode.destinations?.some(([r, c]) => r === intent.target.r && c === intent.target.c);
+      return isTarget ? { ok: true } : 'That room is not a legal kick destination.';
+    },
+    apply: intent => executeKick(intent.target.r, intent.target.c),
+  },
+  hide: {
+    createIntent: () => ({ actionId: 'hide', actorIdx: G.currentGnomeIdx }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (G.lightsOn) return '💡 Lights On! Cannot hide this turn.';
+      if (!isInHidingRoom(ctx.gnome)) return 'No hiding spot here!';
+      return { ok: true };
+    },
+    apply: () => doHide(),
+  },
+  vent: {
+    createIntent: () => ({ actionId: 'vent', actorIdx: G.currentGnomeIdx }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (!getKickTargetsForGnome(ctx.gnome).length) return 'Nothing to kick here!';
+      if (!getKickDestinationsForGnome(ctx.gnome).length) return 'No connected rooms to kick into!';
+      return { ok: true };
+    },
+    apply: () => doVent(),
+  },
+  ventTarget: {
+    createIntent: payload => ({ actionId: 'ventTarget', actorIdx: G.currentGnomeIdx, target: { r: Number(payload?.r), c: Number(payload?.c) } }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      if (!G.ventMode) return 'Vent is not armed.';
+      if (!ctx.gnome) return 'No active gnome.';
+      const isValid = getVentRooms().some(([r, c]) => r === intent.target.r && c === intent.target.c && !(ctx.gnome.row === r && ctx.gnome.col === c));
+      return isValid ? { ok: true } : 'That vent destination is not legal.';
+    },
+    apply: intent => executeVent(intent.target.r, intent.target.c),
+  },
+  shroomConfirm: {
+    createIntent: () => ({ actionId: 'shroomConfirm', actorIdx: G.currentGnomeIdx }),
+    validate: () => G.shroomPreview ? { ok: true } : 'No rotation selected — click a room first.',
+    apply: () => shroomConfirm(),
+  },
+  shroomRotateTarget: {
+    transactional: false,
+    createIntent: payload => ({ actionId: 'shroomRotateTarget', target: { r: Number(payload?.r), c: Number(payload?.c) } }),
+    validate: intent => {
+      const tile = G.grid[intent.target.r]?.[intent.target.c];
+      if (!tile) return 'No room there to rotate.';
+      const isTarget = getShroomTargets().some(([r, c]) => r === intent.target.r && c === intent.target.c);
+      return isTarget ? { ok: true } : 'That room cannot be rotated by Shroom.';
+    },
+    apply: intent => rotateShroomTarget(intent.target.r, intent.target.c),
+  },
+  deposit: {
+    createIntent: () => ({ actionId: 'deposit', actorIdx: G.currentGnomeIdx }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx, { requireActions: false });
+      if (baseError) return baseError;
+      const undies = ctx.gnome.satchel.some(s => s?.type === 'undie');
+      if (!undies) return 'No undies to deposit!';
+      const depositable = !!(ctx.tile?.roomId === 1 || ctx.tile?.chute);
+      if (!depositable) return 'Must be in the Laundry Room or a chute room to deposit.';
+      return { ok: true };
+    },
+    apply: () => depositUndies(),
+  },
+  weaver: {
+    createIntent: () => ({ actionId: 'weaver', actorIdx: G.currentGnomeIdx }),
+    apply: () => openWeaver(),
+  },
+  hamper: {
+    createIntent: () => ({ actionId: 'hamper', actorIdx: G.currentGnomeIdx }),
+    apply: () => hamperInteract(),
+  },
+  winHouse: {
+    createIntent: () => ({ actionId: 'winHouse' }),
+    apply: () => winHouse(),
+  },
+  endTurn: {
+    createIntent: () => ({ actionId: 'endTurn', actorIdx: G.currentGnomeIdx }),
+    apply: () => endGnomeTurn(),
+  },
+  useGoodie: {
+    createIntent: payload => ({ actionId: 'useGoodie', actorIdx: G.currentGnomeIdx, slotIdx: Number(payload?.slotIdx) }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      const item = ctx.gnome.satchel[intent.slotIdx];
+      if (!item || item.type !== 'goodie') return 'No goodie in that slot.';
+      if (!isGoodieUsable(ctx.gnome, item.id)) return "That goodie can't be used here.";
+      return { ok: true };
+    },
+    apply: intent => useGoodieFromSlot(intent.slotIdx),
+  },
+  dynamiteBlast: {
+    createIntent: payload => ({ actionId: 'dynamiteBlast', actorIdx: G.currentGnomeIdx, payload: { dir: payload?.dir, nr: Number(payload?.nr), nc: Number(payload?.nc), undiscovered: !!payload?.undiscovered } }),
+    validate: intent => {
+      if (!G.dynamiteMode) return 'Dynamite is not armed.';
+      const blastable = getBlastableWalls();
+      const match = blastable.some(w => w.dir === intent.payload.dir && w.nr === intent.payload.nr && w.nc === intent.payload.nc && !!w.undiscovered === !!intent.payload.undiscovered);
+      return match ? { ok: true } : 'That wall is not a legal blast target.';
+    },
+    apply: intent => blastWall(intent.payload.dir, intent.payload.nr, intent.payload.nc, intent.payload.undiscovered),
+  },
+});
+
+function executeGameAction(actionId, payload = undefined) {
+  const intent = createGameActionIntent(actionId, payload);
+  if (!intent) {
+    console.warn('Unknown game action', actionId, payload);
+    return false;
+  }
+  const validation = validateGameActionIntent(intent);
+  if (!validation.ok) {
+    if (validation.reason) addLog(validation.reason, 'bad');
+    return false;
+  }
+  return performGameActionIntent(intent);
+}
 
 function applyActionButtonLabels() {
   Object.entries(ACTION_BUTTON_META).forEach(([id, meta]) => {
@@ -1490,10 +1995,10 @@ const TROUBLE_CARDS = [
 
 const EVENT_CARDS = [
   // Good events
-  {id:1, name:'Vent',             emoji:'♨️', type:'good',    effect:'vent',         desc:'A Vent is added to this room. Use Scurry to teleport to any other Vent room.'},
+  {id:1, name:'Vent',             emoji:'♨️', type:'good',    effect:'vent',         desc:'A Vent is added to this room. Move to any other Vent room.'},
   {id:2, name:'Goodies',          emoji:'🎁', type:'good',    effect:'goodie',       desc:'A Goodie token is added to this room.'},
-  {id:3, name:'Laundry Chute',    emoji:'🕳️', type:'good',    effect:'chute',        desc:'A Laundry Chute is added to this room. Drop Undies here to send them to the Laundry Room.'},
-  {id:4, name:'The Weaver',       emoji:'🧌', type:'good',    effect:'weaver',       desc:'The Weaver appears here. Trade Undies for Goodies or Silly Hats.'},
+  {id:3, name:'Laundry Chute',    emoji:'🕳️', type:'good',    effect:'chute',        desc:'A Laundry Chute is added to this room. 🧺 Deposit here.'},
+  {id:4, name:'The Weaver',       emoji:'🧌', type:'good',    effect:'weaver',       desc:'🧌 Weaver appears here. Trade Undies for Goodies or Silly Hats.'},
   {id:5, name:'Stray Sock',       emoji:'🧦', type:'good',    effect:'undie',        desc:'A stray Undie appears in this room.'},
   {id:6, name:'Hamper Warp',      emoji:'🧺', type:'good',    effect:'hamper_warp',  desc:'The Hamper teleports to this room!'},
   {id:7, name:'Explosion',        emoji:'💥', type:'good',    effect:'explosion',    desc:'All 4 walls of this room become Doors!'},
@@ -1501,8 +2006,8 @@ const EVENT_CARDS = [
   {id:9, name:'Lights Off',       emoji:'🌑', type:'good',    effect:'lights_off',   desc:'All Gnomes are hidden this turn.'},
   {id:10,name:'Cookie Waft',      emoji:'🍪', type:'trouble', effect:'cookie_waft',  desc:'All Patrols warp to the Kitchen. If Kitchen is not in play, +1 Trouble instead.'},
   // Trouble events
-  {id:11,name:'Creaky Floor',     emoji:'📢', type:'trouble', effect:'creaky',       desc:'+1 Trouble when entering this room while carrying Undies.'},
-  {id:12,name:'Sticky Floor',     emoji:'🫟', type:'trouble', effect:'sticky',       desc:'This floor is sticky! Requires 2 Moves or 1 Scurry to exit.'},
+  {id:11,name:'Creaky Floor',     emoji:'📢', type:'trouble', effect:'creaky',       desc:'📢 Creaky — 💢 +1 when entering with Undies.'},
+  {id:12,name:'Sticky Floor',     emoji:'🫟', type:'trouble', effect:'sticky',       desc:'🫟 Sticky — Can\'t move this turn.'},
   {id:13,name:'Laundry Avalanche',emoji:'🌊', type:'trouble', effect:'avalanche',    desc:'+1 Trouble. 2 Undies are added to this room.'},
   {id:14,name:'Alarm Clock',      emoji:'⏰', type:'trouble', effect:'alarm',        desc:'Nearest Patrol moves 2 rooms toward this room. If no Patrols, +1 Trouble.'},
   // Patrol events
@@ -1516,6 +2021,19 @@ const EVENT_CARDS = [
 // GAME STATE
 // ─────────────────────────────────────────────
 let G = {};
+
+const GAME_BUILD = Object.freeze({
+  version: 'v059',
+  boardCellSize: 162,
+  boardGap: 4,
+});
+
+function applyBuildMetadata() {
+  document.title = `Gnome Invasion ${GAME_BUILD.version}`;
+  const root = document.documentElement;
+  root.style.setProperty('--board-cell-size', `${GAME_BUILD.boardCellSize}px`);
+  root.style.setProperty('--board-gap', `${GAME_BUILD.boardGap}px`);
+}
 
 const EVENT_QTY = {1:1,2:2,3:1,4:1,5:4,6:2,7:2,8:2,9:2,10:1,11:2,12:1,13:2,14:2,15:1,16:1,17:1,18:1};
 const GRID_SIZE = 11;
@@ -1562,9 +2080,10 @@ function createCoreState({ house = 1, roomDeck, goodiePool, hatPool, gnomes = []
     gnomes,
     hamper:{row:-1, col:-1, items:[]},  // Hamper disabled for now — set row/col to GRID_CENTER to re-enable
     trouble:0, undiesBanked:0, house,
-    phase:'gnome', currentGnomeIdx:0, actionsLeft:2,
+    phase:'gnome', currentGnomeIdx:0, actionsLeft:2, actionCapacity:2,
     tilesRevealed:1,
     patrols:[],
+    _pendingEndPatrolPhase:false,
     selectedAction:null,
     messy:false, hustle:false, lightsOn:false,
     log:[],
@@ -1689,10 +2208,14 @@ function withTempState(tempState, fn) {
 }
 
 const PATROL_EMOJI_BY_TYPE = Object.freeze({ roomba:'🤖', dog:'🐶', kid:'👦', dad:'👨' });
-const ROOM_TOKEN_SLOTS = Object.freeze([
-  [81, 40], [55, 40], [107, 40], [81, 122],
-  [55, 122], [107, 122], [32, 81], [130, 81],
+const ROOM_TOKEN_SLOT_BASE = Object.freeze([
+  [0.5, 0.2345679012], [0.3333333333, 0.2345679012], [0.6666666667, 0.2345679012], [0.5, 0.6666666667],
+  [0.3333333333, 0.6666666667], [0.6666666667, 0.6666666667], [0.2592592593, 0.450617284], [0.7407407407, 0.450617284],
 ]);
+const ROOM_TOKEN_SLOTS = Object.freeze(ROOM_TOKEN_SLOT_BASE.map(([x, y]) => [
+  Math.round(GAME_BUILD.boardCellSize * x),
+  Math.round(GAME_BUILD.boardCellSize * y),
+]));
 
 const STATIC_THEME_SHELLS = Object.freeze([
   ['app', THEME_CLASSES.shell.app],
@@ -1797,10 +2320,22 @@ function getTileDoors(tile, rotationOverride = null) {
   return [...new Set([...rotatedDirs, ...(tile.extraDoors || [])])];
 }
 
-function createBoardOverlay({ className = '', title = '', style = '', onClick = null }) {
-  const overlay = createElement('div', { className: cx(THEME_CLASSES.component.boardOverlay, className) });
+function isDoorDisabled(r, c, dir) {
+  const tile = G.grid[r]?.[c];
+  if (!tile || !tileHasDoor(tile, dir)) return false;
+  const [dr, dc] = DIR_DELTA[dir];
+  const nr = r + dr, nc = c + dc;
+  const neighbor = G.grid[nr]?.[nc];
+  if (!neighbor) return false;
+  return !tilesConnected(tile, neighbor);
+}
+
+function createBoardOverlay({ className = '', title = '', style = '', onClick = null, commandName = '', commandArg = undefined, attrs = {} }) {
+  const overlay = createElement('div', { className: cx(THEME_CLASSES.component.boardOverlay, className), attrs });
   if (title) overlay.title = title;
   if (style) overlay.style.cssText = style;
+  if (commandName) overlay.dataset.command = commandName;
+  if (commandArg !== undefined) overlay.dataset.commandArg = typeof commandArg === 'string' ? commandArg : JSON.stringify(commandArg);
   if (typeof onClick === 'function') overlay.onclick = onClick;
   return overlay;
 }
@@ -1941,13 +2476,15 @@ function startGame() {
   el('screen-setup').classList.remove('show');
   initState(setupPlayerCount, names);
   renderAll();
-  // Scroll board area so the Laundry Room (center of grid) is visible in the middle
+  // Scroll board area so the Laundry Room tile is centered in the visible play area
   requestAnimationFrame(() => {
     const boardArea = el('board-area');
-    const cellSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-cell-size')) + parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap'));
-    const centerPx = G.CENTER * cellSize + cellSize / 2;
-    boardArea.scrollLeft = centerPx - boardArea.clientWidth / 2;
-    boardArea.scrollTop  = centerPx - boardArea.clientHeight / 2;
+    const laundryCell = document.querySelector(`[data-r="${G.CENTER}"][data-c="${G.CENTER}"]`);
+    if (!boardArea || !laundryCell) return;
+    const targetLeft = laundryCell.offsetLeft + (laundryCell.offsetWidth / 2) - (boardArea.clientWidth / 2);
+    const targetTop = laundryCell.offsetTop + (laundryCell.offsetHeight / 2) - (boardArea.clientHeight / 2);
+    boardArea.scrollLeft = targetLeft;
+    boardArea.scrollTop = targetTop;
   });
   addLog('🎮 Game started! House 1 — Collect '+getHouseGoal()+' undies.','system');
   addLog('Gnomes start in the Laundry Room. 🟡 Gold notches = doors.','system');
@@ -2023,7 +2560,10 @@ function primeUiPerformance() {
   warmUiPerformance().catch(() => undefined);
 }
 
-document.addEventListener('DOMContentLoaded', primeUiPerformance, { once: true });
+document.addEventListener('DOMContentLoaded', () => {
+  applyBuildMetadata();
+  primeUiPerformance();
+}, { once: true });
 
 const BOARD_PAN_STATE = {
   active: false,
@@ -2170,8 +2710,7 @@ document.addEventListener('DOMContentLoaded', initBoardPanControls, { once: true
 // ─────────────────────────────────────────────
 function renderAll() {
   // Intentionally keeps current full-render behavior so gameplay timing and UI flow stay unchanged.
-  updateAllPatrolNextDirs();
-  UI_LAYERS.render.full();
+  refreshPatrolIntentState(true);
 }
 
 function renderAllNoBoard() {
@@ -2227,7 +2766,11 @@ function buildTokenNodeForGnome(og, r, c) {
   tokenInner.appendChild(front);
   tokenInner.appendChild(back);
   wrap.appendChild(tokenInner);
-  wrap.onclick = (e) => { e.stopPropagation(); showOccupantPopup(wrap, og, 'gnome', r, c); };
+  wrap.onclick = (e) => {
+    e.stopPropagation();
+    if (G.phase === 'gnome' && og.id === G.currentGnomeIdx) return;
+    showOccupantPopup(wrap, og, 'gnome', r, c);
+  };
   if (wasHidden) wrap.classList.add('is-hidden');
   return wrap;
 }
@@ -2238,14 +2781,18 @@ function buildTokenNodeForKoGnome(og, r, c) {
     title: `${og.name} (KO)`,
     className: [THEME_CLASSES.component.tokenKo],
     style: 'opacity:.4;cursor:pointer;',
-    onClick: (e) => { e.stopPropagation(); showOccupantPopup(e.currentTarget, og, 'gnome', r, c); },
+    onClick: (e) => {
+      e.stopPropagation();
+      if (G.phase === 'gnome' && og.id === G.currentGnomeIdx) return;
+      showOccupantPopup(e.currentTarget, og, 'gnome', r, c);
+    },
   });
 }
 
 function buildTokenNodeForHamper(r, c) {
   return createEmojiToken({
     emoji: '🧺',
-    title: 'Hamper',
+    title: UI_TEXT.action.hamper,
     className: [THEME_CLASSES.component.tokenHamper],
     style: 'cursor:pointer;',
     onClick: (e) => { e.stopPropagation(); showOccupantPopup(e.currentTarget, G.hamper, 'hamper', r, c); },
@@ -2280,8 +2827,8 @@ function distributeRoomOccupants({ gnomsHere, koHere, hamperHere, patrolsHere, r
 
 function renderBoard() {
   const board = el('board');
-  board.style.gridTemplateColumns = `repeat(${G.GRID}, 162px)`;
-  board.style.gridTemplateRows = `repeat(${G.GRID}, 162px)`;
+  board.style.gridTemplateColumns = `repeat(${G.GRID}, ${GAME_BUILD.boardCellSize}px)`;
+  board.style.gridTemplateRows = `repeat(${G.GRID}, ${GAME_BUILD.boardCellSize}px)`;
   BOARD_CELL_INDEX.clear();
 
   const frag = document.createDocumentFragment();
@@ -2315,18 +2862,20 @@ function renderBoard() {
 
         const allDoors = getTileDoors(tile);
         allDoors.forEach(dir => {
-          const doorClick = getDoorClickConfig(r, c, dir);
+          const disabledDoor = isDoorDisabled(r, c, dir);
+          const doorClick = disabledDoor ? null : getDoorClickConfig(r, c, dir);
           const doorTitle = doorClick
             ? (() => {
                 const [dr,dc] = DIR_DELTA[doorClick.dir];
                 const nr = doorClick.fromR + dr, nc = doorClick.fromC + dc;
                 const destTile = G.grid[nr]?.[nc];
+                const addsTrouble = G.tilesRevealed > getFreeTiles();
                 return destTile
-                  ? `Move → ${ROOM_DEFS[destTile.roomId].name}`
-                  : `Reveal new room to the ${doorClick.dir==='N'?'North':doorClick.dir==='S'?'South':doorClick.dir==='E'?'East':'West'}`;
+                  ? (G.selectedAction === 'scurry' ? UI_TEXT.action.scurryHere : UI_TEXT.action.moveHere)
+                  : UI_TEXT.reveal(addsTrouble);
               })()
             : '';
-          cell.appendChild(createElement('div', { className: `door ${dir}`, attrs: doorTitle ? { title: doorTitle } : {} }));
+          cell.appendChild(createElement('div', { className: `door ${dir}${disabledDoor ? ' disabled' : ''}`, attrs: doorTitle ? { title: doorTitle } : {} }));
         });
 
         if (G.shroomMode) {
@@ -2346,14 +2895,11 @@ function renderBoard() {
             });
 
             cell.appendChild(createBoardOverlay({
-              title: isPreview ? `${previewRot*90}° — click to rotate more, or Confirm` : 'Click to rotate 90°',
+              title: isPreview ? '🍄 Rotate Again' : UI_TEXT.action.rotate90,
               style: `position:absolute;inset:0;z-index:15;cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='26' font-size='26'>🔄</text></svg>") 16 16, pointer;`,
-              onClick: (e) => {
-                e.stopPropagation();
-                const curRot = (G.shroomPreview?.r===r && G.shroomPreview?.c===c) ? G.shroomPreview.rotation : (tile.rotationOffset||0);
-                G.shroomPreview = { r, c, rotation: (curRot + 1) % 4 };
-                renderAll();
-              },
+              attrs: { 'data-stop-propagation': 'true' },
+              commandName: 'shroomRotateTarget',
+              commandArg: { r, c },
             }));
           }
         }
@@ -2364,9 +2910,11 @@ function renderBoard() {
             cell.classList.add('kick-dest');
             const em = encodeURIComponent(G.kickMode.target.emoji);
             cell.appendChild(createBoardOverlay({
-              title: `Kick ${G.kickMode.target.label} here`,
+              title: UI_TEXT.kickHere(G.kickMode.target),
               style: `position:absolute;inset:0;z-index:15;cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='26' font-size='26'>${em}</text></svg>") 16 16, pointer;`,
-              onClick: (e) => { e.stopPropagation(); executeKick(r, c); },
+              attrs: { 'data-stop-propagation': 'true' },
+              commandName: 'kickTarget',
+              commandArg: { r, c },
             }));
           }
         }
@@ -2376,9 +2924,11 @@ function renderBoard() {
           if (tile.vent && !gnomeHere) {
             cell.classList.add('vent-dest');
             cell.appendChild(createBoardOverlay({
-              title: `Vent to ${ROOM_DEFS[tile.roomId].name}`,
+              title: UI_TEXT.action.ventHere,
               style: `position:absolute;inset:0;z-index:15;cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='26' font-size='26'>♨️</text></svg>") 16 16, pointer;`,
-              onClick: (e) => { e.stopPropagation(); executeVent(r, c); },
+              attrs: { 'data-stop-propagation': 'true' },
+              commandName: 'ventTarget',
+              commandArg: { r, c },
             }));
           }
         }
@@ -2387,10 +2937,10 @@ function renderBoard() {
           getBlastableWalls().forEach(({dir, nr, nc, undiscovered}) => {
             cell.appendChild(createBoardOverlay({
               className: `blast-wall ${dir}`,
-              title: undiscovered
-                ? `💥 Blast a door ${dir} → (unexplored)`
-                : `💥 Blast a door ${dir} → ${ROOM_DEFS[G.grid[nr][nc].roomId].name}`,
-              onClick: (e) => { e.stopPropagation(); blastWall(dir, nr, nc, undiscovered); },
+              title: UI_TEXT.action.addDoor,
+              attrs: { 'data-stop-propagation': 'true' },
+              commandName: 'dynamiteBlast',
+              commandArg: { dir, nr, nc, undiscovered },
             }));
           });
         }
@@ -2436,7 +2986,7 @@ function renderBoard() {
         if (hamperHere) {
           itemStack.appendChild(createRoomItemNode({
             emoji: '🧺',
-            title: 'Hamper',
+            title: UI_TEXT.action.hamper,
             onClick: (e) => { e.stopPropagation(); showOccupantPopup(e.currentTarget, G.hamper, 'hamper', r, c); },
           }));
         }
@@ -2448,7 +2998,7 @@ function renderBoard() {
           if (tile.roomId === 1) {
             bottomLeft.appendChild(createIconNode({
               emoji: '🧺',
-              title: 'Deposit undies here',
+              title: UI_TEXT.action.deposit,
               style: 'cursor:pointer;filter:none;opacity:1;',
               onClick: (e) => {
                 e.stopPropagation();
@@ -2460,12 +3010,12 @@ function renderBoard() {
                 if (inRoom) {
                   const hasUndies = curGnome.satchel.some(s => s?.type === 'undie');
                   if (hasUndies) {
-                    addPopupBtn(popup, '🧺 Deposit Undies', () => { closeItemPopup(); depositUndies(); });
+                    addPopupBtn(popup, UI_TEXT.action.deposit, () => { closeItemPopup(); depositUndies(); });
                   } else {
                     addPopupBtn(popup, 'No undies to deposit', () => closeItemPopup(), true);
                   }
                 } else {
-                  addPopupBtn(popup, '🧺 Laundry Room drop-off', () => closeItemPopup(), true);
+                  addPopupBtn(popup, UI_TEXT.action.deposit, () => closeItemPopup(), true);
                 }
                 mountPopupNearAnchor(e.currentTarget, popup);
               },
@@ -2474,7 +3024,7 @@ function renderBoard() {
           if (tile.hide) {
             bottomLeft.appendChild(createIconNode({
               emoji: '🪑',
-              title: 'Hiding Spot',
+              title: UI_TEXT.action.hide,
               className: 'room-static-icon hide-chair',
               onClick: (e) => { e.stopPropagation(); showQuirkPopup(e.currentTarget, 'hide', r, c); },
             }));
@@ -2482,21 +3032,21 @@ function renderBoard() {
           if (tile.weaver) {
             bottomLeft.appendChild(createIconNode({
               emoji: '🧌',
-              title: 'The Weaver — trade undies for goodies or hats',
+              title: UI_TEXT.action.weaver,
               onClick: (e) => { e.stopPropagation(); showQuirkPopup(e.currentTarget, 'weaver', r, c); },
             }));
           }
           if (tile.vent) {
             bottomLeft.appendChild(createIconNode({
               emoji: '♨️',
-              title: 'Vent — click to teleport',
+              title: UI_TEXT.action.vent,
               onClick: (e) => { e.stopPropagation(); showQuirkPopup(e.currentTarget, 'vent', r, c); },
             }));
           }
           if (tile.chute) {
             bottomLeft.appendChild(createIconNode({
               emoji: '🕳️',
-              title: 'Laundry Chute — drop undies here to send to Laundry Room',
+              title: UI_TEXT.action.deposit,
               onClick: (e) => { e.stopPropagation(); showQuirkPopup(e.currentTarget, 'chute', r, c); },
             }));
           }
@@ -2504,8 +3054,8 @@ function renderBoard() {
         }
 
         const bottomRightIcons = [];
-        if (tile.sticky) bottomRightIcons.push({ emoji:'🫟', title:'Sticky floor — costs extra move to exit' });
-        if (tile.creaky) bottomRightIcons.push({ emoji:'📢', title:'Creaky floor — +1 Trouble when entering with undies' });
+        if (tile.sticky) bottomRightIcons.push({ emoji:'🫟', title:UI_TEXT.status.sticky });
+        if (tile.creaky) bottomRightIcons.push({ emoji:'📢', title:UI_TEXT.status.creaky });
         if (bottomRightIcons.length) {
           const bottomRight = createCornerNode('br');
           bottomRightIcons.forEach(icon => bottomRight.appendChild(createIconNode(icon)));
@@ -2545,7 +3095,7 @@ function renderBoard() {
           if (inTroubleZone) cell.classList.add('trouble-zone');
           const rData = revealable.find(([rr,cc])=>rr===r&&cc===c);
           cell.onclick = () => handleRevealClick(r, c, rData[2]);
-          cell.title = inTroubleZone ? 'Click to reveal (+1 Trouble!)' : 'Click to reveal new room';
+          cell.title = getRevealCursorText(inTroubleZone);
         }
       }
       rememberBoardCell(r, c, cell);
@@ -2574,8 +3124,21 @@ function renderGnomePanels() {
 
     const header = document.createElement('div');
     header.className = 'gnome-header';
-    header.appendChild(createElement('span', { className: 'gnome-emoji', text: g.emoji || '🧝' }));
-    header.appendChild(createElement('span', { className: 'gnome-name-text', text: g.name }));
+    const emojiWrap = createElement('span', { className: 'gnome-emoji-wrap' });
+    emojiWrap.appendChild(createElement('span', { className: 'gnome-emoji', text: g.emoji || '🧝' }));
+    if (g.hidden || g.stickyBlocked) {
+      const statusStack = createElement('span', { className: 'gnome-status-stack' });
+      if (g.hidden) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge hidden', text: '🫣' }));
+      if (g.stickyBlocked) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge sticky', text: '🫟' }));
+      emojiWrap.appendChild(statusStack);
+    }
+    header.appendChild(emojiWrap);
+    const nameEl = createElement('span', { className: 'gnome-name-text', text: g.name });
+    if ((g.name || '').length > 7) {
+      const fontSize = Math.max(0.62, 0.88 - (((g.name || '').length - 7) * 0.04));
+      nameEl.style.fontSize = `${fontSize}rem`;
+    }
+    header.appendChild(nameEl);
     const hatSlot = document.createElement('div');
     hatSlot.className = 'slot hat-slot hat-slot-inline' + (canManageInventory ? ' clickable' : '');
     hatSlot.title = hat ? `${hat.name}: ${hat.desc}` : 'No hat equipped';
@@ -2585,10 +3148,7 @@ function renderGnomePanels() {
     header.appendChild(hatSlot);
     const headerStatus = document.createElement('div');
     headerStatus.className = 'gnome-header-status';
-    if (isActive) headerStatus.appendChild(createElement('span', { className: 'gnome-name-actions', text: `${G.actionsLeft} Action${G.actionsLeft!==1?'s':''}` }));
     if (g.ko) headerStatus.appendChild(createElement('span', { text: '💀KO', attrs: { style: 'color:#ff6b6b;font-size:.7rem' } }));
-    if (g.hidden) headerStatus.appendChild(createElement('span', { text: '🫣Hid', attrs: { style: 'color:#aaa;font-size:.7rem' } }));
-    if (g.stickyBlocked) headerStatus.appendChild(createElement('span', { text: '🫟Stuck', attrs: { style: 'color:#f59e0b;font-size:.7rem' } }));
     header.appendChild(headerStatus);
     card.appendChild(header);
 
@@ -2625,6 +3185,23 @@ function renderGnomePanels() {
       slotsRow.appendChild(slotEl);
     }
     body.appendChild(slotsRow);
+
+    if (isActive && G.phase === 'gnome') {
+      const actionTrack = document.createElement('div');
+      actionTrack.className = 'gnome-action-track';
+      actionTrack.appendChild(createElement('div', { className: 'gnome-action-label', text: 'Action' }));
+      const slotsWrap = document.createElement('div');
+      slotsWrap.className = 'gnome-action-slots';
+      const capacity = Math.max(1, G.actionCapacity || G.actionsLeft || 0);
+      for (let a = 0; a < capacity; a++) {
+        const slot = document.createElement('div');
+        slot.className = 'gnome-action-slot' + (a < G.actionsLeft ? ' filled' : '');
+        slotsWrap.appendChild(slot);
+      }
+      actionTrack.appendChild(slotsWrap);
+      body.appendChild(actionTrack);
+    }
+
     card.appendChild(body);
     container.appendChild(card);
   });
@@ -2654,7 +3231,7 @@ function showInventoryItemPopup(anchor, gnome, gnomeIdx, itemType, slotIdx) {
         renderAll();
       });
     }
-    addPopupBtn(popup, '📤 Drop to Floor', () => {
+    addPopupBtn(popup, UI_TEXT.action.drop, () => {
       if (G.actionsLeft <= 0) return;
       closeItemPopup();
       gnome.satchel[slotIdx] = null;
@@ -2665,14 +3242,14 @@ function showInventoryItemPopup(anchor, gnome, gnomeIdx, itemType, slotIdx) {
       renderAll();
     }, G.actionsLeft <= 0);
   } else if (itemType === 'undie') {
-    addPopupBtn(popup, tile?.roomId===1 ? '🧦 Deposit (Laundry Room)' : tile?.chute ? '🕳️ Send via Chute' : '📤 Drop to Floor', () => {
+    addPopupBtn(popup, tile?.roomId===1 || tile?.chute ? UI_TEXT.action.deposit : UI_TEXT.action.drop, () => {
       if (G.actionsLeft <= 0) return;
       closeItemPopup();
       gnome.satchel[slotIdx] = null;
       spendAction();
       if (tile?.roomId === 1 || tile?.chute) {
         G.undiesBanked++;
-        addLog(`${gnome.name} ${tile?.chute?'chuted':'deposited'} 🧦! Total: ${G.undiesBanked}/${getHouseGoal()}`, 'good');
+        addLog(`${gnome.name} deposited 🧦! Total: ${G.undiesBanked}/${getHouseGoal()}`, 'good');
         checkGoalMet();
       } else {
         tile.undies++;
@@ -2720,7 +3297,7 @@ function showInventoryItemPopup(anchor, gnome, gnomeIdx, itemType, slotIdx) {
       }
 
       // Drop to floor
-      addPopupBtn(popup, '📤 Drop to Floor', () => {
+      addPopupBtn(popup, UI_TEXT.action.drop, () => {
         closeItemPopup();
         const oldHat = gnome.hat;
         gnome.hat = null;
@@ -2744,7 +3321,7 @@ function showInventoryItemPopup(anchor, gnome, gnomeIdx, itemType, slotIdx) {
         updateActionsForHat();
         renderAll();
       });
-      addPopupBtn(popup, '📤 Drop to Floor', () => {
+      addPopupBtn(popup, UI_TEXT.action.drop, () => {
         closeItemPopup();
         gnome.satchel[slotIdx] = null;
         const dropTile2 = G.grid[gnome.row][gnome.col];
@@ -2791,7 +3368,7 @@ function showRoomItemPopup(anchor, r, c, type, idx) {
         addPopupBtn(popup, '👟 Kick', () => {
           closeItemPopup();
           G.kickMode = { target: { label:'🧦 Undie', emoji:'🧦', type:'undie', ref:tile }, destinations: dests };
-          addLog('👟 Click an adjacent room to kick the undie there.', 'system');
+          addLog(UI_TEXT.kickChooseRoom('Undie'), 'system');
           renderAll();
         });
       }
@@ -2817,7 +3394,7 @@ function showRoomItemPopup(anchor, r, c, type, idx) {
         addPopupBtn(popup, '👟 Kick', () => {
           closeItemPopup();
           G.kickMode = { target: { label:`🍄 ${gdef?.name||'Goodie'}`, emoji:'🍄', type:'goodie', ref:{tile, idx} }, destinations: dests };
-          addLog('👟 Click an adjacent room to kick the goodie there.', 'system');
+          addLog(UI_TEXT.kickChooseRoom(gdef?.name || 'Goodie'), 'system');
           renderAll();
         });
       }
@@ -2850,7 +3427,7 @@ function showRoomItemPopup(anchor, r, c, type, idx) {
         addPopupBtn(popup, '👟 Kick', () => {
           closeItemPopup();
           G.kickMode = { target: { label:`${hdef?.emoji||'🎩'} ${hdef?.name||'Hat'}`, emoji: hdef?.emoji||'🎩', type:'hat', ref:{tile, idx} }, destinations: dests };
-          addLog('👟 Click an adjacent room to kick the hat there.', 'system');
+          addLog(UI_TEXT.kickChooseRoom(hdef?.name || 'Hat'), 'system');
           renderAll();
         });
       }
@@ -2920,11 +3497,11 @@ function handleDoorClick(r, c, dir, tile) {
   const destTile = G.grid[nr]?.[nc];
   if (destTile) {
     if (!tilesConnected(tile, destTile)) return;
-    doMove(gnome, nr, nc); G.selectedAction=null; renderAll();
+    executeGameAction('moveToRoom', { r: nr, c: nc, implicit: true });
   } else {
     if (!tileHasDoor(tile, dir)) return;
     if (!G.roomDeck.length) { addLog('No rooms left!','bad'); return; }
-    doReveal(gnome, nr, nc, dir); G.selectedAction=null; renderAll();
+    executeGameAction('revealRoom', { r: nr, c: nc, fromDir: dir, implicit: true });
   }
 }
 
@@ -2938,24 +3515,25 @@ function showOccupantPopup(anchor, obj, type, r, c) {
 
   if (type==='gnome') {
     const og=obj;
+    if (G.phase === 'gnome' && og.id === G.currentGnomeIdx) return;
     const dests=getConnectedRooms(r,c);
     if (inRoom && og!==gnome && dests.length && G.actionsLeft>0) {
-      addPopupBtn(popup,`👟 Kick ${og.name}`,()=>{closeItemPopup();G.kickMode={target:{label:`${og.emoji} ${og.name}`,emoji:og.emoji,type:'gnome',ref:og},destinations:dests};addLog(`👟 Click a room to kick ${og.name}.`,'system');renderAll();});
+      addPopupBtn(popup,`👟 Kick ${og.name}`,()=>{closeItemPopup();G.kickMode={target:{label:`${og.emoji} ${og.name}`,emoji:og.emoji,type:'gnome',ref:og},destinations:dests};addLog(UI_TEXT.kickChooseRoom(og.name),'system');renderAll();});
     }
     if (inRoom && og.ko) addPopupBtn(popup,`⚙️ Revive (need Pinion)`,()=>{closeItemPopup();addLog('Use a Pinion goodie to revive.','bad');});
     addPopupBtn(popup,`📍 ${og.name} — ${getRoomName(og.row,og.col)}`,()=>closeItemPopup());
   } else if (type==='hamper') {
     if (inRoom) {
       const dests=getConnectedRooms(r,c);
-      if (dests.length&&G.actionsLeft>0) addPopupBtn(popup,'👟 Kick Hamper',()=>{closeItemPopup();G.kickMode={target:{label:'🧺 The Hamper',emoji:'🧺',type:'hamper',ref:G.hamper},destinations:dests};addLog('👟 Click a room to kick the Hamper.','system');renderAll();});
-      addPopupBtn(popup,'🧺 Hamper (store/retrieve)',()=>{closeItemPopup();hamperInteract();});
+      if (dests.length&&G.actionsLeft>0) addPopupBtn(popup,'👟 Kick Hamper',()=>{closeItemPopup();G.kickMode={target:{label:'🧺 Hamper',emoji:'🧺',type:'hamper',ref:G.hamper},destinations:dests};addLog(UI_TEXT.kickChooseRoom('Hamper'),'system');renderAll();});
+      addPopupBtn(popup,UI_TEXT.action.hamper,()=>{closeItemPopup();hamperInteract();});
     }
     addPopupBtn(popup,`🧺 Hamper — ${getRoomName(G.hamper.row,G.hamper.col)}`,()=>closeItemPopup());
   } else if (type==='patrol') {
     const p=obj; const em=patrolEmoji(p.type);
     if (inRoom&&G.actionsLeft>0) {
       const dests=getConnectedRooms(r,c);
-      if (dests.length) addPopupBtn(popup,`👟 Kick ${capitalize(p.type)}`,()=>{closeItemPopup();G.kickMode={target:{label:`${em} ${capitalize(p.type)}`,emoji:em,type:'patrol',ref:p},destinations:dests};addLog(`👟 Click a room to kick ${capitalize(p.type)}.`,'system');renderAll();});
+      if (dests.length) addPopupBtn(popup,`👟 Kick ${capitalize(p.type)}`,()=>{closeItemPopup();G.kickMode={target:{label:`${em} ${capitalize(p.type)}`,emoji:em,type:'patrol',ref:p},destinations:dests};addLog(UI_TEXT.kickChooseRoom(capitalize(p.type)),'system');renderAll();});
     }
     addPopupBtn(popup,`${em} ${capitalize(p.type)} — ${getRoomName(p.row,p.col)}`,()=>closeItemPopup());
   }
@@ -2976,18 +3554,18 @@ function showQuirkPopup(anchor, quirkType, r, c) {
   const popup=document.createElement('div');
   popup.className='item-popup'; popup.id='active-item-popup';
   if (quirkType==='hide') {
-    if (inRoom&&G.actionsLeft>0) addPopupBtn(popup,'🫣 Hide here',()=>{closeItemPopup();doHide();});
-    else addPopupBtn(popup,'🪑 Hiding Spot',()=>closeItemPopup(), true);
+    if (inRoom&&G.actionsLeft>0) addPopupBtn(popup, UI_TEXT.action.hide,()=>{closeItemPopup();doHide();});
+    else addPopupBtn(popup, UI_TEXT.action.hide,()=>closeItemPopup(), true);
   } else if (quirkType==='vent') {
-    if (inRoom&&G.actionsLeft>0) addPopupBtn(popup,'♨️ Use Vent',()=>{closeItemPopup();doVent();});
-    else addPopupBtn(popup,'♨️ Vent',()=>closeItemPopup(), true);
+    if (inRoom&&G.actionsLeft>0) addPopupBtn(popup, UI_TEXT.action.vent,()=>{closeItemPopup();doVent();});
+    else addPopupBtn(popup, UI_TEXT.action.vent,()=>closeItemPopup(), true);
   } else if (quirkType==='weaver') {
-    if (inRoom) addPopupBtn(popup,'🧌 Visit Weaver',()=>{closeItemPopup();openWeaver();});
-    else addPopupBtn(popup,'🧌 The Weaver',()=>closeItemPopup(), true);
+    if (inRoom) addPopupBtn(popup,UI_TEXT.action.weaver,()=>{closeItemPopup();openWeaver();});
+    else addPopupBtn(popup,UI_TEXT.action.weaver,()=>closeItemPopup(), true);
   } else if (quirkType==='chute') {
     const hasUndies = inRoom && gnome.satchel.some(s => s?.type === 'undie');
-    if (hasUndies) addPopupBtn(popup,'🕳️ Send Undies',()=>{closeItemPopup();depositUndies();});
-    else addPopupBtn(popup,'🕳️ Laundry Chute',()=>closeItemPopup(), true);
+    if (hasUndies) addPopupBtn(popup, UI_TEXT.action.deposit,()=>{closeItemPopup();depositUndies();});
+    else addPopupBtn(popup, UI_TEXT.action.deposit,()=>closeItemPopup(), true);
   }
   if (!popup.children.length) addPopupBtn(popup,'(no actions)',()=>closeItemPopup(),true);
   document.body.appendChild(popup);
@@ -3016,7 +3594,7 @@ function renderDynamicGoodieButtons(gnome, freeOff) {
     btn.id = `btn-goodie-${idx}`;
     btn.dataset.goodieSlot = String(idx);
     btn.style.display = 'block';
-    btn.onclick = () => useGoodieFromSlot(idx);
+    setButtonCommand(btn, 'useGoodieFromSlot', idx);
     setActionButtonContent(btn, `Use ${def?.name || 'Goodie'}`, def?.emoji || '🍄');
     btn.disabled = freeOff || !isGoodieUsable(gnome, item.id);
     if (anchor) grid.insertBefore(btn, anchor); else grid.appendChild(btn);
@@ -3024,153 +3602,157 @@ function renderDynamicGoodieButtons(gnome, freeOff) {
 }
 
 function renderActions() {
-  // Panic phase: show a simple message, disable all normal actions
+  const g = G.gnomes[G.currentGnomeIdx];
+  const phaseIsGnome = G.phase === 'gnome';
+
   if (G.phase === 'panic') {
-    const g = G.gnomes[G.currentGnomeIdx];
     document.getElementById('actions-remaining').textContent = '😱';
     document.getElementById('current-gnome-info').innerHTML =
       `<strong style="color:#ff9999">😱 PANIC! ${g?.name||''} — click an adjacent room to move</strong>`;
     ['btn-move','btn-scurry','btn-pickup','btn-kick','btn-hide','btn-end',
-     'btn-deposit','btn-hamper','btn-weaver','btn-vent','btn-win-house'].forEach(id=>{
-      const el = document.getElementById(id); if(el){ el.disabled=true; el.style.display='none'; }
+     'btn-deposit','btn-hamper','btn-weaver','btn-vent','btn-win-house','btn-shroom-confirm'].forEach(id => {
+      updateActionControl(id, { visible: false, disabled: true, active: false });
     });
+    clearDynamicGoodieButtons();
     return;
   }
 
   clearDynamicGoodieButtons();
-  // Restore all core action buttons to visible before re-evaluating
-  ['btn-move','btn-pickup','btn-kick','btn-hide'].forEach(id=>{
-    const el = document.getElementById(id); if(el) el.style.display='block';
-  });
-  // End turn button - always visible during gnome phase
-  const etBtn = document.querySelector('.action-btn.end-turn');
-  if (etBtn) etBtn.style.display = 'block';
-  const g = G.gnomes[G.currentGnomeIdx];
-  const off = G.phase!=='gnome'||!g||g.ko||G.actionsLeft<=0;
-  const moveOff = off || g?.stickyBlocked;
   const tile = g ? G.grid[g.row][g.col] : null;
-  const freeOff = G.phase!=='gnome'||!g||g.ko||G.actionsLeft<=0;
-
-  document.getElementById('actions-remaining').textContent = G.phase==='gnome' && g && !g.ko ? G.actionsLeft : '—';
-
-  const moveBtn = document.getElementById('btn-move');
-  moveBtn.disabled = moveOff;
-  setActionButtonContent(moveBtn, 'Move', '🚶');
-
-  const scurryBtn = document.getElementById('btn-scurry');
-  const hasRedCap = g?.hat === 1;
-  scurryBtn.style.display = hasRedCap ? 'block' : 'none';
-  if (hasRedCap) {
-    scurryBtn.disabled = off || G.messy || g?.stickyBlocked;
-    setActionButtonContent(scurryBtn, 'Scurry', '💨');
-  }
-
-  // Pick Up: needs free slot AND something on tile
+  const actionLocked = !phaseIsGnome || !g || g.ko || G.actionsLeft <= 0;
+  const moveLocked = actionLocked || g?.stickyBlocked;
   const satchelSize = g ? getSatchelSize(g) : 0;
-  const satchelFull = !g || g.satchel.slice(0,satchelSize).every(Boolean);
+  const satchelFull = !g || g.satchel.slice(0, satchelSize).every(Boolean);
   const tileHasUndies = tile?.undies > 0;
   const tileHasGoodies = tile?.goodieIds?.length > 0;
   const tileHasHats = tile?.hatIds?.length > 0;
   const tileHasItems = !!(tileHasUndies || tileHasGoodies || tileHasHats);
-  const pickupBtn = document.getElementById('btn-pickup');
-  pickupBtn.disabled = off || satchelFull || !tileHasItems;
-  // Dynamic label
-  const itemTypes = [tileHasUndies, tileHasGoodies || tileHasHats].filter(Boolean).length;
-  if (!tileHasItems || itemTypes > 1 || (tileHasGoodies && tileHasHats)) {
-    setActionButtonContent(pickupBtn, 'Pick Up', '🤏');
-  } else if (tileHasUndies && !tileHasGoodies && !tileHasHats) {
-    setActionButtonContent(pickupBtn, 'Pick Up', '🤏');
-  } else {
-    setActionButtonContent(pickupBtn, 'Pick Up', '🤏');
-  }
-
-  // Kick: needs something kickable AND at least one connected room
-  const kickBtn = document.getElementById('btn-kick');
-  if (G.kickMode) {
-    kickBtn.disabled = false;
-    setActionButtonContent(kickBtn, 'Kick', '👟');
-    kickBtn.title = 'Click again to cancel';
-    kickBtn.onclick = ()=>{ cancelPendingBoardAction('kick'); };
-  } else {
-    const canKick = !off && (() => {
-      if (!g) return false;
-      const sameRoom = (obj) => obj.row===g.row && obj.col===g.col;
-      const hasTarget = G.gnomes.some((og,i)=>i!==G.currentGnomeIdx&&sameRoom(og))
-        || G.patrols.some(sameRoom)
-        || sameRoom(G.hamper)
-        || (tile?.undies > 0)
-        || (tile?.goodieIds?.length > 0)
-        || (tile?.hatIds?.length > 0);
-      return hasTarget && getConnectedRooms(g.row, g.col).length > 0;
-    })();
-    kickBtn.disabled = !canKick;
-    setActionButtonContent(kickBtn, 'Kick', '👟');
-    kickBtn.title = '';
-    kickBtn.onclick = doKick;
-  }
-
-  document.getElementById('btn-hide').disabled = off||!isInHidingRoom(g)||G.lightsOn;
-
-
-  // Deposit Undies: only show when in Laundry Room OR chute room AND carrying undies
-  const hasUndiesInSatchel = !!(g?.satchel.some(s=>s?.type==='undie'));
+  const hasUndiesInSatchel = !!g?.satchel.some(s => s?.type === 'undie');
   const inLaundryRoom = !!(tile?.roomId === 1);
   const inChuteRoom = !!(tile?.chute);
   const canDeposit = hasUndiesInSatchel && (inLaundryRoom || inChuteRoom);
-  const depositBtn = document.getElementById('btn-deposit');
-  depositBtn.style.display = (!freeOff && canDeposit) ? 'block' : 'none';
-  depositBtn.disabled = freeOff;
-  setActionButtonContent(depositBtn, 'Deposit', inChuteRoom ? '🕳️' : '🧺');
-
-  renderDynamicGoodieButtons(g, freeOff);
-
-  // Hamper: only show when in same room as hamper
-  const nearHamper = !!(g && G.hamper.row===g.row && G.hamper.col===g.col);
-  const hamperBtn = document.getElementById('btn-hamper');
-  hamperBtn.style.display = (!freeOff && nearHamper) ? 'block' : 'none';
-  hamperBtn.disabled = freeOff;
-
-  const weaverBtn = document.getElementById('btn-weaver');
+  const nearHamper = !!(g && G.hamper.row === g.row && G.hamper.col === g.col);
   const inWeaver = !!tile?.weaver;
-  weaverBtn.style.display = (inWeaver && !g?.ko && G.phase==='gnome') ? 'block' : 'none';
-  if (inWeaver && G.phase==='gnome' && !g?.ko) {
-    const canAffordAny = G.undiesBanked >= 1;
-    weaverBtn.disabled = freeOff || !canAffordAny;
-    weaverBtn.title = canAffordAny ? 'Trade undies for goodies or hats' : 'Need at least 1 banked undie to trade';
-  }
+  const canAffordAnyTrade = G.undiesBanked >= 1;
+  const ventDestinations = g ? getVentRooms().filter(([vr, vc]) => !(vr === g.row && vc === g.col)) : [];
+  const inVent = !!(tile?.vent && ventDestinations.length > 0);
+  const hasRedCap = g?.hat === 1;
 
-  const ventBtn = document.getElementById('btn-vent');
-  const inVent = !!(tile?.vent && getVentRooms().filter(([vr,vc])=>!(vr===g?.row&&vc===g?.col)).length > 0);
-  ventBtn.style.display = inVent ? 'block' : 'none';
-  ventBtn.disabled = off;
-  setActionButtonContent(ventBtn, 'Vent', '♨️');
-  ventBtn.onclick = G.ventMode ? ()=>{ G.ventMode=false; renderAll(); } : doVent;
+  document.getElementById('actions-remaining').textContent = phaseIsGnome && g && !g.ko ? G.actionsLeft : '—';
 
-  const shroomBtn = document.getElementById('btn-shroom-confirm');
-  shroomBtn.style.display = G.shroomMode ? 'block' : 'none';
-  setActionButtonContent(shroomBtn, 'Confirm', '🍄');
-
-  // WIN HOUSE: only shown when goal is met, must be in Laundry Room to press
-  const winBtn = document.getElementById('btn-win-house');
-  if (G.houseGoalMet) {
-    winBtn.style.display = 'block';
-    const inLaundry = g && !g.ko && G.grid[g.row]?.[g.col]?.roomId === 1;
-    winBtn.disabled = !inLaundry;
-    winBtn.title = inLaundry ? 'Escape with your undies!' : 'Must be in the Laundry Room to escape';
-  } else {
-    winBtn.style.display = 'none';
-  }
-
-  ['move','scurry'].forEach(a=>{
-    const b=document.getElementById('btn-'+a);
-    if(b) b.classList.toggle('active-action', G.selectedAction===a);
+  updateActionControl('btn-move', {
+    visible: true,
+    disabled: moveLocked,
+    label: UI_TEXT.action.move.replace(/^🚶\s*/, ''),
+    icon: '🚶',
+    active: G.selectedAction === 'move',
+    commandName: 'selectAction',
+    commandArg: 'move',
   });
-  const kickBtnState = document.getElementById('btn-kick');
-  if (kickBtnState) kickBtnState.classList.toggle('active-action', !!G.kickMode);
-  const ventBtnState = document.getElementById('btn-vent');
-  if (ventBtnState) ventBtnState.classList.toggle('active-action', !!G.ventMode);
-  const endTurnBtn = document.querySelector('.action-btn.end-turn');
-  if (endTurnBtn) endTurnBtn.classList.toggle('ready', G.phase==='gnome' && !!g && !g.ko && G.actionsLeft<=0);
+
+  updateActionControl('btn-scurry', {
+    visible: !!hasRedCap,
+    disabled: actionLocked || G.messy || g?.stickyBlocked,
+    label: UI_TEXT.action.scurry.replace(/^💨\s*/, ''),
+    icon: '💨',
+    active: G.selectedAction === 'scurry',
+    commandName: 'selectAction',
+    commandArg: 'scurry',
+  });
+
+  updateActionControl('btn-pickup', {
+    visible: true,
+    disabled: actionLocked || satchelFull || !tileHasItems,
+    label: UI_TEXT.action.pickup.replace(/^🤏\s*/, ''),
+    icon: '🤏',
+    commandName: 'pickupInCurrentRoom',
+  });
+
+  const canKick = !actionLocked && (() => {
+    if (!g) return false;
+    return getKickTargetsForGnome(g).length > 0 && getKickDestinationsForGnome(g).length > 0;
+  })();
+  updateActionControl('btn-kick', {
+    visible: true,
+    disabled: G.kickMode ? false : !canKick,
+    label: UI_TEXT.action.kick.replace(/^👟\s*/, ''),
+    icon: '👟',
+    active: !!G.kickMode,
+    title: G.kickMode ? 'Click again to cancel' : '',
+    commandName: G.kickMode ? 'cancelKick' : 'doKick',
+  });
+
+  updateActionControl('btn-hide', {
+    visible: true,
+    disabled: actionLocked || !isInHidingRoom(g) || G.lightsOn,
+    label: UI_TEXT.action.hide.replace(/^🫣\s*/, ''),
+    icon: '🫣',
+    commandName: 'doHide',
+  });
+
+  updateActionControl('btn-deposit', {
+    visible: !actionLocked && canDeposit,
+    disabled: actionLocked,
+    label: UI_TEXT.action.deposit.replace(/^🧺\s*/, ''),
+    icon: '🧺',
+    commandName: 'depositUndies',
+  });
+
+  renderDynamicGoodieButtons(g, actionLocked);
+
+  updateActionControl('btn-hamper', {
+    visible: !actionLocked && nearHamper,
+    disabled: actionLocked,
+    label: UI_TEXT.action.hamper.replace(/^🧺\s*/, ''),
+    icon: '🧺',
+    commandName: 'hamperInteract',
+  });
+
+  updateActionControl('btn-weaver', {
+    visible: inWeaver && phaseIsGnome && !g?.ko,
+    disabled: actionLocked || !canAffordAnyTrade,
+    label: UI_TEXT.action.weaver.replace(/^🧌\s*/, ''),
+    icon: '🧌',
+    title: canAffordAnyTrade ? 'Trade undies for goodies or hats' : 'Need at least 1 banked undie to trade',
+    commandName: 'openWeaver',
+  });
+
+  updateActionControl('btn-vent', {
+    visible: inVent,
+    disabled: actionLocked,
+    label: UI_TEXT.action.vent.replace(/^♨️\s*/, ''),
+    icon: '♨️',
+    active: !!G.ventMode,
+    commandName: G.ventMode ? 'cancelVent' : 'doVent',
+  });
+
+  updateActionControl('btn-shroom-confirm', {
+    visible: !!G.shroomMode,
+    disabled: false,
+    label: 'Confirm',
+    icon: '🍄',
+    commandName: 'shroomConfirm',
+  });
+
+  updateActionControl('btn-win-house', {
+    visible: !!G.houseGoalMet,
+    disabled: !(g && !g.ko && G.grid[g.row]?.[g.col]?.roomId === 1),
+    label: 'Escape',
+    icon: '🏁',
+    title: (g && !g.ko && G.grid[g.row]?.[g.col]?.roomId === 1) ? 'Escape with your undies!' : 'Must be in the Laundry Room to escape',
+    commandName: 'winHouse',
+  });
+
+  updateActionControl('btn-end', {
+    visible: true,
+    disabled: !phaseIsGnome,
+    label: 'End Turn',
+    icon: '⏭',
+    active: false,
+    commandName: 'endGnomeTurn',
+  });
+  const endTurnBtn = document.getElementById('btn-end');
+  if (endTurnBtn) endTurnBtn.classList.toggle('ready', phaseIsGnome && !!g && !g.ko && G.actionsLeft <= 0);
 }
 
 function hamperInteract() {
@@ -3331,25 +3913,8 @@ function handleRoomClick(r, c, tile) {
   const gnome = G.gnomes[G.currentGnomeIdx];
   if (!gnome||gnome.ko) { showRoomDetail(r,c,tile); return; }
 
-  if (G.selectedAction==='move'||G.selectedAction==='scurry') {
-    if (gnome.stickyBlocked) {
-      addLog(`🫟 ${gnome.name} is stuck — cannot move this turn!`, 'bad');
-      return;
-    }
-    const targets = getConnectedRooms(gnome.row, gnome.col);
-    const isTarget = targets.some(([tr,tc])=>tr===r&&tc===c);
-    if (isTarget) {
-      if (G.selectedAction==='scurry') {
-        if (G.messy) { addLog(`🏚️ Messy House! ${gnome.name} cannot Scurry.`, 'bad'); G.selectedAction = null; renderAll(); return; }
-        doScurryStep(gnome, r, c);
-      } else {
-        doMove(gnome, r, c);
-        G.selectedAction = null;
-      }
-    } else {
-      showRoomDetail(r,c,tile);
-    }
-  } else {
+  const handled = resolveActiveBoardRoomAction(r, c, tile);
+  if (!handled) {
     G.selectedCell = [r,c];
     showRoomDetail(r,c,tile);
   }
@@ -3363,7 +3928,8 @@ function handleRevealClick(r, c, fromDir) {
   if (!gnome||gnome.ko) return;
   if (gnome.stickyBlocked) { addLog(`🫟 ${gnome.name} is stuck — cannot move this turn!`,'bad'); return; }
   if (G.roomDeck.length===0) { addLog('No rooms left to reveal!','bad'); return; }
-  doReveal(gnome, r, c, fromDir);
+  if (resolveActiveRevealAction(r, c, fromDir)) return;
+  executeGameAction('revealRoom', { r, c, fromDir, implicit: true });
 }
 
 function cancelPendingBoardAction(kind='action') {
@@ -3385,9 +3951,8 @@ function selectAction(action) {
     cancelPendingBoardAction(action);
     return;
   }
+  clearInteractionModes({ clearScurry: true });
   G.selectedAction = action;
-  G.kickMode = null;
-  G.ventMode = false;
   renderAll();
 }
 
@@ -3459,8 +4024,10 @@ function moveGnomeTo(gnome, r, c, isScurry=false) {
 
   // Chute: notify gnome they can deposit via Drop button
   if (tile.chute && gnome.satchel.some(s=>s?.type==='undie')) {
-    addLog(`🕳️ Chute room! Use Drop/Deposit to send undies to the Laundry Room.`, 'good');
+    addLog(`🕳️ Chute room! Use ${UI_TEXT.action.deposit} to bank Undies here.`, 'good');
   }
+
+  updateAllPatrolNextDirs();
 }
 
 function doReveal(gnome, r, c, fromDir) {
@@ -3699,53 +4266,64 @@ function doHide() {
   renderAll();
 }
 
+function buildKickTarget(label, emoji, type, ref) {
+  return { label, emoji, type, ref };
+}
+
+function getKickTargetsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
+  if (!kicker) return [];
+  const targets = [];
+  G.gnomes.forEach((g, i) => {
+    if (i === G.currentGnomeIdx) return;
+    if (g.row !== kicker.row || g.col !== kicker.col) return;
+    targets.push(buildKickTarget(`${g.emoji} ${g.name}${g.ko?' (KO)':''}`, g.emoji, 'gnome', g));
+  });
+  G.patrols.forEach(p => {
+    if (p.row !== kicker.row || p.col !== kicker.col) return;
+    const em = patrolEmoji(p.type);
+    targets.push(buildKickTarget(`${em} ${capitalize(p.type)} patrol`, em, 'patrol', p));
+  });
+  if (G.hamper.row === kicker.row && G.hamper.col === kicker.col) {
+    targets.push(buildKickTarget('🧺 Hamper', '🧺', 'hamper', G.hamper));
+  }
+  const kickTile = G.grid[kicker.row]?.[kicker.col];
+  if (kickTile?.undies > 0) {
+    targets.push(buildKickTarget('🧦 Undie', '🧦', 'undie', kickTile));
+  }
+  if (kickTile?.goodieIds?.length > 0) {
+    kickTile.goodieIds.forEach((gid, idx) => {
+      const gdef = GOODIES_DEFS.find(d=>d.id===gid);
+      targets.push(buildKickTarget(`${gdef?.emoji||'🎁'} ${gdef?.name||'Goodie'}`, gdef?.emoji||'🎁', 'goodie', { tile: kickTile, idx }));
+    });
+  }
+  if (kickTile?.hatIds?.length > 0) {
+    kickTile.hatIds.forEach((hid, idx) => {
+      const hdef = HATS_DEFS.find(d=>d.id===hid);
+      targets.push(buildKickTarget(`${hdef?.emoji||'🎩'} ${hdef?.name||'Hat'}`, hdef?.emoji||'🎩', 'hat', { tile: kickTile, idx }));
+    });
+  }
+  return targets;
+}
+
+function getKickDestinationsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
+  return kicker ? getConnectedRooms(kicker.row, kicker.col) : [];
+}
+
 function doKick() {
   if (G.kickMode) { cancelPendingBoardAction('kick'); return; }
   if (G.phase!=='gnome'||G.actionsLeft<=0) return;
   const kicker = G.gnomes[G.currentGnomeIdx];
   if (!kicker||kicker.ko) return;
 
-  const targets = [];
-  G.gnomes.forEach((g, i) => {
-    if (i === G.currentGnomeIdx) return;
-    if (g.row !== kicker.row || g.col !== kicker.col) return;
-    targets.push({ label: `${g.emoji} ${g.name}${g.ko?' (KO)':''}`, emoji: g.emoji, type: 'gnome', ref: g });
-  });
-  G.patrols.forEach(p => {
-    if (p.row !== kicker.row || p.col !== kicker.col) return;
-    const em = patrolEmoji(p.type);
-    targets.push({ label: `${em} ${capitalize(p.type)} patrol`, emoji: em, type: 'patrol', ref: p });
-  });
-  if (G.hamper.row === kicker.row && G.hamper.col === kicker.col) {
-    targets.push({ label: '🧺 The Hamper', emoji: '🧺', type: 'hamper', ref: G.hamper });
-  }
-
-  // Undies and goodies on the tile are also kickable
-  const kickTile = G.grid[kicker.row][kicker.col];
-  if (kickTile?.undies > 0) {
-    targets.push({ label: '🧦 Undie', emoji: '🧦', type: 'undie', ref: kickTile });
-  }
-  if (kickTile?.goodieIds?.length > 0) {
-    kickTile.goodieIds.forEach((gid, idx) => {
-      const gdef = GOODIES_DEFS.find(d=>d.id===gid);
-      targets.push({ label: `${gdef?.emoji||'🎁'} ${gdef?.name||'Goodie'}`, emoji: gdef?.emoji||'🎁', type: 'goodie', ref: { tile: kickTile, idx } });
-    });
-  }
-  if (kickTile?.hatIds?.length > 0) {
-    kickTile.hatIds.forEach((hid, idx) => {
-      const hdef = HATS_DEFS.find(d=>d.id===hid);
-      targets.push({ label: `${hdef?.emoji||'🎩'} ${hdef?.name||'Hat'}`, emoji: hdef?.emoji||'🎩', type: 'hat', ref: { tile: kickTile, idx } });
-    });
-  }
-
+  const targets = getKickTargetsForGnome(kicker);
   if (!targets.length) { addLog('Nothing to kick here!', 'bad'); return; }
-  const destinations = getConnectedRooms(kicker.row, kicker.col);
+  const destinations = getKickDestinationsForGnome(kicker);
   if (!destinations.length) { addLog('No connected rooms to kick into!', 'bad'); return; }
 
   if (targets.length === 1) {
     // Only one target — go straight to board mode
     G.kickMode = { target: targets[0], destinations };
-    addLog(`👟 Click an adjacent room to kick ${targets[0].label} there. (Click here to cancel)`, 'system');
+    addLog(UI_TEXT.kickChooseRoom(targets[0]), 'system');
     renderAll();
   } else {
     // Pick target first, then board mode
@@ -3755,7 +4333,7 @@ function doKick() {
         action: () => {
           closeModal();
           G.kickMode = { target: t, destinations };
-          addLog(`👟 Click an adjacent room to kick ${t.label} there.`, 'system');
+          addLog(UI_TEXT.kickChooseRoom(t), 'system');
           renderAll();
         }
       })).concat([{ label: 'Cancel', cls: 'cancel', action: closeModal }])
@@ -3789,12 +4367,10 @@ function executeKick(dr, dc) {
     srcTile.undies--;
     const destTile = G.grid[dr][dc];
     if (destTile) {
-      if (destTile.roomId === 1) {
-        G.undiesBanked++;
-        addLog(`${kicker.name} kicks 🧦 Undie into ${destName} — deposited! Total: ${G.undiesBanked}/${getHouseGoal()}`, 'good');
-        checkGoalMet();
+      destTile.undies++;
+      if (destTile.roomId === 1 || destTile.chute) {
+        addLog(`${kicker.name} kicks 🧦 Undie into ${destName}! It lands in the room — not deposited automatically.`, 'good');
       } else {
-        destTile.undies++;
         addLog(`${kicker.name} kicks 🧦 Undie into ${destName}!`, 'good');
       }
     }
@@ -3940,11 +4516,12 @@ function applyGoodie(gnome, id) {
     case 1:
       G.shroomMode = true;
       G.shroomPreview = null;
-      addLog('🍄 Shroom! Hover over your room or an adjacent room and click to rotate it. Hit Confirm when done.','good');
+      addLog('🍄 Shroom! Choose your room or an adjacent room, then rotate and confirm.','good');
       renderAll();
       break;
     case 2:
       G.actionsLeft += 2;
+      G.actionCapacity = Math.max(G.actionCapacity || 0, G.actionsLeft);
       addLog(`☕ Coffee Bean! +2 actions this turn.`, 'good');
       renderAll();
       break;
@@ -3957,7 +4534,7 @@ function applyGoodie(gnome, id) {
         renderAll();
       } else {
         G.dynamiteMode = true;
-        addLog('💥 Dynamite! Click a wall between your room and an adjacent room to blast a door.','good');
+        addLog(`💥 Dynamite! Click a wall to ${UI_TEXT.action.addDoor.replace(/^💥\s*/, '').toLowerCase()}.`,'good');
       }
       break;
     }
@@ -4149,6 +4726,7 @@ const SEQ = (() => {
     resume() { next(); },
     // True while a card or pause is blocking — callers can check this if needed
     get blocked() { return running && q.length === 0 && document.getElementById('card-overlay').classList.contains('show'); },
+    get queuedCount() { return q.length; },
   };
 })();
 
@@ -4197,7 +4775,7 @@ function showWeaverShopModal(mode) {
   const canSpendAction = !inRoomTrade || G.actionsLeft > 0;
   setWeaverModalContext({kind:'shop', mode});
   showModal(
-    inRoomTrade ? '🧌 The Weaver' : `🧌 The Weaver — House ${G.house} Complete!`,
+    inRoomTrade ? UI_TEXT.action.weaver : `${UI_TEXT.action.weaver} — House ${G.house} Complete!`,
     `${inRoomTrade ? `Banked undies: ${G.undiesBanked} 🧦  (traded undies are removed from your count)` : `You escaped with ${G.undiesBanked}🧦! Trade freely, then start House ${G.house+1}.`}<br><br><strong>Satchel management:</strong> while this window is open, click any gnome item in the sidebar to drop or rearrange it and make room before choosing a trade recipient.`,
     [
       {label:`🍄 Goodie (1 Undie)${G.undiesBanked < 1 ? ' — need more undies' : ''}${canSpendAction ? '' : ' — no actions left'}`, cls:'good', disabled:!canGoodie || !canSpendAction, action:()=>{
@@ -4299,7 +4877,7 @@ function openWeaverBetweenHousesLegacy() {
       }},
     {label:`✅ Done — Begin House ${G.house+1}`, cls:'confirm', action:()=>{ closeModal(); advanceHouse(); }},
   ];
-  showModal(`🧌 The Weaver — House ${G.house} Complete!`,
+  showModal(`${UI_TEXT.action.weaver} — House ${G.house} Complete!`,
     `You escaped with ${G.undiesBanked}🧦! Trade freely, then start House ${G.house+1}.`, buttons);
 }
 
@@ -4420,11 +4998,7 @@ function completePanicMove(r, c) {
 
 function endGnomeTurn() {
   if (G.phase!=='gnome') return;
-  scurryState = null;
-  G.selectedAction = null;
-  G.dynamiteMode = false;
-  G.shroomMode = false; G.shroomPreview = null;
-  G.kickMode = null; G.ventMode = false;
+  clearInteractionModes({ clearScurry: true });
   const gnome = G.gnomes[G.currentGnomeIdx];
   if (gnome) {
     addLog(`${gnome.name} ends turn.`,'system');
@@ -4453,6 +5027,7 @@ function updateActionsForHat() {
   const g = G.gnomes[G.currentGnomeIdx];
   if (!g) return;
   G.actionsLeft = 2 + getHatActionBonus(g.hat);
+  G.actionCapacity = G.actionsLeft;
 }
 
 function spendAction() {
@@ -4866,6 +5441,13 @@ function applyCatchPenalty(type, gnome, patrolRef=null) {
 }
 
 function endPatrolPhase() {
+  if (SEQ.queuedCount > 0) {
+    if (!G._pendingEndPatrolPhase) {
+      G._pendingEndPatrolPhase = true;
+      SEQ.push({t:'effect', fn:() => { G._pendingEndPatrolPhase = false; endPatrolPhase(); }});
+    }
+    return;
+  }
   G.phase='gnome';
   G.newlySpawnedCells.clear(); // pulse only lasts one round
   G.messy = false; // Messy House clears at end of round
@@ -5174,25 +5756,25 @@ function clearStickySplat(r, c) {
 const PATROL_REF_DATA = {
   roomba: {
     emoji: '🤖', name: 'Roomba',
-    move: '1 step/turn. Right-hand wall following — turn right; if blocked go straight; left; reverse.',
+    move: 'along right perimeter.',
     catch: '+1 💢 Trouble. Pushes Gnome 1 room ahead in Roomba\'s path.',
-    special: 'Destroys 1 🧦 Undie in the room on entry.',
+    special: 'Destroys a 🧦 Sock in every room.',
   },
   dog: {
     emoji: '🐶', name: 'Dog',
-    move: '1 step/turn toward the nearest unhidden Gnome.',
+    move: 'toward the nearest unhidden Gnome.',
     catch: '+1 💢 Trouble. Destroys ALL 🧦 Undies held.',
     special: '',
   },
   kid: {
     emoji: '👦', name: 'Kid',
-    move: '1 step/turn toward the Gnome carrying the most 🧦 Undies.',
+    move: 'toward the Gnome carrying the most 🧦 Undies.',
     catch: '+2 💢 Trouble. KO\'s the Gnome.',
     special: '',
   },
   dad: {
     emoji: '👨', name: 'Dad',
-    move: '2 steps/turn. Shuttles between Dad\'s Room and the Laundry Room.',
+    move: '🚶🚶 between Dad\'s Room and the Laundry Room.',
     catch: '+3 💢 Trouble. KO\'s the Gnome.',
     special: 'Gnomes CANNOT hide from Dad.',
   },
@@ -5459,6 +6041,10 @@ window.GnomeInvasionDev = Object.freeze({
   createBaseState,
   hydrateInitialBoard,
   snapshotStateForTests,
+  restoreGameState,
+  createGameActionIntent,
+  validateGameActionIntent,
+  executeGameAction,
   verifyStateInvariants,
   runSmokeTests,
   withTempState,
@@ -5560,22 +6146,42 @@ function getNearestPatrolTo(targetR, targetC) {
 }
 
 function getNearestGnome(patrol, allowHidden) {
-  let best=null,dist=Infinity;
-  G.gnomes.forEach(g=>{
-    if(g.ko) return;
-    if(!allowHidden&&g.hidden) return;
-    const d=Math.abs(g.row-patrol.row)+Math.abs(g.col-patrol.col);
-    if(d<dist){dist=d;best=g;}
+  let best = null;
+  let bestPath = Infinity;
+  let bestManhattan = Infinity;
+  G.gnomes.forEach(g => {
+    if (g.ko) return;
+    if (!allowHidden && g.hidden) return;
+    if (patrol.type === 'dog' && g.hat === 7) return;
+    const pathDist = getPathDistance(patrol.row, patrol.col, g.row, g.col);
+    const manhattan = Math.abs(g.row - patrol.row) + Math.abs(g.col - patrol.col);
+    const effectivePath = Number.isFinite(pathDist) ? pathDist : Infinity;
+    if (effectivePath < bestPath || (effectivePath === bestPath && manhattan < bestManhattan)) {
+      best = g;
+      bestPath = effectivePath;
+      bestManhattan = manhattan;
+    }
   });
   return best;
 }
 
 function getGnomeMostUndies() {
-  let best=null,most=-1;
-  G.gnomes.forEach(g=>{
-    if(g.ko) return;
-    const n=g.satchel.filter(s=>s?.type==='undie').length;
-    if(n>most){most=n;best=g;}
+  let best = null;
+  let most = -1;
+  let bestPath = Infinity;
+  let bestManhattan = Infinity;
+  const kid = G.patrols.find(p => p.type === 'kid') || null;
+  G.gnomes.forEach(g => {
+    if (g.ko) return;
+    const n = g.satchel.filter(s => s?.type === 'undie').length;
+    const pathDist = kid ? getPathDistance(kid.row, kid.col, g.row, g.col) : Infinity;
+    const manhattan = kid ? Math.abs(g.row - kid.row) + Math.abs(g.col - kid.col) : Infinity;
+    if (n > most || (n === most && (pathDist < bestPath || (pathDist === bestPath && manhattan < bestManhattan)))) {
+      best = g;
+      most = n;
+      bestPath = pathDist;
+      bestManhattan = manhattan;
+    }
   });
   return best;
 }
@@ -5614,6 +6220,11 @@ function computeNextDir(patrol) {
 function updateAllPatrolNextDirs() {
   if (!G.patrols) return;
   G.patrols.forEach(p => { p.nextDir = computeNextDir(p); });
+}
+
+function refreshPatrolIntentState(render = false) {
+  updateAllPatrolNextDirs();
+  if (render) UI_LAYERS.render.full();
 }
 
 function findPatrolSpawnPos(type) {
@@ -5718,6 +6329,7 @@ function addLog(msg,type=''){
 // ─────────────────────────────────────────────
 applyThemeArchitectureShells();
 applyActionButtonLabels();
+initCommandBindings();
 ensureLogUiState();
 applyLogCollapsedState();
 renderLogEntries();
