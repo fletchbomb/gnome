@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v156</title>
+  <title>Gnome Invasion v167</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -1013,9 +1013,9 @@
   .action-btn.active-action{border-color:var(--gold);background:#1a2a0a;box-shadow:0 0 0 1px rgba(245,166,35,.28),0 8px 20px rgba(0,0,0,.28);}
   .action-btn.active-action:hover:not(:disabled){background:#243714;border-color:#ffd26a;}
   .action-btn.end-turn{background:#3a1a1a;border-color:#ff6b6b;color:#ff9999;}
-  #btn-win-house{display:none;background:#1a4a1a;border-color:#4caf50;color:#4cff9e;font-weight:900;}
-  #btn-win-house.ready{background:#2f8f2f;border-color:#7dff7d;color:#fff;box-shadow:0 0 0 1px rgba(125,255,125,.22),0 8px 20px rgba(0,0,0,.28);}
-  #btn-win-house.ready:hover:not(:disabled){background:#39a939;border-color:#b5ffb5;}
+  #btn-win-house{display:none;background:#1f5e2e;border-color:#58c96c;color:#effff1;font-weight:900;box-shadow:0 0 0 1px rgba(88,201,108,.14),0 8px 20px rgba(0,0,0,.26);}
+  #btn-win-house.ready{background:#35a84a;border-color:#9cffab;color:#fff;box-shadow:0 0 0 1px rgba(125,255,125,.22),0 8px 20px rgba(0,0,0,.28);}
+  #btn-win-house.ready:hover:not(:disabled){background:#3fc557;border-color:#c9ffd0;}
   .section-title{font-family:'Fredoka One';font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
 
   /* LOG */
@@ -1055,8 +1055,8 @@
   .patrol-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:.68rem;font-weight:700;background:#3a1a1a;color:#ff9999;margin:2px;}
 
   /* SCREENS */
-  #screen-setup,#screen-end,#screen-weaver{display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;padding:20px;}
-  #screen-setup.show,#screen-end.show,#screen-weaver.show{display:flex;}
+  #screen-setup,#screen-end,#screen-victory,#screen-weaver{display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;padding:20px;}
+  #screen-setup.show,#screen-end.show,#screen-victory.show,#screen-weaver.show{display:flex;}
   .screen-backdrop{position:absolute;inset:0;background-position:center;background-size:cover;background-repeat:no-repeat;}
   .screen-backdrop::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(6,10,20,.38) 0%, rgba(6,10,20,.62) 56%, rgba(6,10,20,.82) 100%);}
   #screen-setup .screen-backdrop{background-image:url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/gnome-start.png");}
@@ -1078,7 +1078,7 @@
   .setup-gnome-card.is-inactive{opacity:.58;filter:saturate(.72) brightness(.86);}
   .setup-portrait-frame{aspect-ratio:1/1;border-radius:22px;overflow:hidden;background:rgba(4,13,26,.85);border:2px solid rgba(255,255,255,.14);}
   .setup-portrait-frame img{display:block;width:100%;height:100%;object-fit:cover;}
-  .setup-gnome-head{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:1.05rem;}
+  .setup-gnome-head{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:1.05rem;color:#fff;}
   .setup-color-dot{width:18px;height:18px;border-radius:999px;box-shadow:0 0 0 2px rgba(255,255,255,.14);flex:0 0 auto;}
   .setup-role-chip{margin-left:auto;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.08);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:#dce8ff;font-weight:800;}
   .setup-role-chip.ready{background:color-mix(in srgb, var(--gnome-accent) 36%, rgba(255,255,255,.1));color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.08) inset;}
@@ -1344,7 +1344,7 @@
   .weaver-vendor::before{left:-28%;width:280%;height:175%;}
 }
 @media (max-width: 980px){
-  #screen-weaver{padding:18px;}
+  #screen-weaver{padding:0;}
   .weaver-shell{grid-template-columns:1fr;gap:12px;width:min(700px,calc(100vw - 18px));}
   .weaver-vendor{min-height:240px;max-height:38vh;}
   .weaver-vendor::before{left:-6%;width:120%;height:150%;background-position:left bottom;opacity:.82;}
@@ -1374,7 +1374,7 @@
   .weaver-roster{grid-template-columns:1fr;}
 }
 @media (max-width: 920px){
-  #screen-weaver{padding:18px;}
+  #screen-weaver{padding:0;}
   .weaver-shell{grid-template-columns:1fr; width:min(760px,calc(100vw - 36px));}
   .weaver-vendor{min-height:280px;max-height:32vh;}
   .weaver-vendor::before{left:0;width:100%;height:100%;background-position:center bottom;background-size:contain;}
@@ -1385,11 +1385,11 @@
 
 
 /* v135 Weaver centered foreground + live roster layout */
-#screen-weaver{padding:24px;overflow:hidden;position:fixed;inset:0;}
+#screen-weaver{padding:0;overflow:hidden;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
 #screen-weaver .screen-backdrop{background:radial-gradient(circle at 22% 36%, rgba(38,67,112,.18), transparent 34%), var(--bg);}
 #screen-weaver .weaver-vendor{position:absolute;left:0;top:50%;transform:translateY(-50%);width:46vw;height:94vh;min-height:0;pointer-events:none;z-index:0;background:none;overflow:visible;}
 #screen-weaver .weaver-vendor::before{content:'';position:absolute;left:-10%;bottom:-2%;width:124%;height:118%;background:url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/weaver2.png") left top/contain no-repeat;opacity:1;filter:drop-shadow(0 34px 48px rgba(0,0,0,.46));}
-#screen-weaver .weaver-shell{position:relative;z-index:2;width:778px;max-width:calc(100vw - 56px);margin:0 auto;display:grid;grid-template-columns:repeat(3,250px);justify-content:center;gap:14px;align-items:start;}
+#screen-weaver .weaver-shell{position:relative;z-index:2;width:778px;max-width:calc(100vw - 32px);margin:0 !important;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,250px);justify-content:center;gap:14px;align-items:start;padding:0 !important;}
 #screen-weaver .weaver-panel,#screen-weaver .weaver-roster{position:relative;z-index:2;width:100%;max-width:none;min-width:0;align-self:start;padding:12px;border-radius:18px;background:linear-gradient(180deg, rgba(13,28,51,.95), rgba(7,16,31,.98));border:1px solid rgba(255,255,255,.10);box-shadow:0 20px 34px rgba(0,0,0,.30), inset 0 0 0 1px rgba(255,255,255,.03);}
 #screen-weaver .weaver-goodies-panel{grid-column:1 / span 2;display:flex;flex-direction:column;gap:10px;}
 #screen-weaver .weaver-hats-panel{display:none !important;}
@@ -1441,9 +1441,15 @@
 #screen-weaver .weaver-hat-anchor{display:flex;align-items:center;justify-content:flex-end;min-width:30px;}
 #screen-weaver .weaver-hat-anchor .slot{width:28px;height:28px;font-size:.88rem;border-radius:8px;}
 #screen-weaver .weaver-leave-btn{margin-top:2px;}
+#screen-weaver .weaver-card.is-shopper-switch{cursor:pointer;}
+#screen-weaver .weaver-card.is-shopper-switch:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(0,0,0,.26),0 0 0 1px rgba(255,255,255,.08) inset;}
+#screen-weaver .weaver-party-panel.is-between-houses .weaver-active-label:last-of-type{margin-top:2px;}
+#btn-win-house,#btn-win-house.end-turn,#actions #btn-win-house{background:#2f8e43 !important;border-color:#84e29a !important;color:#ffffff !important;}
+#btn-win-house.ready,#actions #btn-win-house.ready{background:#35a84a !important;border-color:#9cffab !important;color:#fff !important;}
+#btn-win-house.ready:hover:not(:disabled),#actions #btn-win-house.ready:hover:not(:disabled){background:#3fc557 !important;border-color:#c9ffd0 !important;}
 @media (max-width: 980px){
-  #screen-weaver{padding:18px;}
-  #screen-weaver .weaver-shell{grid-template-columns:1fr;gap:12px;width:min(700px,calc(100vw - 18px));max-width:calc(100vw - 18px);}
+  #screen-weaver{padding:0;}
+  #screen-weaver .weaver-shell{grid-template-columns:1fr;gap:12px;width:min(700px,calc(100vw - 18px));max-width:calc(100vw - 18px);left:50%;transform:translateX(-50%);}
   #screen-weaver .weaver-goodies-panel{grid-column:auto;}
   #screen-weaver .weaver-shop-grid-split{grid-template-columns:1fr;}
   #screen-weaver .weaver-vendor{width:44vw;height:42vh;top:auto;bottom:0;transform:none;}
@@ -1516,7 +1522,7 @@
   .weaver-vendor::before{left:-28%;width:280%;height:175%;}
 }
 @media (max-width: 980px){
-  #screen-weaver{padding:18px;}
+  #screen-weaver{padding:0;}
   .weaver-shell{grid-template-columns:1fr;gap:12px;width:min(700px,calc(100vw - 18px));}
   .weaver-vendor{min-height:240px;max-height:38vh;}
   .weaver-vendor::before{left:-6%;width:120%;height:150%;background-position:left bottom;opacity:.82;}
@@ -1546,7 +1552,7 @@
   .weaver-roster{grid-template-columns:1fr;}
 }
 @media (max-width: 920px){
-  #screen-weaver{padding:18px;}
+  #screen-weaver{padding:0;}
   .weaver-shell{grid-template-columns:1fr; width:min(760px,calc(100vw - 36px));}
   .weaver-vendor{min-height:280px;max-height:32vh;}
   .weaver-vendor::before{left:0;width:100%;height:100%;background-position:center bottom;background-size:contain;}
@@ -1618,6 +1624,9 @@
 #screen-weaver .weaver-hat-anchor{min-width:28px;align-items:flex-end;justify-content:center;}
 #screen-weaver .weaver-roster-note{display:none !important;}
 #screen-weaver .weaver-leave-btn{margin-top:2px;}
+#screen-weaver .weaver-card.is-shopper-switch{cursor:pointer;}
+#screen-weaver .weaver-card.is-shopper-switch:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(0,0,0,.26),0 0 0 1px rgba(255,255,255,.08) inset;}
+#screen-weaver .weaver-party-panel.is-between-houses .weaver-active-label:last-of-type{margin-top:2px;}
 @media (max-width: 980px){
   #screen-weaver .weaver-shell{width:min(760px,calc(100vw - 24px));grid-template-columns:1fr;}
   #screen-weaver .weaver-goodies-panel{grid-column:auto;}
@@ -1655,6 +1664,9 @@
 
 .game-screen.screen-setup .screen-backdrop{
   background-image:url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/gnome-start.png");
+}
+.game-screen.screen-victory .screen-backdrop{
+  background:radial-gradient(circle at 50% 24%, rgba(76,255,158,.22), transparent 32%), linear-gradient(180deg, rgba(7,22,18,.94), rgba(8,18,35,.98));
 }
 .game-screen.screen-setup .screen-backdrop::after{
   content:'';
@@ -1838,6 +1850,52 @@
 .game-screen.screen-weaver .weaver-active-card.active{width:272px;min-width:272px;max-width:272px;}
 .game-screen.screen-weaver .weaver-active-card .weaver-active-pips{margin-top:8px;}
 
+.game-screen.screen-weaver .weaver-marketboard-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.game-screen.screen-weaver .weaver-header-bank{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:82px;height:36px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.20);box-shadow:0 12px 24px rgba(0,0,0,.22), 0 0 18px rgba(255,255,255,.18);overflow:visible;isolation:isolate;}
+.game-screen.screen-weaver .weaver-header-bank-ring{position:absolute;inset:-7px;border-radius:999px;background:radial-gradient(circle, rgba(255,255,255,.30) 0%, rgba(255,255,255,.18) 48%, transparent 74%);opacity:.95;filter:blur(4px);pointer-events:none;z-index:0;}
+.game-screen.screen-weaver .weaver-header-bank-icon,.game-screen.screen-weaver .weaver-header-bank strong{position:relative;z-index:1;}
+.game-screen.screen-weaver .weaver-header-bank::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));z-index:0;}
+.game-screen.screen-weaver .weaver-header-bank strong{font:900 1rem/1 var(--font-body);color:#fff;}
+.game-screen.screen-weaver .weaver-header-bank.is-empty{border-color:rgba(255,92,92,.55);background:linear-gradient(180deg, rgba(110,24,24,.85), rgba(58,12,12,.95));box-shadow:0 12px 24px rgba(0,0,0,.26),0 0 18px rgba(255,92,92,.18);}
+.game-screen.screen-weaver .weaver-header-bank.is-empty .weaver-header-bank-ring{display:none;}
+.game-screen.screen-weaver .weaver-header-bank.is-empty strong,.game-screen.screen-weaver .weaver-header-bank.is-empty .weaver-header-bank-icon{color:#ff7a7a;}
+.game-screen.screen-weaver .weaver-market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;}
+.game-screen.screen-weaver .weaver-market-head{display:flex;align-items:center;justify-content:flex-start;gap:8px;padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid rgba(255,255,255,.08);}
+.game-screen.screen-weaver .weaver-market-title{font:800 .72rem/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:#dce8ff;}
+.game-screen.screen-weaver .weaver-market-price,.game-screen.screen-weaver .weaver-market-note,.game-screen.screen-weaver .weaver-confirm-bar{display:none !important;}
+.game-screen.screen-weaver .weaver-market-section{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.game-screen.screen-weaver .weaver-token-grid{display:grid;grid-template-columns:repeat(2,96px);grid-auto-rows:96px;gap:12px;justify-content:start;}
+.game-screen.screen-weaver .weaver-token-shell{position:relative;width:96px;height:96px;perspective:1200px;cursor:pointer;opacity:1;transition:opacity .18s ease, transform .18s ease, filter .18s ease;}
+.game-screen.screen-weaver .weaver-token-shell.is-disabled{cursor:not-allowed;opacity:.42;filter:saturate(.55);}
+.game-screen.screen-weaver .weaver-token-shell.is-dimmed{opacity:.32;filter:saturate(.45) blur(.1px);}
+.game-screen.screen-weaver .weaver-token-shell.is-appearing{animation:weaverTokenSpillIn .34s cubic-bezier(.2,.8,.22,1) both;animation-delay:var(--spill-delay,0ms);}
+.game-screen.screen-weaver .weaver-token-shell:not(.is-disabled):not(.is-flipped):hover{transform:translateY(-4px);}
+.game-screen.screen-weaver .weaver-token-card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .28s cubic-bezier(.2,.8,.22,1);}
+.game-screen.screen-weaver .weaver-token-shell.is-flipped .weaver-token-card{transform:rotateY(180deg) translateY(-4px) scale(1.03);}
+.game-screen.screen-weaver .weaver-token-face{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:8px;border-radius:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg, rgba(26,55,93,.98), rgba(15,32,57,.98));box-shadow:0 14px 22px rgba(0,0,0,.26), inset 0 0 0 1px rgba(255,255,255,.03);text-align:center;}
+.game-screen.screen-weaver .weaver-token-front{transform:rotate(calc(var(--token-rot, 0deg)));}
+.game-screen.screen-weaver .weaver-token-shell.is-flipped .weaver-token-front{transform:rotateY(180deg);}
+.game-screen.screen-weaver .weaver-token-back{transform:rotateY(180deg);padding:10px;background:linear-gradient(180deg, rgba(20,42,70,.99), rgba(11,24,44,.99));}
+.game-screen.screen-weaver .weaver-token-cost{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:0;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);font:800 .64rem/1 var(--font-body);color:#fff;}
+.game-screen.screen-weaver .weaver-token-shell.is-poor:hover .weaver-token-cost{color:#ff7d7d;border-color:rgba(255,120,120,.35);background:rgba(110,24,24,.22);}
+.game-screen.screen-weaver .weaver-token-icon{font-size:2rem;line-height:1;}
+.game-screen.screen-weaver .weaver-token-name{font:800 .76rem/1.08 var(--font-body);color:#fff;max-width:100%;}
+.game-screen.screen-weaver .weaver-token-action{width:100%;min-height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,#1b3b65,#122846);color:#fff;font:800 .72rem/1 var(--font-body);cursor:pointer;transition:transform .12s,border-color .12s,background .12s,opacity .12s;}
+.game-screen.screen-weaver .weaver-token-action:hover:not(:disabled){transform:translateY(-1px);border-color:#e7c17c;background:linear-gradient(180deg,#214776,#163154);}
+.game-screen.screen-weaver .weaver-token-action.is-trade{background:linear-gradient(180deg,#285a3f,#173524);}
+.game-screen.screen-weaver .weaver-token-action.is-trade:hover:not(:disabled){background:linear-gradient(180deg,#31734f,#1d422c);}
+.game-screen.screen-weaver .weaver-token-action:disabled{opacity:.45;cursor:not-allowed;}
+.game-screen.screen-weaver .weaver-reroll-wide{width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;text-align:center;}
+.game-screen.screen-weaver .weaver-reroll-wide .weaver-inline-cost{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);font:800 .66rem/1 var(--font-body);}
+.game-screen.screen-weaver .weaver-reroll-wide > span:first-child{text-align:center;}
+.game-screen.screen-weaver .weaver-marketboard.is-socks-empty .weaver-token-grid{opacity:.76;}
+.game-screen.screen-weaver .weaver-marketboard.is-socks-empty .weaver-token-shell:not(.is-flipped){filter:saturate(.55);}
+.game-screen.screen-weaver .weaver-leave-btn.is-empty{background:linear-gradient(180deg, #7f2424, #541515);border-color:rgba(255,126,126,.55);box-shadow:0 10px 20px rgba(0,0,0,.26), 0 0 18px rgba(255,92,92,.14);}
+.game-screen.screen-weaver .weaver-leave-btn.is-empty:hover{background:linear-gradient(180deg, #8d2a2a, #601919);border-color:rgba(255,146,146,.68);}
+@keyframes weaverSockGlowSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes weaverTokenSpillIn{from{opacity:0;transform:translateY(-16px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+
 @media (max-width: 980px){
   .game-screen.screen-setup .setup-roster{
     grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -1876,7 +1934,7 @@
 #screen-weaver .screen-backdrop{background:radial-gradient(circle at 20% 28%, rgba(67,99,156,.22), transparent 34%), var(--bg);}
 #screen-weaver .weaver-vendor{position:absolute;left:-40px;top:0;width:35vw;height:100vh;min-height:0;pointer-events:none;z-index:0;background:none;overflow:visible;transform:none;}
 #screen-weaver .weaver-vendor::before{content:'';position:absolute;left:0;top:0;width:120%;height:100%;background:url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/weaver2.png") left top/contain no-repeat;opacity:1;filter:drop-shadow(0 34px 48px rgba(0,0,0,.42));}
-#screen-weaver .weaver-shell{position:relative;z-index:2;width:min(1220px,calc(100vw - 64px));margin-left:auto;display:grid;grid-template-columns:250px minmax(0,1fr) 320px;gap:18px;align-items:start;}
+#screen-weaver .weaver-shell{position:relative;z-index:2;width:min(1220px,calc(100vw - 64px));margin:0 auto;display:grid;grid-template-columns:250px minmax(0,1fr) 320px;gap:18px;align-items:start;}
 #screen-weaver .weaver-panel,#screen-weaver .weaver-roster{position:relative;z-index:2;width:100%;max-width:none;min-width:0;padding:16px;border-radius:22px;background:linear-gradient(180deg, rgba(13,28,51,.95), rgba(7,16,31,.98));border:1px solid rgba(255,255,255,.10);box-shadow:0 20px 34px rgba(0,0,0,.30), inset 0 0 0 1px rgba(255,255,255,.03);}
 #screen-weaver .weaver-goodies-panel{grid-column:2;display:block;}
 #screen-weaver .weaver-hats-panel{display:none !important;}
@@ -1909,29 +1967,31 @@
 #screen-weaver .weaver-token.is-staged .weaver-token-icon,
 #screen-weaver .weaver-token.is-staged .weaver-token-name{opacity:0;}
 #screen-weaver .weaver-token-ghost{position:fixed;z-index:9999;pointer-events:none;margin:0;animation:none !important;opacity:1 !important;}
-#screen-weaver .weaver-confirm-copy{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-width:0;}
 #screen-weaver .weaver-confirm-copy-slot{width:96px;height:96px;flex:0 0 96px;display:flex;align-items:center;justify-content:center;}
 #screen-weaver .weaver-confirm-copy-slot .weaver-token{animation:none;opacity:1;transform:translateY(0) scale(1) rotate(0deg);cursor:default;}
 #screen-weaver .weaver-confirm-copy-slot .weaver-token:hover:not(:disabled){transform:translateY(0) scale(1) rotate(0deg);}
-#screen-weaver .weaver-confirm-copy-placeholder{width:96px;height:96px;flex:0 0 96px;border-radius:20px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.03);}
-#screen-weaver .weaver-confirm-copy-text{display:flex;flex-direction:column;gap:8px;min-width:0;}
-#screen-weaver .weaver-confirm-copy-text strong{font:800 .88rem/1.05 var(--font-body);letter-spacing:.02em;color:#fff;}
-#screen-weaver .weaver-confirm-copy-text span{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font:700 .66rem/1.2 var(--font-body);text-transform:uppercase;letter-spacing:.08em;}
+#screen-weaver .weaver-confirm-copy-placeholder{width:96px;height:96px;flex:0 0 96px;border-radius:20px;border:1px dashed rgba(255,255,255,.16);background:rgba(255,255,255,.03);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
 #screen-weaver .weaver-market-note{font-size:.72rem;line-height:1.35;color:#aac2de;min-height:18px;}
-#screen-weaver .weaver-confirm-bar{margin-top:14px;display:grid;grid-template-columns:auto auto 1fr auto;align-items:stretch;gap:12px;padding:12px 14px;border-radius:18px;background:rgba(13,26,43,.72);border:1px solid rgba(255,255,255,.08);}
-#screen-weaver .weaver-confirm-bank{display:flex;align-items:center;gap:6px;padding:0 0 0 2px;color:#fff7d7;}
-#screen-weaver .weaver-confirm-bank span{font-size:1.15rem;line-height:1;}
-#screen-weaver .weaver-confirm-bank strong{font:800 1rem/1 var(--font-body);}
-#screen-weaver .weaver-confirm-bank label{font:800 .62rem/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:#cfdfff;}
-#screen-weaver .weaver-confirm-copy{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;padding:10px 12px;border-radius:14px;background:rgba(231,193,124,.14);border:1px solid rgba(231,193,124,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
-#screen-weaver .weaver-confirm-copy strong{font:800 .82rem/1.1 var(--font-body);color:#fff7d7;}
-#screen-weaver .weaver-confirm-copy span{font:600 .68rem/1.2 var(--font-body);color:#e5edf8;}
-#screen-weaver .weaver-confirm-copy-highlight{min-height:56px;}
-#screen-weaver .weaver-confirm-actions{display:flex;align-items:center;justify-content:center;gap:10px;}
-#screen-weaver .weaver-confirm-actions-middle .weaver-buy-btn,#screen-weaver .weaver-confirm-actions .weaver-buy-btn{width:100%;}
-#screen-weaver .weaver-inline-cost{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.08);font:800 .62rem/1 var(--font-body);color:#fff7d7;}
-#screen-weaver .weaver-inline-detail{display:inline-block;margin-left:8px;opacity:.86;}
+#screen-weaver .weaver-confirm-bar{margin-top:16px;display:grid;grid-template-columns:128px 156px minmax(0,1fr);align-items:center;gap:12px;padding:10px 12px;border-radius:22px;background:linear-gradient(180deg, rgba(12,24,42,.95), rgba(9,18,33,.98));border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.03);}
+#screen-weaver .weaver-tray-cell{display:flex;align-items:center;justify-content:center;height:116px;padding:10px 12px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);min-width:0;}
+#screen-weaver .weaver-confirm-bank{flex-direction:column;justify-content:center;align-items:flex-start;gap:8px;color:#fff7d7;}
+#screen-weaver .weaver-confirm-bank span{font-size:1.2rem;line-height:1;}
+#screen-weaver .weaver-confirm-bank strong{font:800 1.3rem/1 var(--font-body);}
+#screen-weaver .weaver-confirm-bank label{margin-left:0;font:800 .72rem/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:#cfdfff;}
+#screen-weaver .weaver-bank-top{display:flex;align-items:center;gap:8px;}
+#screen-weaver .weaver-confirm-reroll-cell{justify-content:center;}
+#screen-weaver .weaver-reroll-label{display:flex;flex-direction:column;align-items:flex-start;line-height:1.02;}
+#screen-weaver .weaver-confirm-reroll-cell .weaver-buy-btn{width:100%;max-width:156px;min-height:74px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+#screen-weaver .weaver-trade-cta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:linear-gradient(180deg, rgba(231,193,124,.16), rgba(160,120,56,.07));border-color:rgba(231,193,124,.28);}
+#screen-weaver .weaver-trade-slot{display:flex;align-items:center;justify-content:center;flex:0 0 116px;width:116px;height:96px;min-width:116px;padding:0 10px;border-radius:18px;background:rgba(10,20,36,.28);border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+#screen-weaver .weaver-confirm-actions{display:flex;align-items:center;justify-content:center;gap:10px;flex:1 1 auto;}
+#screen-weaver .weaver-confirm-actions-right{justify-content:flex-end;align-self:stretch;}
+#screen-weaver .weaver-confirm-actions-right .weaver-buy-btn{min-width:156px;min-height:54px;}
+#screen-weaver .weaver-inline-cost{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.08);font:800 .62rem/1 var(--font-body);color:#fff7d7;white-space:nowrap;}
+#screen-weaver .weaver-kicker{margin-bottom:2px;}
 #screen-weaver .weaver-secondary-btn{background:rgba(255,255,255,.07);}
+#screen-weaver .weaver-secondary-btn:hover:not(:disabled){background:rgba(255,255,255,.11);}
+@media (max-width: 1200px){#screen-weaver .weaver-confirm-bar{grid-template-columns:116px 148px minmax(0,1fr);}#screen-weaver .weaver-confirm-actions-right .weaver-buy-btn{min-width:148px;}}
 @keyframes weaverTokenSpill{0%{opacity:0;transform:translateY(-26px) scale(.84) rotate(calc(var(--token-rot, 0deg) * -1));}65%{opacity:1;transform:translateY(6px) scale(1.02) rotate(var(--token-rot,0deg));}100%{opacity:1;transform:translateY(0) scale(1) rotate(var(--token-rot,0deg));}}
 #screen-weaver .weaver-sidebar-card{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
 #screen-weaver .weaver-active-card.is-recipient{border-color:color-mix(in srgb, var(--gnome-accent) 68%, white);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset, 0 14px 28px rgba(0,0,0,.18);}
@@ -1971,7 +2031,7 @@
   #screen-weaver .weaver-shell{grid-template-columns:220px minmax(0,1fr) 300px;width:min(1120px,calc(100vw - 32px));}
 }
 @media (max-width: 980px){
-  #screen-weaver{padding:18px;}
+  #screen-weaver{padding:0;}
   #screen-weaver .weaver-shell{grid-template-columns:1fr;width:min(820px,calc(100vw - 20px));}
   #screen-weaver .weaver-vendor{position:relative;left:0;top:0;width:100%;height:220px;grid-row:1;grid-column:auto;}
   #screen-weaver .weaver-vendor::before{width:100%;height:100%;}
@@ -1988,12 +2048,32 @@
 }
 
 
+
+/* v165 weaver hard reset: center shell and isolate room vs between-house layout */
+#screen-weaver{padding:0 !important;display:none;align-items:center;justify-content:center;}
+#screen-weaver.show{display:flex !important;}
+#screen-weaver .weaver-shell{position:relative !important;left:auto !important;right:auto !important;top:auto !important;transform:none !important;margin:0 auto !important;padding:0 !important;width:min(1040px,calc(100vw - 32px)) !important;max-width:calc(100vw - 32px) !important;display:grid !important;grid-template-columns:minmax(0,1.55fr) minmax(260px,.85fr) !important;gap:18px !important;justify-content:center !important;align-items:start !important;}
+#screen-weaver .weaver-goodies-panel{grid-column:1 / 2 !important;display:block !important;}
+#screen-weaver .weaver-roster{grid-column:2 / 3 !important;display:flex !important;flex-direction:column !important;gap:12px !important;}
+#screen-weaver .weaver-hats-panel{display:none !important;}
+#screen-weaver .weaver-market-grid{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:14px !important;}
+#screen-weaver .weaver-sidebar-card{width:100% !important;}
+#screen-weaver.weaver-mode-room .weaver-active-label:last-of-type{opacity:.9;}
+#screen-weaver.weaver-mode-between .weaver-party-grid{display:flex !important;flex-direction:column !important;gap:10px !important;}
+#screen-weaver.weaver-mode-between .weaver-preview-card{cursor:pointer;}
+#screen-weaver.weaver-mode-between .weaver-preview-card:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.06) inset;}
+@media (max-width: 980px){
+  #screen-weaver .weaver-shell{grid-template-columns:1fr !important;width:min(760px,calc(100vw - 24px)) !important;}
+  #screen-weaver .weaver-roster{grid-column:auto !important;}
+  #screen-weaver .weaver-market-grid{grid-template-columns:1fr !important;}
+}
+
 </style>
 
 
 </head>
 <body>
-<!-- GPT build: v142 -->
+<!-- GPT build: v162 -->
 <div id="screen-setup" class="game-screen screen-setup show">
   <div class="screen-backdrop"></div>
   <div class="screen-ui screen-setup-ui">
@@ -2013,6 +2093,22 @@
       <h2 id="end-title">Game Over</h2>
       <p id="end-message"></p>
       <button class="start-btn" data-command="resetGame">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-victory" class="game-screen screen-victory">
+  <div class="screen-backdrop"></div>
+  <div class="screen-ui screen-end-ui">
+    <div class="end-figure victory">🧦</div>
+    <div class="end-copy">
+      <h2 id="victory-title" style="color:#4cff9e;">YOU ESCAPED!</h2>
+      <p id="victory-message"></p>
+      <div class="victory-actions" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;">
+        <button class="start-btn" data-command="visitWeaverAfterEscape">Visit the Weaver</button>
+        <button class="start-btn" data-command="startNextHouse">Start the Next House</button>
+        <button class="start-btn" data-command="resetGame">Quit</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3286,7 +3382,7 @@ function clearInteractionModes({ log = false, render = false, clearScurry = fals
 
 function initCommandBindings(root = document) {
   const UI_CLICK_COMMANDS = new Set([
-    'startGame','resetGame','toggleLogCollapsed','selectPlayers',
+    'startGame','resetGame','visitWeaverAfterEscape','startNextHouse','toggleLogCollapsed','selectPlayers',
     'selectAction','doKick','cancelKick','doVent','cancelVent','cancelDynamite','cancelShroom',
     'dismissCard','openWeaver','hamperInteract','winHouse','endGnomeTurn'
   ]);
@@ -3332,6 +3428,8 @@ const UI_COMMANDS = Object.freeze({
   toggleSetupGnome: (_node, value) => toggleSetupGnome(Number(value)),
   startGame: () => startGame(),
   resetGame: () => resetGame(),
+  visitWeaverAfterEscape: () => visitWeaverAfterEscape(),
+  startNextHouse: () => startNextHouse(),
   toggleLogCollapsed: () => toggleLogCollapsed(),
   selectAction: (_node, value) => executeGameAction(value),
   pickupInCurrentRoom: () => executeGameAction('pickup'),
@@ -3847,7 +3945,7 @@ const EVENT_CARDS = [
 let G = {};
 
 const GAME_BUILD = Object.freeze({
-  version: 'v118',
+  version: 'v165',
   boardCellSize: 162,
   boardGap: 4,
 });
@@ -4446,7 +4544,9 @@ function startGame() {
   warmUiPerformance().catch(() => undefined);
   el('screen-setup').classList.remove('show');
   el('screen-end').classList.remove('show');
+  el('screen-victory').classList.remove('show');
   el('screen-weaver').classList.remove('show');
+  syncWeaverScreenMode('');
   initState(setupPlayerCount, names, selected);
   renderAll();
   requestAnimationFrame(() => {
@@ -4473,7 +4573,9 @@ function resetGame() {
   el('card-overlay').classList.remove('show');
   document.body.classList.remove('card-showing');
   el('screen-end').classList.remove('show');
+  el('screen-victory').classList.remove('show');
   el('screen-weaver').classList.remove('show');
+  syncWeaverScreenMode('');
   el('screen-setup').classList.add('show');
   setupSelectedGnomes = [0,1]; setupPlayerCount = 2; renderGnomeNameInputs();
 initDebugFork();
@@ -7121,7 +7223,8 @@ function createWeaverOffer(type, forcedId = null) {
     desc: def?.desc || '',
     cost: getWeaverOfferCost(type),
     rotation: `${(Math.random() * 6 - 3).toFixed(2)}deg`,
-    delay: `${Math.round(Math.random() * 220)}ms`
+    delay: `${Math.round(Math.random() * 220)}ms`,
+    appearing: true
   };
 }
 
@@ -7193,7 +7296,14 @@ function applyWeaverItemToGnome(gnome, item, mode) {
     refillWeaverOfferSlot(modal.selectedOfferType, modal.selectedOfferIndex, modal);
   }
   addLog(`${getWeaverItemLabel(item)} goes to ${gnome.name}${equipped ? ' (auto-equipped!)' : ''}!`, 'good');
-  setWeaverModalContext({kind:'shop', mode, offers: modal.offers || ensureWeaverOffers(modal)});
+  setWeaverModalContext({
+    kind:'shop',
+    mode,
+    offers: modal.offers || ensureWeaverOffers(modal),
+    shopperIdx: mode === 'between' ? modal.shopperIdx : undefined,
+    selectedOfferType: '',
+    selectedOfferIndex: -1
+  });
   renderWeaverScreen();
   renderAll();
   return true;
@@ -7206,41 +7316,27 @@ function startWeaverRoll(type, mode, offerIndex = 0) {
   if (!offer) return;
   const cost = offer.cost ?? getWeaverOfferCost(type);
   if (G.SocksBanked < cost) return;
-  if (mode === 'room' && G.actionsLeft <= 0) return;
   const item = { type, id: offer.id };
-  if (mode === 'room') {
-    const activeGnome = G.gnomes[G.currentGnomeIdx] || null;
-    if (!activeGnome) return;
-    if (type === 'goodie' && !canReceiveInSatchel(activeGnome, item)) return;
-    G.SocksBanked -= cost;
-    spendAction();
-    applyWeaverItemToGnome(activeGnome, item, mode);
-    return;
-  }
+  const shopperIdx = mode === 'between'
+    ? (Number.isInteger(modal.shopperIdx) ? modal.shopperIdx : G.currentGnomeIdx)
+    : G.currentGnomeIdx;
+  const activeGnome = G.gnomes[shopperIdx] || null;
+  if (!activeGnome) return;
+  if (type === 'goodie' && !canReceiveInSatchel(activeGnome, item)) return;
   G.SocksBanked -= cost;
-  setWeaverModalContext({
-    kind:'recipient',
-    mode,
-    item,
-    offers: modal.offers,
-    selectedOfferType: type,
-    selectedOfferIndex: offerIndex
-  });
-  renderWeaverScreen();
+  applyWeaverItemToGnome(activeGnome, item, mode);
 }
 
 function rerollWeaverOffers(mode) {
   const modal = G.weaverModal || {};
   ensureWeaverOffers(modal);
-  if (mode !== 'room') return false;
-  if (G.SocksBanked < 1 || G.actionsLeft <= 0) return false;
+  if (G.SocksBanked < 1) return false;
   G.SocksBanked -= 1;
-  spendAction();
   modal.offers = {
     goodie: buildWeaverOfferSet('goodie', 4),
     hat: buildWeaverOfferSet('hat', 4)
   };
-  setWeaverModalContext({ kind:'shop', mode, offers: modal.offers });
+  setWeaverModalContext({ kind:'shop', mode, offers: modal.offers, shopperIdx: modal.shopperIdx });
   renderWeaverScreen();
   renderAll();
   return true;
@@ -7255,8 +7351,12 @@ function renderWeaverScreen() {
 
   const mode = G.weaverModal.mode || 'room';
   const inRoomTrade = mode === 'room';
+  const betweenHouseTrade = mode === 'between';
   const currentItem = G.weaverModal.item || null;
-  const activeGnome = G.gnomes[G.currentGnomeIdx] || null;
+  const activeIdx = inRoomTrade
+    ? G.currentGnomeIdx
+    : (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : G.currentGnomeIdx);
+  const activeGnome = G.gnomes[activeIdx] || null;
   const eligible = currentItem
     ? G.gnomes.filter(g => (currentItem.type === 'hat' || canReceiveInSatchel(g, currentItem)) && (!inRoomTrade || g === activeGnome))
     : [];
@@ -7264,56 +7364,63 @@ function renderWeaverScreen() {
   const selectedOfferType = G.weaverModal.selectedOfferType || '';
   const selectedOfferIndex = Number.isInteger(G.weaverModal.selectedOfferIndex) ? G.weaverModal.selectedOfferIndex : -1;
   const selectedOffer = !currentItem && selectedOfferType ? (offers?.[selectedOfferType]?.[selectedOfferIndex] || null) : null;
+  const socksEmpty = G.SocksBanked <= 0;
+  const anyTileSelected = !currentItem && !!selectedOffer;
 
-  const buildTokenMarkup = (offer, type, { staged = false, interactive = false, index = 0 } = {}) => {
+  const buildTokenMarkup = (offer, type, { index = 0, selected = false, disabled = false, dimmed = false, poor = false, appearing = false } = {}) => {
     const cost = offer.cost ?? getWeaverOfferCost(type);
-    const cls = ['weaver-token', type === 'hat' ? 'is-hat' : 'is-goodie'];
-    if (staged) cls.push('is-staged');
-    const attrs = [];
-    if (interactive) {
-      attrs.push(`data-buy-type="${type}"`, `data-buy-index="${index}"`);
-    }
     const title = `${offer.name}: ${offer.desc || ''}`;
-    return `<button class="${cls.join(' ')}" ${attrs.join(' ')} style="--token-rot:${staged ? '0deg' : offer.rotation};--spill-delay:${staged ? '0ms' : offer.delay};" title="${title}" ${interactive ? '' : 'type="button" tabindex="-1"'}>
-      <span class="weaver-token-cost">🧦 ${cost}</span>
-      <span class="weaver-token-icon">${offer.emoji}</span>
-      <span class="weaver-token-name">${offer.name}</span>
-    </button>`;
+    const classes = ['weaver-token-shell', type === 'hat' ? 'is-hat' : 'is-goodie'];
+    if (selected) classes.push('is-flipped', 'is-selected');
+    if (dimmed) classes.push('is-dimmed');
+    if (disabled) classes.push('is-disabled');
+    if (poor) classes.push('is-poor');
+    if (appearing) classes.push('is-appearing');
+    return `<div class="${classes.join(' ')}" data-buy-type="${type}" data-buy-index="${index}" title="${title}" style="--token-rot:${offer.rotation};--spill-delay:${offer.delay};">
+      <div class="weaver-token-card">
+        <div class="weaver-token-face weaver-token-front">
+          <span class="weaver-token-cost">🧦 ${cost}</span>
+          <span class="weaver-token-icon">${offer.emoji}</span>
+          <span class="weaver-token-name">${offer.name}</span>
+        </div>
+        <div class="weaver-token-face weaver-token-back">
+          <button class="weaver-token-action is-trade" type="button" data-trade-type="${type}" data-trade-index="${index}" ${disabled ? 'disabled' : ''}>Trade</button>
+          <button class="weaver-token-action is-cancel" type="button" data-cancel-type="${type}" data-cancel-index="${index}">Cancel</button>
+        </div>
+      </div>
+    </div>`;
   };
 
   const renderTokenGrid = (type, title) => {
     const typeOffers = offers?.[type] || [];
-    const canAffordAny = typeOffers.some(offer => G.SocksBanked >= (offer.cost ?? getWeaverOfferCost(type)));
-    const canReceiveAny = !inRoomTrade || type === 'hat' || typeOffers.some(offer => activeGnome && canReceiveInSatchel(activeGnome, { type, id: offer.id }));
     return `
       <section class="weaver-market-section">
         <div class="weaver-market-head">
-          <div>
-            <div class="weaver-market-title">${title}</div>
-          </div>
-          <div class="weaver-market-price">🧦 ${type === 'hat' ? '5 each' : '1 each'}</div>
+          <div class="weaver-market-title">${title}</div>
         </div>
         <div class="weaver-token-grid" data-token-type="${type}">
           ${typeOffers.map((offer, idx) => {
             const afford = G.SocksBanked >= (offer.cost ?? getWeaverOfferCost(type));
             const canReceive = !inRoomTrade || type === 'hat' || (activeGnome && canReceiveInSatchel(activeGnome, { type, id: offer.id }));
-            const disabled = !!currentItem || !afford || (inRoomTrade && G.actionsLeft <= 0) || !canReceive;
-            const isStaged = !currentItem && selectedOfferType === type && selectedOfferIndex === idx;
-            if (isStaged) {
-              return `<div class="weaver-token-shell" data-buy-type="${type}" data-buy-index="${idx}">${buildTokenMarkup(offer, type, { staged: true, interactive: false, index: idx })}</div>`;
-            }
-            return buildTokenMarkup(offer, type, { staged: false, interactive: !disabled, index: idx }).replace('title="'+`${offer.name}: ${offer.desc || ''}`+'"', 'title="'+`${offer.name}: ${offer.desc || ''}`+'" ' + (disabled ? 'disabled' : ''));
+            const poor = !afford;
+            const disabled = !!currentItem || !afford || !canReceive;
+            const selected = !currentItem && selectedOfferType === type && selectedOfferIndex === idx;
+            const dimmed = !currentItem && anyTileSelected && !selected;
+            const appearing = !!offer.appearing;
+            return buildTokenMarkup(offer, type, { index: idx, selected, disabled, dimmed, poor, appearing });
           }).join('')}
         </div>
-        <div class="weaver-market-note">${currentItem ? 'Pick who receives the selected item on the right.' : (!canAffordAny ? 'Need more socks to buy here.' : (!canReceiveAny ? 'Active gnome has no room for another goodie.' : ''))}</div>
       </section>`;
   };
 
   goodiesPanel.innerHTML = `
-    <div class="weaver-marketboard">
+    <div class="weaver-marketboard${socksEmpty ? ' is-socks-empty' : ''}">
       <div class="weaver-marketboard-header">
-        <div>
-          <div class="weaver-kicker">Weaver’s Table</div>
+        <div class="weaver-kicker">Weaver's Table</div>
+        <div class="weaver-header-bank${socksEmpty ? ' is-empty' : ''}" title="${G.SocksBanked} socks available to trade">
+          <span class="weaver-header-bank-ring" aria-hidden="true"></span>
+          <span class="weaver-header-bank-icon">🧦</span>
+          <strong>${G.SocksBanked}</strong>
         </div>
       </div>
       ${currentItem ? `
@@ -7328,19 +7435,7 @@ function renderWeaverScreen() {
         ${renderTokenGrid('goodie', 'Goodies')}
         ${renderTokenGrid('hat', 'Hats')}
       </div>
-      ${!currentItem ? `
-        <div class="weaver-confirm-bar">
-          <div class="weaver-confirm-bank"><span>🧦</span><strong>${G.SocksBanked}</strong><label>Socks</label></div>
-          <div class="weaver-confirm-actions weaver-confirm-actions-middle">
-            <button id="weaver-reroll-btn" class="weaver-buy-btn weaver-secondary-btn" type="button" ${(inRoomTrade && G.SocksBanked >= 1 && G.actionsLeft > 0) ? '' : 'disabled'}>Reroll Items <span class="weaver-inline-cost">🧦 1</span></button>
-          </div>
-          <div class="weaver-confirm-copy weaver-confirm-copy-highlight">
-            ${selectedOffer ? `<div id="weaver-confirm-slot" class="weaver-confirm-copy-slot">${buildTokenMarkup(selectedOffer, selectedOfferType, { staged: false, interactive: false, index: selectedOfferIndex })}</div><div class="weaver-confirm-copy-text"><strong>${selectedOffer.name}</strong><span><span class="weaver-inline-cost">🧦 ${selectedOffer.cost ?? getWeaverOfferCost(selectedOfferType)}</span>${inRoomTrade ? '<span class="weaver-inline-detail">1 action</span>' : '<span class="weaver-inline-detail">Choose recipient after confirming</span>'}</span></div>` : '<div id="weaver-confirm-slot" class="weaver-confirm-copy-placeholder"></div><div class="weaver-confirm-copy-text"><strong>Select an offer</strong><span>Choose a token, then confirm the trade.</span></div>'}
-          </div>
-          <div class="weaver-confirm-actions">
-            <button id="weaver-confirm-btn" class="weaver-buy-btn" type="button" ${selectedOffer ? '' : 'disabled'}>Confirm Trade</button>
-          </div>
-        </div>` : ''}
+      ${!currentItem ? `<button id="weaver-reroll-btn" class="weaver-buy-btn weaver-reroll-wide" type="button" ${(selectedOffer || G.SocksBanked < 1) ? 'disabled' : ''}><span>Reroll Items</span><span class="weaver-inline-cost">🧦 1</span></button>` : ''}
     </div>`;
   hatsPanel.innerHTML = '';
   hatsPanel.style.display = 'none';
@@ -7357,12 +7452,13 @@ function renderWeaverScreen() {
     }).join('');
   };
 
-  const renderWeaverGnomeCard = (g, idx, { active = false } = {}) => {
+  const renderWeaverGnomeCard = (g, idx, { active = false, shopperSelectable = false } = {}) => {
     const hat = HAT_DEF_BY_ID[g.hat] || null;
     const size = getSatchelSize(g);
     const canReceive = !!currentItem && eligible.includes(g);
-    const recipientAttrs = canReceive ? ` data-recipient-idx="${idx}"` : '';
-    const recipientClass = canReceive ? ' is-recipient' : '';
+    const canSwitchShopper = betweenHouseTrade && !currentItem && !active && shopperSelectable;
+    const recipientAttrs = canReceive ? ` data-recipient-idx="${idx}"` : (canSwitchShopper ? ` data-weaver-shopper-idx="${idx}"` : '');
+    const recipientClass = canReceive ? ' is-recipient' : (canSwitchShopper ? ' is-shopper-switch' : '');
     const statusStack = (g.hidden || g.stickyBlocked)
       ? `<span class="gnome-status-stack">${g.hidden ? '<span class="gnome-status-badge hidden">🫣</span>' : ''}${g.stickyBlocked ? '<span class="gnome-status-badge sticky">🫟</span>' : ''}</span>`
       : '';
@@ -7394,58 +7490,58 @@ function renderWeaverScreen() {
   };
 
   roster.innerHTML = `
-    <div class="weaver-sidebar-card weaver-party-panel gnome-card-column">
-      <div class="weaver-active-label">${inRoomTrade ? 'Active Trader' : 'Current Gnome'}</div>
-      ${activeGnome ? renderWeaverGnomeCard(activeGnome, G.currentGnomeIdx, { active: true }) : ''}
-      <div class="weaver-active-label">Party Preview</div>
+    <div class="weaver-sidebar-card weaver-party-panel gnome-card-column${betweenHouseTrade ? ' is-between-houses' : ''}">
+      <div class="weaver-active-label">${inRoomTrade ? 'Active Trader' : 'Shopping Gnome'}</div>
+      ${activeGnome ? renderWeaverGnomeCard(activeGnome, activeIdx, { active: true }) : ''}
+      <div class="weaver-active-label">${betweenHouseTrade ? 'Click a Gnome to Shop' : 'Party Preview'}</div>
       <div class="weaver-party-grid gnome-card-column">
-        ${G.gnomes.map((g, idx) => [g, idx]).filter(([g, idx]) => idx !== G.currentGnomeIdx).map(([g, idx]) => renderWeaverGnomeCard(g, idx)).join('')}
+        ${G.gnomes.map((g, idx) => [g, idx]).filter(([g, idx]) => idx !== activeIdx).map(([g, idx]) => renderWeaverGnomeCard(g, idx, { shopperSelectable: betweenHouseTrade })).join('')}
       </div>
-
     </div>
-    <button id="weaver-close-btn" class="weaver-buy-btn weaver-leave-btn" type="button">${inRoomTrade ? 'Leave' : `Leave — Begin House ${G.house+1}`}</button>`;
+    <button id="weaver-close-btn" class="weaver-buy-btn weaver-leave-btn${socksEmpty ? ' is-empty' : ''}" type="button">${inRoomTrade ? 'Leave' : `Leave — Begin House ${G.house+1}`}</button>`;
 
-  const animateSelectionToConfirm = (sourceBtn) => {
-    const slot = document.getElementById('weaver-confirm-slot');
-    if (!sourceBtn || !slot) return;
-    const ghost = sourceBtn.cloneNode(true);
-    ghost.classList.add('weaver-token-ghost');
-    ghost.classList.remove('is-staged');
-    const sourceRect = sourceBtn.getBoundingClientRect();
-    const targetRect = slot.getBoundingClientRect();
-    ghost.style.left = `${sourceRect.left}px`;
-    ghost.style.top = `${sourceRect.top}px`;
-    ghost.style.width = `${sourceRect.width}px`;
-    ghost.style.height = `${sourceRect.height}px`;
-    document.body.appendChild(ghost);
-    requestAnimationFrame(() => {
-      ghost.style.transition = 'left .24s cubic-bezier(.2,.8,.22,1), top .24s cubic-bezier(.2,.8,.22,1), transform .24s cubic-bezier(.2,.8,.22,1), opacity .18s ease';
-      ghost.style.left = `${targetRect.left}px`;
-      ghost.style.top = `${targetRect.top}px`;
-      ghost.style.transform = 'scale(.98) rotate(0deg)';
-    });
-    window.setTimeout(() => { ghost.remove(); }, 280);
-  };
-
-  document.querySelectorAll('#screen-weaver [data-buy-type]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (currentItem) return;
-      const type = btn.dataset.buyType;
-      const index = Number(btn.dataset.buyIndex || 0);
+  document.querySelectorAll('#screen-weaver .weaver-token-shell').forEach(tile => {
+    if (tile.classList.contains('is-flipped') || tile.classList.contains('is-disabled') || currentItem) return;
+    tile.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      const type = tile.dataset.buyType;
+      const index = Number(tile.dataset.buyIndex || 0);
       setWeaverModalContext({
         kind:'shop',
         mode,
         offers: G.weaverModal?.offers || offers,
+        shopperIdx: mode === 'between'
+          ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
+          : undefined,
         selectedOfferType: type,
         selectedOfferIndex: index
       });
       renderWeaverScreen();
-      animateSelectionToConfirm(btn);
     });
   });
-  document.getElementById('weaver-confirm-btn')?.addEventListener('click', () => {
-    if (!selectedOffer) return;
-    startWeaverRoll(selectedOfferType, mode, selectedOfferIndex);
+  document.querySelectorAll('#screen-weaver [data-trade-type]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const type = btn.dataset.tradeType;
+      const index = Number(btn.dataset.tradeIndex || 0);
+      startWeaverRoll(type, mode, index);
+    });
+  });
+  document.querySelectorAll('#screen-weaver [data-cancel-type]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setWeaverModalContext({
+        kind:'shop',
+        mode,
+        offers: G.weaverModal?.offers || offers,
+        shopperIdx: mode === 'between'
+          ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
+          : undefined,
+        selectedOfferType: '',
+        selectedOfferIndex: -1
+      });
+      renderWeaverScreen();
+    });
   });
   document.getElementById('weaver-reroll-btn')?.addEventListener('click', () => {
     rerollWeaverOffers(mode);
@@ -7470,13 +7566,50 @@ function renderWeaverScreen() {
       applyWeaverItemToGnome(g, currentItem, mode);
     });
   });
-  document.getElementById('weaver-close-btn')?.addEventListener('click', () => { G.weaverRoll = null; setWeaverModalContext(null); if (!inRoomTrade) advanceHouse(); else renderAll(); });
+  document.querySelectorAll('#screen-weaver [data-weaver-shopper-idx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.weaverShopperIdx);
+      if (!Number.isInteger(idx) || !G.gnomes[idx]) return;
+      setWeaverModalContext({
+        kind:'shop',
+        mode,
+        offers: G.weaverModal?.offers || offers,
+        shopperIdx: idx,
+        selectedOfferType: '',
+        selectedOfferIndex: -1
+      });
+      renderWeaverScreen();
+    });
+  });
+  document.getElementById('weaver-close-btn')?.addEventListener('click', () => { G.weaverRoll = null; setWeaverModalContext(null); syncWeaverScreenMode(''); if (!inRoomTrade) advanceHouse(); else renderAll(); });
+  if (G.weaverModal?.offers) {
+    ['goodie','hat'].forEach(t => {
+      (G.weaverModal.offers[t] || []).forEach(o => { if (o) o.appearing = false; });
+    });
+  }
+}
+
+function syncWeaverScreenMode(mode = '') {
+  const screen = document.getElementById('screen-weaver');
+  if (!screen) return;
+  screen.classList.remove('weaver-mode-room','weaver-mode-between');
+  if (mode === 'room') screen.classList.add('weaver-mode-room');
+  if (mode === 'between') screen.classList.add('weaver-mode-between');
 }
 
 function showWeaverShopModal(mode) {
-  const ctx = {kind:'shop', mode, offers: G.weaverModal?.mode === mode ? G.weaverModal?.offers : null};
+  const existing = G.weaverModal?.mode === mode ? G.weaverModal : null;
+  const ctx = {
+    kind:'shop',
+    mode,
+    offers: existing?.offers || null,
+    shopperIdx: mode === 'between'
+      ? (Number.isInteger(existing?.shopperIdx) ? existing.shopperIdx : G.currentGnomeIdx)
+      : undefined
+  };
   ensureWeaverOffers(ctx);
   setWeaverModalContext(ctx);
+  syncWeaverScreenMode(mode);
   renderWeaverScreen();
 }
 
@@ -7495,6 +7628,8 @@ function openWeaver() {
   if (!gnome||G.phase!=='gnome') return;
   const tile = G.grid[gnome.row][gnome.col];
   if (!(tile?.weaver || tile?.roomId === 1)) { addLog('Weaver not accessible here.','bad'); return; }
+  if (G.actionsLeft <= 0) { addLog('No actions left to visit the Weaver.','bad'); return; }
+  spendAction();
   showWeaverShopModal('room');
 }
 
@@ -7504,6 +7639,32 @@ function pickWeaverRecipient(item, onDone) {
 
 function openWeaverBetweenHousesLegacy() {
   showWeaverShopModal('between');
+}
+
+function showEscapeVictoryScreen() {
+  closeModal();
+  closeItemPopup();
+  hideBanner();
+  document.getElementById('card-overlay').classList.remove('show');
+  document.body.classList.remove('card-showing');
+  const screen = document.getElementById('screen-victory');
+  const msg = document.getElementById('victory-message');
+  if (msg) msg.textContent = `Escaped with ${G.SocksBanked} socks! House ${G.house} complete. Trouble: ${G.trouble}/20.`;
+  screen?.classList.add('show');
+}
+
+function hideEscapeVictoryScreen() {
+  document.getElementById('screen-victory')?.classList.remove('show');
+}
+
+function visitWeaverAfterEscape() {
+  hideEscapeVictoryScreen();
+  openWeaverBetweenHouses();
+}
+
+function startNextHouse() {
+  hideEscapeVictoryScreen();
+  advanceHouse();
 }
 
 
@@ -7520,6 +7681,7 @@ function resetGnomeForNewHouse(gnome) {
 }
 
 function advanceHouse() {
+  hideEscapeVictoryScreen();
   clearPatrolRefCards();
   const nextHouse = G.house + 1;
   const savedGnomes = G.gnomes.map(resetGnomeForNewHouse);
@@ -7553,6 +7715,7 @@ function showEndScreen(won) {
   hideBanner();
   document.getElementById('card-overlay').classList.remove('show');
   document.body.classList.remove('card-showing');
+  hideEscapeVictoryScreen();
   const screen=document.getElementById('screen-end');
   const title=document.getElementById('end-title');
   const msg=document.getElementById('end-message');
@@ -9163,11 +9326,12 @@ function winHouse() {
   const inLaundry = G.gnomes.find(g => !g.ko && G.grid[g.row]?.[g.col]?.roomId === 1);
   if (!inLaundry) { addLog('A gnome must be in the Laundry Room to escape!', 'bad'); return; }
   addLog(`🏁 ${inLaundry.name} leads the escape with ${G.SocksBanked} Socks!`, 'good');
-  openWeaverBetweenHouses();
+  showEscapeVictoryScreen();
 }
 
 // Active between-house weaver flow. Kept intentionally so gameplay matches the current live version.
 function openWeaverBetweenHouses() {
+  hideEscapeVictoryScreen();
   showWeaverShopModal('between');
   return;
 
