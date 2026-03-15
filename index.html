@@ -61,11 +61,30 @@
   #sidebar{position:fixed;left:50%;transform:translateX(-50%);top:auto;right:auto;bottom:12px;width:auto;padding:0;overflow:visible;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:10px;background:transparent;border:none;z-index:45;pointer-events:none;}
   #sidebar > *{pointer-events:auto;}
   #log-area{position:relative;left:auto;right:auto;bottom:auto;top:auto;width:100%;max-height:none;background:transparent;border:none;border-radius:0;padding:8px 0 0;z-index:auto;box-shadow:none;backdrop-filter:none;overflow:hidden;}
-  #top-left-shell{position:fixed;top:12px;left:auto;right:12px;width:min(292px,calc(100vw - 24px));z-index:45;padding:10px 12px 9px;}
+  #top-left-shell{position:fixed;top:12px;left:auto;right:12px;width:min(316px,calc(100vw - 24px));z-index:45;padding:0;background:transparent;border:none;box-shadow:none;display:flex;flex-direction:column;gap:10px;}
   #top-left-shell #header{position:relative;inset:auto;background:transparent;border:none;box-shadow:none;padding:0;}
-  #top-left-shell #header-summary{display:flex;flex-direction:column;gap:12px;width:100%;}
+  #top-left-shell #header-summary{display:flex;flex-direction:column;gap:8px;width:100%;}
   #header-brand{display:none !important;}
-  #top-left-shell .tracker-row{display:grid;grid-template-columns:1.35fr 1fr .8fr .8fr 28px;gap:4px;align-items:center;width:100%;}
+  #header-meta-row{display:flex;justify-content:flex-end;align-items:center;gap:6px;pointer-events:auto;}
+  .header-hidden-phase{display:none !important;}
+  .header-mini-chip{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:24px;padding:4px 8px;border-radius:999px;background:rgba(11,23,42,.64);border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 18px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,255,255,.03);font:800 .68rem/1 var(--font-body);color:#dbe8ff;backdrop-filter:blur(6px);}
+  #header-focus-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;pointer-events:auto;}
+  #trouble-bar-wrap{background:transparent;border-radius:0;padding:0;min-width:0;width:100%;display:flex;flex-direction:column;gap:6px;}
+  #trouble-readout{display:flex;align-items:flex-end;gap:5px;padding-left:2px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.38);}
+  #trouble-icon{font-size:1.05rem;line-height:1;padding-bottom:3px;filter:drop-shadow(0 0 6px rgba(255,116,116,.32));}
+  #trouble-val{font-size:1.58rem;line-height:.9;font-weight:900;letter-spacing:.01em;}
+  #trouble-max{font-size:.76rem;line-height:1;opacity:.7;padding-bottom:2px;}
+  #trouble-bar-bg{position:relative;background:rgba(18,30,51,.88);border-radius:999px;height:24px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 24px rgba(0,0,0,.26), inset 0 0 0 1px rgba(255,255,255,.04);}
+  #trouble-bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;transition:width .4s,background .4s,box-shadow .3s;background:var(--green);z-index:1;box-shadow:0 0 18px rgba(76,175,80,.26);}
+  #trouble-bar-bg::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to right, transparent 0 calc(5% - 1px), rgba(255,255,255,.12) calc(5% - 1px) 5%);pointer-events:none;z-index:2;}
+  #trouble-bar-markers{position:absolute;inset:0;pointer-events:none;z-index:3;}
+  .trouble-marker{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:11px;line-height:1;opacity:.44;filter:grayscale(.2);text-shadow:0 1px 2px rgba(0,0,0,.9);transition:opacity .2s,transform .2s,filter .2s;}
+  .trouble-marker.active{opacity:.96;filter:none;transform:translate(-50%,-50%) scale(1.14);} 
+  #socks-chip{display:inline-flex;align-items:center;gap:8px;align-self:flex-end;padding:8px 12px 9px;border-radius:999px;background:linear-gradient(180deg, rgba(19,52,36,.92), rgba(10,28,19,.94));border:1px solid rgba(120,255,180,.24);box-shadow:0 14px 24px rgba(0,0,0,.26), 0 0 18px rgba(70,255,164,.08), inset 0 0 0 1px rgba(255,255,255,.04);backdrop-filter:blur(6px);}
+  #socks-chip .socks-icon{font-size:1.28rem;line-height:1;filter:drop-shadow(0 0 7px rgba(119,255,188,.24));}
+  #socks-readout{display:flex;align-items:flex-end;gap:2px;color:#fff;}
+  #Socks-count{font-size:1.56rem;line-height:.9;font-weight:900;letter-spacing:.01em;color:#dffff0;}
+  #socks-goal-wrap{font-size:.76rem;line-height:1;opacity:.72;padding-bottom:2px;}
   #top-left-shell #log-area.collapsed{width:100%;}
   #top-left-shell #log{max-height:min(24vh,200px);}
   .tracker-row{flex-wrap:nowrap;align-items:center;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
@@ -105,13 +124,6 @@
     opacity:.8;
   }
 
-  #trouble-bar-wrap{background:var(--card);border-radius:var(--radius);padding:6px 10px 9px;min-width:0;width:100%;}
-  #trouble-bar-bg{position:relative;background:#333d4a;border-radius:8px;height:18px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);}
-  #trouble-bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px 0 0 8px;transition:width .4s,background .4s;background:var(--green);z-index:1;}
-  #trouble-bar-bg::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to right, transparent 0 calc(5% - 1px), rgba(255,255,255,.10) calc(5% - 1px) 5%);pointer-events:none;z-index:2;}
-  #trouble-bar-markers{position:absolute;inset:0;pointer-events:none;z-index:3;}
-  .trouble-marker{position:absolute;top:50%;transform:translate(-50%,-52%);font-size:9px;line-height:1;opacity:.42;filter:grayscale(.25);text-shadow:0 1px 2px rgba(0,0,0,.9);transition:opacity .2s,transform .2s,filter .2s;}
-  .trouble-marker.active{opacity:.9;filter:none;transform:translate(-50%,-52%) scale(1.08);} 
 
   #header .tracker-row{justify-content:flex-start;pointer-events:auto;}
   #sidebar::-webkit-scrollbar,#board-area::-webkit-scrollbar{width:10px;height:10px;}
@@ -2155,25 +2167,28 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   <div id="top-left-shell" class="floating-panel">
     <div id="header" class="floating-panel">
       <div id="header-summary">
-                <div class="tracker-row">
-          <div id="phase-indicator" class="gnome-phase tracker">Gnome Phase</div>
-          <div class="tracker good">🧦 <span id="Socks-count">0</span>/<span id="Socks-goal">8</span></div>
-          <div class="tracker tracker-compact" id="rooms-tracker" title="Rooms revealed">🚪 <span id="rooms-count-inline">1</span></div>
-          <div class="tracker tracker-compact" id="house-tracker" title="Current house">🏠 <span id="house-num">1</span></div>
-                  <button id="btn-audio-mute" class="audio-toggle-btn" type="button" aria-label="Mute audio" aria-pressed="false" title="Mute audio"><span class="audio-icon">🔊</span></button>
+        <div id="header-meta-row">
+          <div class="header-hidden-phase"><div id="phase-indicator" class="gnome-phase tracker">Gnome Phase</div></div>
+          <div class="header-mini-chip" id="rooms-tracker" title="Rooms revealed">🚪 <span id="rooms-count-inline">1</span></div>
+          <div class="header-mini-chip" id="house-tracker" title="Current house">🏠 <span id="house-num">1</span></div>
+          <button id="btn-audio-mute" class="audio-toggle-btn" type="button" aria-label="Mute audio" aria-pressed="false" title="Mute audio"><span class="audio-icon">🔊</span></button>
         </div>
-        <div id="trouble-bar-wrap">
-          <div style="font-size:.68rem;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-            <span>💢 Trouble: <strong id="trouble-val">0</strong>/20</span>
-          </div>
-          <div id="trouble-bar-bg">
-            <div id="trouble-bar-fill" style="width:0%"></div>
-            <div id="trouble-bar-markers">
-              <span class="trouble-marker" data-threshold="3" style="left:15%;">🤖</span>
-              <span class="trouble-marker" data-threshold="6" style="left:30%;">🐶</span>
-              <span class="trouble-marker" data-threshold="10" style="left:50%;">🧒</span>
-              <span class="trouble-marker" data-threshold="15" style="left:75%;">👨</span>
+        <div id="header-focus-row">
+          <div id="trouble-bar-wrap" title="Trouble counter">
+            <div id="trouble-readout"><span id="trouble-icon">💢</span><strong id="trouble-val">0</strong><span id="trouble-max">/20</span></div>
+            <div id="trouble-bar-bg">
+              <div id="trouble-bar-fill" style="width:0%"></div>
+              <div id="trouble-bar-markers">
+                <span class="trouble-marker" data-threshold="3" style="left:15%;">🤖</span>
+                <span class="trouble-marker" data-threshold="6" style="left:30%;">🐶</span>
+                <span class="trouble-marker" data-threshold="10" style="left:50%;">🧒</span>
+                <span class="trouble-marker" data-threshold="15" style="left:75%;">👨</span>
+              </div>
             </div>
+          </div>
+          <div id="socks-chip" title="Socks collected">
+            <span class="socks-icon">🧦</span>
+            <div id="socks-readout"><strong id="Socks-count">0</strong><span id="socks-goal-wrap">/<span id="Socks-goal">8</span></span></div>
           </div>
         </div>
       </div>
@@ -6389,9 +6404,12 @@ function updateHeader() {
   el('trouble-bar-fill').style.width = pct+'%';
   const fill = el('trouble-bar-fill');
   fill.style.background = G.trouble<6?'#4caf50':G.trouble<10?'#ff9800':'#f44336';
+  fill.style.boxShadow = G.trouble < 6 ? '0 0 18px rgba(76,175,80,.26)' : (G.trouble < 10 ? '0 0 18px rgba(255,152,0,.28)' : '0 0 22px rgba(244,67,54,.34)');
   const ph = el('phase-indicator');
-  if (G.phase==='patrol') { ph.textContent='🚨 Patrol Phase'; ph.className='phase-indicator patrol-phase'; }
-  else { const g=G.gnomes[G.currentGnomeIdx]; ph.textContent=g?`${g.emoji} ${g.name}`:'Gnome Phase'; ph.className='phase-indicator gnome-phase'; }
+  if (ph) {
+    if (G.phase==='patrol') { ph.textContent='🚨 Patrol Phase'; ph.className='phase-indicator patrol-phase'; }
+    else { const g=G.gnomes[G.currentGnomeIdx]; ph.textContent=g?`${g.emoji} ${g.name}`:'Gnome Phase'; ph.className='phase-indicator gnome-phase'; }
+  }
   document.querySelectorAll('#trouble-bar-markers .trouble-marker').forEach(marker=>{
     const threshold = Number(marker.dataset.threshold||0);
     marker.classList.toggle('active', G.trouble >= threshold);
