@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v190</title>
+  <title>Gnome Invasion v192</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -231,6 +231,10 @@ body.patrol-turn-state #board{filter:brightness(.88) saturate(.85);transition:fi
   .room-corner.br{bottom:8px;right:8px;justify-content:flex-end;max-width:48px;flex-wrap:wrap;}
   .corner-stack{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-end;align-items:flex-start;}
   .room-static-icon{display:inline-flex;align-items:center;justify-content:center;min-width:16px;line-height:1;font-size:1.03rem;}
+  .ui-icon{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;line-height:1;vertical-align:-0.12em;flex:0 0 auto;}
+  .ui-icon img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none;}
+  .ui-icon-emoji{display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;line-height:1;}
+  .ui-icon-host{display:inline-flex;align-items:center;justify-content:center;}
 
 
   /* ── GNOME FLIP (hidden state) ───────────────────────────────────────── */
@@ -1900,7 +1904,8 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .game-screen.screen-weaver .weaver-token-back{transform:rotateY(180deg);padding:10px;background:linear-gradient(180deg, rgba(20,42,70,.99), rgba(11,24,44,.99));}
 .game-screen.screen-weaver .weaver-token-cost{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:0;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);font:800 .64rem/1 var(--font-body);color:#fff;}
 .game-screen.screen-weaver .weaver-token-shell.is-poor:hover .weaver-token-cost{color:#ff7d7d;border-color:rgba(255,120,120,.35);background:rgba(110,24,24,.22);}
-.game-screen.screen-weaver .weaver-token-icon{font-size:2rem;line-height:1;}
+.game-screen.screen-weaver .weaver-token-icon{font-size:2rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
+.game-screen.screen-weaver .weaver-token-icon .ui-icon{font-size:2rem;}
 .game-screen.screen-weaver .weaver-token-name{font:800 .76rem/1.08 var(--font-body);color:#fff;max-width:100%;}
 .game-screen.screen-weaver .weaver-token-action{width:100%;min-height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,#1b3b65,#122846);color:#fff;font:800 .72rem/1 var(--font-body);cursor:pointer;transition:transform .12s,border-color .12s,background .12s,opacity .12s;}
 .game-screen.screen-weaver .weaver-token-action:hover:not(:disabled){transform:translateY(-1px);border-color:#e7c17c;background:linear-gradient(180deg,#214776,#163154);}
@@ -1981,6 +1986,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 #screen-weaver .weaver-token:disabled{opacity:.42;cursor:not-allowed;animation:none;transform:rotate(var(--token-rot,0deg));}
 #screen-weaver .weaver-token-cost{position:absolute;top:7px;right:7px;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10);font:800 .5rem/1 var(--font-body);letter-spacing:.04em;color:#fff7d7;max-width:calc(100% - 14px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 #screen-weaver .weaver-token-icon{font-size:2rem;line-height:1;display:flex;align-items:center;justify-content:center;height:28px;margin-top:12px;}
+#screen-weaver .weaver-token-icon .ui-icon{font-size:2rem;}
 #screen-weaver .weaver-token-name{font:800 .8rem/1.02 var(--font-body);letter-spacing:.02em;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;}
 #screen-weaver .weaver-token.is-selected{transform:translateY(-5px) scale(1.03) rotate(var(--token-rot,0deg));border-color:#e7c17c;box-shadow:0 18px 30px rgba(0,0,0,.30), 0 0 0 1px rgba(255,255,255,.06) inset, 0 0 0 2px rgba(231,193,124,.25);}
 #screen-weaver .weaver-token.is-staged{background:linear-gradient(180deg, rgba(106,120,138,.55), rgba(72,82,98,.72));border-color:rgba(255,255,255,.10);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);cursor:pointer;color:transparent;opacity:1;animation:none;transform:translateY(0) scale(1) rotate(var(--token-rot,0deg));}
@@ -3202,15 +3208,15 @@ const GOODIES_DEFS = [
 ];
 
 const HATS_DEFS = [
-  {id:1,name:'Red Hat',emoji:'🔺',desc:'Gain an action free Move.',default:true, freeMove:true},
-  {id:2,name:'Blue Hat',emoji:'🎩',desc:'+1 Satchel slot.',satchelBonus:1},
+  {id:1,name:'Red Hat',emoji:'🔺',iconKey:'hat_red',desc:'Gain an action free Move.',default:true, freeMove:true},
+  {id:2,name:'Blue Hat',emoji:'🎩',iconKey:'hat_blue',desc:'+1 Satchel slot.',satchelBonus:1},
   {id:3,name:'Fedora',emoji:'🪖',desc:'+2 Actions per turn.',actionBonus:2},
   {id:4,name:'Party Hat',emoji:'🎉',desc:'Draw an Item.'},
   {id:5,name:'Spiked Helm',emoji:'⛑️',desc:'Kick into Patrol to remove it.'},
-  {id:6,name:'Purple Hat',emoji:'🎵',desc:'Distract all Patrols.',hatAction:'distract'},
+  {id:6,name:'Purple Hat',emoji:'🎵',iconKey:'hat_purple',desc:'Distract all Patrols.',hatAction:'distract'},
   {id:7,name:'Kid Hat',emoji:'👒',desc:'Invisible to Dog.'},
   {id:8,name:'Dad Hat',emoji:'🔺',desc:'Carry the Hamper in your Satchel.'},
-  {id:9,name:'Yellow Hat',emoji:'🌀',desc:'Scry the next 4 Room tiles.',hatAction:'scry'},
+  {id:9,name:'Yellow Hat',emoji:'🌀',iconKey:'hat_yellow',desc:'Scry the next 4 Room tiles.',hatAction:'scry'},
 ];
 
 const ROOM_DEF_BY_ID = Object.fromEntries(ROOM_DEFS.filter(Boolean).map(def => [def.id, def]));
@@ -4359,6 +4365,12 @@ function withTempState(tempState, fn) {
 }
 
 const PATROL_EMOJI_BY_TYPE = Object.freeze({ roomba:'🤖', dog:'🐶', kid:'👦', dad:'👨' });
+const ICON_LIBRARY = Object.freeze({
+  hat_red:    { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/redhat.png' },
+  hat_blue:   { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/bluehat.png' },
+  hat_yellow: { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/yellowhat.png' },
+  hat_purple: { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/purplehat.png' },
+});
 const ROOM_TOKEN_SLOT_BASE = Object.freeze([
   [0.5, 0.2345679012], [0.3333333333, 0.2345679012], [0.6666666667, 0.2345679012], [0.5, 0.6666666667],
   [0.3333333333, 0.6666666667], [0.6666666667, 0.6666666667], [0.2592592593, 0.450617284], [0.7407407407, 0.450617284],
@@ -4420,6 +4432,43 @@ function createEmojiToken({
   return node;
 }
 
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getIconDefinition(iconKey = '') {
+  return iconKey ? (ICON_LIBRARY[iconKey] || null) : null;
+}
+
+function getIconHTML({ iconKey = '', emoji = '', fallbackEmoji = '', className = 'ui-icon', alt = '', style = '' } = {}) {
+  const iconDef = getIconDefinition(iconKey);
+  const classes = normalizeClassNames(className || 'ui-icon') || 'ui-icon';
+  const safeStyle = style ? ` style="${escapeHtml(style)}"` : '';
+  if (iconDef?.type === 'image' && iconDef.src) {
+    return `<span class="${escapeHtml(classes)}"${safeStyle}><img src="${escapeHtml(iconDef.src)}" alt="${escapeHtml(alt || emoji || fallbackEmoji || '')}" loading="lazy" decoding="async"></span>`;
+  }
+  return `<span class="${escapeHtml(classes)}"${safeStyle}><span class="ui-icon-emoji">${escapeHtml(emoji || fallbackEmoji || '')}</span></span>`;
+}
+
+function setNodeIcon(target, { iconKey = '', emoji = '', fallbackEmoji = '', title = '', style = '' } = {}) {
+  if (!target) return target;
+  target.innerHTML = getIconHTML({ iconKey, emoji, fallbackEmoji, alt: title || emoji || fallbackEmoji, style });
+  return target;
+}
+
+function getHatIconProps(hatDef) {
+  return {
+    iconKey: hatDef?.iconKey || '',
+    emoji: hatDef?.emoji || '🎩',
+    fallbackEmoji: '🎩',
+  };
+}
+
 function createCardPopupAction(label, action, disabled = false) {
   return buildButton(label, action, {
     className: THEME_CLASSES.component.popupAction,
@@ -4445,8 +4494,9 @@ function setAbsolutePosition(node, left, top, zIndex = null) {
   return node;
 }
 
-function createIconNode({ emoji, title = '', className = 'room-static-icon', style = '', onClick = null, emitClick = true }) {
-  const node = createElement('span', { className: cx(THEME_CLASSES.component.icon, className), text: emoji });
+function createIconNode({ iconKey = '', emoji = '', fallbackEmoji = '', title = '', className = 'room-static-icon', style = '', onClick = null, emitClick = true }) {
+  const node = createElement('span', { className: cx(THEME_CLASSES.component.icon, className, 'ui-icon-host') });
+  setNodeIcon(node, { iconKey, emoji, fallbackEmoji, title });
   if (title) node.title = title;
   if (style) node.style.cssText = style;
   if (typeof onClick === 'function') {
@@ -4503,8 +4553,8 @@ function createBoardOverlay({ className = '', title = '', style = '', onClick = 
   return overlay;
 }
 
-function createRoomItemNode({ emoji, title, onClick }) {
-  return createIconNode({ emoji, title, className: cx('room-item', THEME_CLASSES.component.roomItem), onClick });
+function createRoomItemNode({ iconKey = '', emoji = '', fallbackEmoji = '', title, onClick }) {
+  return createIconNode({ iconKey, emoji, fallbackEmoji, title, className: cx('room-item', THEME_CLASSES.component.roomItem), onClick });
 }
 
 function appendPopupAction(popup, label, action, disabled = false) {
@@ -4670,7 +4720,7 @@ function renderGnomeNameInputs() {
           <span class="setup-role-chip ${active ? 'ready' : ''}">${active ? 'Playing' : 'Bench'}</span>
         </div>
         <div class="setup-hat-block">
-          <div class="setup-hat-name">${hatDef?.emoji || ''} ${hatDef?.name || 'No Hat'}</div>
+          <div class="setup-hat-name">${hatDef ? `${getIconHTML({ ...getHatIconProps(hatDef), alt: hatDef.name, className: 'ui-icon' })} ${hatDef.name}` : 'No Hat'}</div>
           <div class="setup-hat-desc">${hatDef?.desc || ''}</div>
         </div>
       </button>`;
@@ -4726,7 +4776,7 @@ function resetGame() {
   el('screen-weaver').classList.remove('show');
   syncWeaverScreenMode('');
   el('screen-setup').classList.add('show');
-  setupSelectedGnomes = [0,1]; setupPlayerCount = 2; renderGnomeNameInputs();
+  setupSelectedGnomes = [0]; setupPlayerCount = 1; renderGnomeNameInputs();
 initDebugFork();
 refreshDebugForkUi();
 }
@@ -5227,7 +5277,7 @@ function renderBoard() {
         (tile.hatIds || []).forEach((hid, idx) => {
           const hdef = HAT_DEF_BY_ID[hid];
           itemStack.appendChild(createRoomItemNode({
-            emoji: hdef?.emoji || '🎩',
+            ...getHatIconProps(hdef),
             title: `${hdef?.name||'Hat'}: ${hdef?.desc||''}`,
             onClick: (e) => { e.stopPropagation(); showRoomItemPopup(e.currentTarget, r, c, 'hat', idx); },
           }));
@@ -5439,9 +5489,9 @@ function renderGnomePanels() {
     const hatRow = document.createElement('div');
     hatRow.className = 'gnome-hat-row';
     const hatSlot = document.createElement('div');
-    hatSlot.className = 'slot hat-slot' + (canManageInventory ? ' clickable' : '');
+    hatSlot.className = 'slot hat-slot ui-icon-host' + (canManageInventory ? ' clickable' : '');
     hatSlot.title = hat ? `${hat.name}: ${hat.desc}${showHatCancelled(g) ? ' (cancelled this round)' : ''}` : 'No hat equipped';
-    hatSlot.textContent = hat ? (hat.emoji || '🎩') : '—';
+    if (hat) setNodeIcon(hatSlot, { ...getHatIconProps(hat), title: hat.name }); else hatSlot.textContent = '—';
     if (!hat) hatSlot.style.opacity = '0.4';
     if (showHatCancelled(g)) {
       hatSlot.classList.add('cancelled');
@@ -7501,7 +7551,7 @@ function getWeaverShopDefs(type) {
   return BETWEEN_HOUSE_HAT_POOL_TEMPLATE
     .map(id => HAT_DEF_BY_ID[id])
     .filter(def => def && !seen.has(def.id) && seen.add(def.id))
-    .map(def => ({ id:def.id, emoji:def.emoji || '🎩', name:def.name, desc:def.desc || '' }));
+    .map(def => ({ id:def.id, iconKey:def.iconKey || '', emoji:def.emoji || '🎩', name:def.name, desc:def.desc || '' }));
 }
 
 function getWeaverOfferCost(type) {
@@ -7522,6 +7572,7 @@ function createWeaverOffer(type, forcedId = null) {
     type,
     id,
     name: def?.name || (type === 'hat' ? 'Hat' : 'Goodie'),
+    iconKey: def?.iconKey || '',
     emoji: def?.emoji || (type === 'hat' ? '🎩' : '🍄'),
     desc: def?.desc || '',
     cost: getWeaverOfferCost(type),
@@ -7683,7 +7734,7 @@ function renderWeaverScreen() {
       <div class="weaver-token-card">
         <div class="weaver-token-face weaver-token-front">
           <span class="weaver-token-cost">🧦 ${cost}</span>
-          <span class="weaver-token-icon">${offer.emoji}</span>
+          <span class="weaver-token-icon">${getIconHTML({ iconKey: offer.iconKey, emoji: offer.emoji, fallbackEmoji: type === 'hat' ? '🎩' : '🍄', alt: offer.name })}</span>
           <span class="weaver-token-name">${offer.name}</span>
         </div>
         <div class="weaver-token-face weaver-token-back">
@@ -7783,7 +7834,7 @@ function renderWeaverScreen() {
             </div>
             <div class="gnome-card-body">
               <div style="font-size:.6rem;color:var(--muted);margin-bottom:2px;">Hat</div>
-              <div class="satchel-slots" style="margin-bottom:6px;"><div class="slot hat-slot${hat ? ' clickable' : ' empty'}" data-popup-gnome="${hat ? idx : ''}" data-popup-type="${hat ? 'hat' : ''}" data-popup-slot="${hat ? -1 : ''}" title="${title}">${hat ? (hat.emoji || '🎩') : '—'}</div></div>
+              <div class="satchel-slots" style="margin-bottom:6px;"><div class="slot hat-slot ui-icon-host${hat ? ' clickable' : ' empty'}" data-popup-gnome="${hat ? idx : ''}" data-popup-type="${hat ? 'hat' : ''}" data-popup-slot="${hat ? -1 : ''}" title="${title}">${hat ? getIconHTML({ ...getHatIconProps(hat), alt: hat.name }) : '—'}</div></div>
               <div style="font-size:.6rem;color:var(--muted);margin-bottom:2px;">Satchel (${g.satchel.slice(0,size).filter(Boolean).length}/${size})</div>
               <div class="satchel-slots">${renderSatchel(g, idx, true)}</div>
               ${active && inRoomTrade ? renderWeaverActionPips(g) : ''}
@@ -9977,7 +10028,7 @@ initCommandBindings();
 ensureLogUiState();
 applyLogCollapsedState();
 renderLogEntries();
-selectPlayers(2);
+selectPlayers(1);
 renderGnomeNameInputs();
 initDebugFork();
 refreshDebugForkUi();
