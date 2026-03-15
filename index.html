@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v185</title>
+  <title>Gnome Invasion v190</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -63,7 +63,7 @@
   #log-area{position:relative;left:auto;right:auto;bottom:auto;top:auto;width:100%;max-height:none;background:transparent;border:none;border-radius:0;padding:8px 0 0;z-index:auto;box-shadow:none;backdrop-filter:none;overflow:hidden;}
   #top-left-shell{position:fixed;top:12px;left:auto;right:12px;width:min(292px,calc(100vw - 24px));z-index:45;padding:10px 12px 9px;}
   #top-left-shell #header{position:relative;inset:auto;background:transparent;border:none;box-shadow:none;padding:0;}
-  #top-left-shell #header-summary{display:flex;flex-direction:column;gap:6px;width:100%;}
+  #top-left-shell #header-summary{display:flex;flex-direction:column;gap:12px;width:100%;}
   #header-brand{display:none !important;}
   #top-left-shell .tracker-row{display:grid;grid-template-columns:1.35fr 1fr .8fr .8fr 28px;gap:4px;align-items:center;width:100%;}
   #top-left-shell #log-area.collapsed{width:100%;}
@@ -890,8 +890,8 @@ body.patrol-turn-state #board{filter:brightness(.88) saturate(.85);transition:fi
   .patrol-ref-card:not(.active):hover{box-shadow:0 12px 26px rgba(0,0,0,.30);transform:translateY(-1px);z-index:90;}
   .patrol-ref-card.active{width:297px;min-width:297px;max-width:297px;border-color:#ff9d9d;box-shadow:0 20px 40px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.10) inset,0 0 22px rgba(255,110,110,.24);transform-origin:top left;animation:activeGnomeSettle .3s cubic-bezier(.2,.8,.2,1);}
   .patrol-ref-card.is-intro{animation:patrolCardIntro .52s cubic-bezier(.2,.8,.2,1), patrolCardIntroGlow 1.1s ease-out;}
-  .patrol-ref-card-main{display:flex;gap:8px;align-items:stretch;width:100%;padding:0 8px;position:relative;z-index:1;}
-  .patrol-ref-card-content{display:flex;flex-direction:column;min-width:0;flex:1 1 auto;width:calc(100% - 96px);}
+  .patrol-ref-card-main{display:flex;gap:6px;align-items:flex-start;width:100%;padding:0 6px;position:relative;z-index:1;}
+  .patrol-ref-card-content{display:flex;flex-direction:column;min-width:0;flex:1 1 auto;width:calc(100% - 122px);}
   .patrol-ref-header{display:flex;align-items:center;gap:6px;margin-bottom:0;font-weight:800;font-size:.88rem;}
   .patrol-ref-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;line-height:1.05;font-family:var(--font-display);color:#ffd0d0;text-shadow:0 1px 3px rgba(0,0,0,.35);}
   .patrol-ref-subhead{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:#ffc1c1;font-weight:800;}
@@ -933,12 +933,12 @@ body.patrol-turn-state #board{filter:brightness(.88) saturate(.85);transition:fi
   .gnome-card.active::before{background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent, var(--gold)) 16%, rgba(255,255,255,.10)) 0%, rgba(255,255,255,0) 52%), radial-gradient(circle at top right, color-mix(in srgb, var(--gnome-accent, var(--gold)) 18%, transparent) 0%, transparent 58%);opacity:.9;}
   .gnome-card.active::after{border-color:rgba(255,255,255,.10);}
   .gnome-card.ko{opacity:.5;}
-  .gnome-card-main{display:flex;gap:8px;align-items:stretch;width:100%;padding:0 8px;}
-  .gnome-portrait-chip{display:none;flex:0 0 42px;width:42px;height:42px;align-self:flex-start;border-radius:14px;overflow:hidden;background:linear-gradient(180deg, rgba(8,17,33,.95) 0%, rgba(16,28,52,.98) 100%);border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 8px 16px rgba(0,0,0,.22);}
+  .gnome-card-main{display:flex;gap:6px;align-items:flex-start;width:100%;padding:0 6px;}
+  .gnome-portrait-chip{display:none;flex:0 0 40px;width:40px;height:50px;align-self:flex-start;border-radius:14px;overflow:hidden;background:linear-gradient(180deg, rgba(8,17,33,.95) 0%, rgba(16,28,52,.98) 100%);border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 8px 16px rgba(0,0,0,.22);}
   .gnome-portrait-chip img{display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.02);}
   .gnome-card.active .gnome-portrait-chip,.patrol-ref-card.active .gnome-portrait-chip{display:block;}
-  .gnome-card.active .gnome-portrait-chip,.patrol-ref-card.active .gnome-portrait-chip{flex-basis:88px;width:88px;height:auto;align-self:stretch;animation:activeGnomePortraitRise .3s cubic-bezier(.2,.8,.2,1);}
-  .gnome-card-content{display:flex;flex-direction:column;min-width:0;flex:1 1 auto;width:calc(100% - 96px);}
+  .gnome-card.active .gnome-portrait-chip,.patrol-ref-card.active .gnome-portrait-chip{flex-basis:110px;width:110px;height:138px;align-self:flex-start;animation:activeGnomePortraitRise .3s cubic-bezier(.2,.8,.2,1);}
+  .gnome-card-content{display:flex;flex-direction:column;min-width:0;flex:1 1 auto;width:calc(100% - 122px);}
   @keyframes activeGnomeSettle{from{opacity:.86;transform:translateY(-6px) scale(.985);}to{opacity:1;transform:translateY(0) scale(1);}}
   @keyframes activeGnomePortraitRise{from{opacity:0;transform:translateY(14px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
   .gnome-header{display:flex;align-items:center;gap:6px;margin-bottom:0;font-weight:800;font-size:.88rem;}
@@ -966,15 +966,16 @@ body.patrol-turn-state #board{filter:brightness(.88) saturate(.85);transition:fi
   @keyframes activeGnomeBodyFade{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
   .gnome-card.active .hat-slot-inline{display:flex;}
   .gnome-card.active .gnome-name-text{font-size:1rem;letter-spacing:.01em;text-shadow:0 1px 3px rgba(0,0,0,.35);}
-  .gnome-card.active .gnome-action-track{padding-top:2px;}
+  .gnome-card.active .gnome-action-track{padding-top:2px;max-width:132px;}
   .gnome-card.active .gnome-action-label{text-transform:uppercase;letter-spacing:.06em;}
   .gnome-card.active .gnome-action-slot{height:8px;min-width:0;}
+  .gnome-card.active .gnome-action-slots,.patrol-ref-card.active .gnome-action-slots{gap:3px;}
   .gnome-card.active .gnome-action-slot.filled{background:linear-gradient(180deg, rgba(255,255,255,.98), color-mix(in srgb, var(--gnome-accent, var(--gold)) 22%, rgba(235,243,255,.78)));}
   .gnome-card.active .satchel-slots{width:100%;}
   .gnome-card.active .slot{width:27px;height:27px;}
   @media (max-width: 760px){
     .gnome-card.active{width:min(297px,calc(100vw - 32px));min-width:min(297px,calc(100vw - 32px));max-width:min(297px,calc(100vw - 32px));}
-    .gnome-portrait-chip{flex-basis:82px;width:82px;}
+    .gnome-portrait-chip{flex-basis:88px;width:88px;height:110px;}
     #actions-shell{padding:8px 6px;}
   }
   .gnome-dot{width:13px;height:13px;border-radius:50%;}
@@ -1065,23 +1066,27 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   .start-btn{padding:12px 28px;background:linear-gradient(180deg,#ff6c7a,#e94560);border:none;border-radius:14px;color:#fff;font-family:'Fredoka One';font-size:1.08rem;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s;box-shadow:0 10px 24px rgba(0,0,0,.26);}
   .start-btn:hover{opacity:.96;transform:translateY(-1px);}
   .start-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
-  .setup-roster{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:min(1040px,calc(100vw - 48px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:end;padding-bottom:0;}
-  .setup-gnome-card{background:linear-gradient(180deg, rgba(8,20,39,.76), rgba(11,25,47,.9));border:2px solid rgba(255,255,255,.10);border-radius:24px;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0;box-shadow:0 16px 28px rgba(0,0,0,.26);transition:transform .18s,opacity .18s,border-color .18s,box-shadow .18s,filter .18s;position:relative;overflow:hidden;cursor:pointer;backdrop-filter:blur(6px);}
+  .setup-roster{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:min(760px,calc(100vw - 48px));display:grid;grid-template-columns:repeat(4,minmax(160px,174px));justify-content:center;gap:11px;align-items:end;padding-bottom:0;}
+  .setup-gnome-card{background:linear-gradient(180deg, rgba(8,20,39,.76), rgba(11,25,47,.9));border:2px solid rgba(255,255,255,.10);border-radius:18px;padding:8px;display:flex;flex-direction:column;gap:6px;min-height:0;box-shadow:0 16px 28px rgba(0,0,0,.26);transition:transform .18s,opacity .18s,border-color .18s,box-shadow .18s,filter .18s;position:relative;overflow:hidden;cursor:pointer;backdrop-filter:blur(6px);}
   .setup-gnome-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent) 22%, transparent) 0%, transparent 56%);pointer-events:none;}
   .setup-gnome-card.is-active{border-color:color-mix(in srgb, var(--gnome-accent) 78%, white);box-shadow:0 18px 32px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.08) inset,0 0 0 2px color-mix(in srgb, var(--gnome-accent) 24%, transparent);transform:translateY(-4px);}
   .setup-gnome-card.is-inactive{opacity:.58;filter:saturate(.72) brightness(.86);}
-  .setup-portrait-frame{aspect-ratio:1/1;border-radius:22px;overflow:hidden;background:rgba(4,13,26,.85);border:2px solid rgba(255,255,255,.14);}
+  .setup-portrait-frame{aspect-ratio:1/1;border-radius:16px;overflow:hidden;background:rgba(4,13,26,.85);border:2px solid rgba(255,255,255,.14);}
   .setup-portrait-frame img{display:block;width:100%;height:100%;object-fit:cover;}
-  .setup-gnome-head{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:1.05rem;color:#fff;}
+  .setup-gnome-head{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:.86rem;color:#fff;}
   .setup-color-dot{width:18px;height:18px;border-radius:999px;box-shadow:0 0 0 2px rgba(255,255,255,.14);flex:0 0 auto;}
   .setup-role-chip{margin-left:auto;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.08);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:#dce8ff;font-weight:800;}
   .setup-role-chip.ready{background:color-mix(in srgb, var(--gnome-accent) 36%, rgba(255,255,255,.1));color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.08) inset;}
+  .setup-hat-block{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);text-align:left;}
+  .setup-hat-name{font:800 .7rem/1.1 var(--font-body);color:#fff;display:flex;align-items:center;gap:6px;}
+  .setup-hat-desc{font-size:.6rem;line-height:1.25;color:#cfe0f7;}
+
   .end-figure{width:min(520px,68vw);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/gnome-defeat.png") center/contain no-repeat;filter:drop-shadow(0 20px 40px rgba(0,0,0,.45));margin-bottom:12px;}
   .end-figure.victory{background:none;font-size:min(18vw,8rem);}
   .end-copy{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:560px;}
   .end-copy h2{font-size:2.1rem;text-shadow:0 8px 24px rgba(0,0,0,.36);}
   .end-copy p{font-size:.96rem;line-height:1.6;color:#dbe8ff;text-shadow:0 4px 12px rgba(0,0,0,.28);}
-  .weaver-shell{position:relative;z-index:1;width:min(980px,calc(100vw - 48px));display:grid;grid-template-columns:minmax(260px,360px) minmax(300px,360px) minmax(260px,1fr);gap:18px;align-items:center;padding:0;}
+  .weaver-shell{position:relative;z-index:1;width:min(784px,calc(100vw - 48px));display:grid;grid-template-columns:minmax(260px,360px) minmax(300px,360px) minmax(260px,1fr);gap:18px;align-items:center;padding:0;}
   .weaver-vendor{display:flex;align-items:flex-end;justify-content:flex-start;min-height:min(74vh,720px);background:url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/weaver2.png") left bottom/contain no-repeat;filter:drop-shadow(0 26px 40px rgba(0,0,0,.44));}
   .weaver-panel{background:linear-gradient(180deg, rgba(17,34,61,.94), rgba(8,18,35,.97));border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:14px;box-shadow:0 20px 34px rgba(0,0,0,.30), inset 0 0 0 1px rgba(255,255,255,.03);display:flex;flex-direction:column;gap:12px;}
   .weaver-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;}
@@ -1101,7 +1106,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   .weaver-roster{display:grid;grid-template-columns:1fr;gap:10px;align-self:stretch;}
   .weaver-strip{background:linear-gradient(180deg, rgba(10,22,41,.9), rgba(6,14,26,.96));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:10px 12px;display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;position:relative;}
   .weaver-strip.is-recipient{border-color:color-mix(in srgb, var(--gnome-accent) 66%, white);box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 10px 22px rgba(0,0,0,.24);}
-  .weaver-gnome-portrait{width:56px;height:56px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
+  .weaver-gnome-portrait{width:52px;height:65px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
   .weaver-gnome-portrait img{width:100%;height:100%;object-fit:cover;display:block;}
   .weaver-strip-main{display:flex;flex-direction:column;gap:6px;min-width:0;}
   .weaver-gnome-head{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:.9rem;}
@@ -1259,14 +1264,14 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   #turn-portrait-card{position:relative;display:flex;align-items:flex-end;gap:12px;padding:0;opacity:0;transform:translateY(calc(100% + 36px));transition:transform .32s ease,opacity .32s ease;will-change:transform,opacity;}
   #turn-portrait-card.is-visible{opacity:1;transform:translateY(0);}
   #turn-portrait-card.is-exiting{opacity:0;transform:translateY(calc(100% + 36px));}
-  .turn-portrait-frame{width:146px;height:146px;border-radius:20px;overflow:hidden;border:3px solid rgba(255,255,255,.72);background:rgba(8,17,33,.92);box-shadow:0 16px 34px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.08) inset;}
+  .turn-portrait-frame{width:140px;height:175px;border-radius:20px;overflow:hidden;border:3px solid rgba(255,255,255,.72);background:rgba(8,17,33,.92);box-shadow:0 16px 34px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.08) inset;}
   .turn-portrait-frame img{display:block;width:100%;height:100%;object-fit:cover;}
   .turn-portrait-label{margin-bottom:12px;padding:10px 14px;border-radius:16px;background:rgba(10,32,64,.94);border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 24px rgba(0,0,0,.28);color:var(--text);min-width:142px;}
   .turn-portrait-name{font-family:var(--font-display);font-size:1rem;line-height:1.05;margin-bottom:4px;}
   .turn-portrait-subtitle{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);}
   @media (max-width: 900px){
     #turn-portrait-layer{left:14px;bottom:108px;}
-    .turn-portrait-frame{width:104px;height:104px;border-radius:16px;}
+    .turn-portrait-frame{width:96px;height:120px;border-radius:16px;}
     .turn-portrait-label{margin-bottom:8px;padding:8px 10px;min-width:120px;}
     .turn-portrait-name{font-size:.88rem;}
     .turn-portrait-subtitle{font-size:.62rem;}
@@ -1343,7 +1348,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .weaver-roster-grid{display:flex;flex-direction:column;gap:10px;}
 .weaver-strip{background:linear-gradient(180deg, rgba(10,22,41,.92), rgba(6,14,26,.97));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:10px;display:grid;grid-template-columns:54px 1fr 30px;gap:10px;align-items:center;position:relative;min-width:0;}
 .weaver-strip.is-recipient{border-color:color-mix(in srgb, var(--gnome-accent) 66%, white);box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 10px 22px rgba(0,0,0,.24);cursor:pointer;}
-.weaver-gnome-portrait{width:54px;height:54px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
+.weaver-gnome-portrait{width:50px;height:62px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
 .weaver-gnome-portrait img{width:100%;height:100%;object-fit:cover;display:block;}
 .weaver-strip-main{display:flex;flex-direction:column;gap:7px;min-width:0;}
 .weaver-gnome-head{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1371,7 +1376,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .weaver-strip{padding:12px 12px;border-radius:18px;grid-template-columns:58px 1fr auto;gap:10px;min-height:auto;align-items:center;cursor:default;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;}
 .weaver-strip.is-recipient{cursor:pointer;border-color:color-mix(in srgb, var(--gnome-accent) 68%, white);background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent) 11%, rgba(10,22,41,.94)), rgba(6,14,26,.98));box-shadow:0 10px 22px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.06) inset;}
 .weaver-strip.is-recipient:hover{transform:translateY(-2px);}
-.weaver-gnome-portrait{width:62px;height:62px;border-radius:16px;}
+.weaver-gnome-portrait{width:56px;height:70px;border-radius:16px;}
 .weaver-strip-main{gap:8px;}
 .weaver-gnome-head{font-size:.96rem;}
 .weaver-strip-row{align-items:flex-start;gap:10px;}
@@ -1444,7 +1449,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 #screen-weaver .weaver-active-pips .gnome-action-slots{display:grid;grid-template-columns:repeat(var(--action-capacity, 2), minmax(0,1fr));gap:4px;width:100%;min-width:0;}
 #screen-weaver .weaver-active-pips .gnome-action-slot{height:8px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);}
 #screen-weaver .weaver-active-pips .gnome-action-slot.filled{background:linear-gradient(180deg, rgba(255,255,255,.98), color-mix(in srgb, var(--gnome-accent, var(--gold)) 22%, rgba(235,243,255,.78)));border-color:rgba(255,255,255,.82);box-shadow:0 0 8px rgba(255,255,255,.38), inset 0 0 0 1px rgba(255,255,255,.32);}
-#screen-weaver .weaver-gnome-portrait{width:50px;height:50px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
+#screen-weaver .weaver-gnome-portrait{width:46px;height:58px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
 #screen-weaver .weaver-gnome-portrait img{width:100%;height:100%;object-fit:cover;display:block;}
 #screen-weaver .weaver-strip-main{display:flex;flex-direction:column;gap:6px;min-width:0;}
 #screen-weaver .weaver-gnome-head{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1521,7 +1526,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .weaver-roster-grid{display:flex;flex-direction:column;gap:10px;}
 .weaver-strip{background:linear-gradient(180deg, rgba(10,22,41,.92), rgba(6,14,26,.97));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:10px;display:grid;grid-template-columns:54px 1fr 30px;gap:10px;align-items:center;position:relative;min-width:0;}
 .weaver-strip.is-recipient{border-color:color-mix(in srgb, var(--gnome-accent) 66%, white);box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 10px 22px rgba(0,0,0,.24);cursor:pointer;}
-.weaver-gnome-portrait{width:54px;height:54px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
+.weaver-gnome-portrait{width:50px;height:62px;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12);background:#071322;}
 .weaver-gnome-portrait img{width:100%;height:100%;object-fit:cover;display:block;}
 .weaver-strip-main{display:flex;flex-direction:column;gap:7px;min-width:0;}
 .weaver-gnome-head{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1549,7 +1554,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .weaver-strip{padding:12px 12px;border-radius:18px;grid-template-columns:58px 1fr auto;gap:10px;min-height:auto;align-items:center;cursor:default;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;}
 .weaver-strip.is-recipient{cursor:pointer;border-color:color-mix(in srgb, var(--gnome-accent) 68%, white);background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent) 11%, rgba(10,22,41,.94)), rgba(6,14,26,.98));box-shadow:0 10px 22px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.06) inset;}
 .weaver-strip.is-recipient:hover{transform:translateY(-2px);}
-.weaver-gnome-portrait{width:62px;height:62px;border-radius:16px;}
+.weaver-gnome-portrait{width:56px;height:70px;border-radius:16px;}
 .weaver-strip-main{gap:8px;}
 .weaver-gnome-head{font-size:.96rem;}
 .weaver-strip-row{align-items:flex-start;gap:10px;}
@@ -1632,7 +1637,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 #screen-weaver .weaver-bank-circle-icon{font-size:.78rem;line-height:1;}
 #screen-weaver .weaver-roster-grid{gap:8px;}
 #screen-weaver .weaver-strip{padding:8px 9px;border-radius:16px;grid-template-columns:48px 1fr 28px;gap:8px;}
-#screen-weaver .weaver-gnome-portrait{width:48px;height:48px;border-radius:12px;}
+#screen-weaver .weaver-gnome-portrait{width:44px;height:55px;border-radius:12px;}
 #screen-weaver .weaver-gnome-head{font-size:.82rem;}
 #screen-weaver .weaver-satchel-row{gap:4px;}
 #screen-weaver .weaver-slot,#screen-weaver .weaver-satchel-row .slot,#screen-weaver .weaver-hat-anchor .slot{width:24px;height:24px;font-size:.82rem;border-radius:8px;}
@@ -1830,7 +1835,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .game-screen.screen-weaver .weaver-strip{background:linear-gradient(180deg, rgba(10,22,41,.9), rgba(6,14,26,.96)); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:8px 9px; display:grid; grid-template-columns:48px 1fr; gap:8px; align-items:start; position:relative; min-width:0; transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;}
 .game-screen.screen-weaver .weaver-strip.is-recipient{cursor:pointer; border-color:color-mix(in srgb, var(--gnome-accent) 68%, white); background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent) 11%, rgba(10,22,41,.94)), rgba(6,14,26,.98)); box-shadow:0 8px 18px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.06) inset,0 0 14px color-mix(in srgb, var(--gnome-accent) 48%, transparent);}
 .game-screen.screen-weaver .weaver-strip.is-recipient:hover{transform:translateY(-2px);}
-.game-screen.screen-weaver .weaver-gnome-portrait{width:48px; height:48px; border-radius:12px; overflow:hidden; border:2px solid rgba(255,255,255,.12); background:#071322; grid-column:1; grid-row:1 / span 2;}
+.game-screen.screen-weaver .weaver-gnome-portrait{width:44px; height:55px; border-radius:12px; overflow:hidden; border:2px solid rgba(255,255,255,.12); background:#071322; grid-column:1; grid-row:1 / span 2;}
 .game-screen.screen-weaver .weaver-gnome-portrait img{width:100%; height:100%; object-fit:cover; display:block;}
 .game-screen.screen-weaver .weaver-strip-main{display:flex; flex-direction:column; gap:6px; min-width:0; grid-column:2; grid-row:1 / span 2;}
 .game-screen.screen-weaver .weaver-gnome-head{display:flex; align-items:center; gap:7px; font-family:var(--font-display); font-size:.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:34px;}
@@ -3153,7 +3158,7 @@ function reconcileDoorConnections(state = G) {
 // ─────────────────────────────────────────────
 const GNOME_COLORS = ['#ef4444','#3b82f6','#facc15','#a855f7'];
 const GNOME_EMOJIS = ['🔴','🔵','🟡','🟣'];
-const GNOME_NAMES_DEFAULT = ['Pip','Brim','Bog','Bree'];
+const GNOME_NAMES_DEFAULT = ['Bill','Brim','Bog','Bree'];
 const GNOME_PORTRAIT_URLS = [
   'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/pip.png',
   'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/brim.png',
@@ -3197,15 +3202,15 @@ const GOODIES_DEFS = [
 ];
 
 const HATS_DEFS = [
-  {id:1,name:'Red Hat',emoji:'🔺',desc:'Once per turn at 0 actions, Move becomes Free Move.',default:true, freeMove:true},
+  {id:1,name:'Red Hat',emoji:'🔺',desc:'Gain an action free Move.',default:true, freeMove:true},
   {id:2,name:'Blue Hat',emoji:'🎩',desc:'+1 Satchel slot.',satchelBonus:1},
   {id:3,name:'Fedora',emoji:'🪖',desc:'+2 Actions per turn.',actionBonus:2},
   {id:4,name:'Party Hat',emoji:'🎉',desc:'Draw an Item.'},
   {id:5,name:'Spiked Helm',emoji:'⛑️',desc:'Kick into Patrol to remove it.'},
-  {id:6,name:'Purple Hat',emoji:'🎵',desc:'Action: Distract all patrols until your next turn starts.',hatAction:'distract'},
+  {id:6,name:'Purple Hat',emoji:'🎵',desc:'Distract all Patrols.',hatAction:'distract'},
   {id:7,name:'Kid Hat',emoji:'👒',desc:'Invisible to Dog.'},
   {id:8,name:'Dad Hat',emoji:'🔺',desc:'Carry the Hamper in your Satchel.'},
-  {id:9,name:'Yellow Hat',emoji:'🌀',desc:'Action: Scry the next 4 Room Tiles.',hatAction:'scry'},
+  {id:9,name:'Yellow Hat',emoji:'🌀',desc:'Scry the next 4 Room tiles.',hatAction:'scry'},
 ];
 
 const ROOM_DEF_BY_ID = Object.fromEntries(ROOM_DEFS.filter(Boolean).map(def => [def.id, def]));
@@ -4057,7 +4062,7 @@ const EVENT_CARDS = [
 let G = {};
 
 const GAME_BUILD = Object.freeze({
-  version: 'v183',
+  version: 'v189',
   boardCellSize: 162,
   boardGap: 4,
 });
@@ -4654,6 +4659,8 @@ function renderGnomeNameInputs() {
   const selected = new Set(setupSelectedGnomes);
   el('gnome-names').innerHTML = Array.from({length:4},(_,i)=> {
     const active = selected.has(i);
+    const startingHatByProfile = [1,2,9,6];
+    const hatDef = getHatDef(startingHatByProfile[i]);
     return `
       <button class="setup-gnome-card ${active ? 'is-active' : 'is-inactive'}" style="--gnome-accent:${GNOME_COLORS[i]};" type="button" data-command="toggleSetupGnome" data-command-arg="${i}">
         <div class="setup-portrait-frame"><img src="${GNOME_PORTRAIT_URLS[i]}" alt="${GNOME_NAMES_DEFAULT[i]} portrait"></div>
@@ -4661,6 +4668,10 @@ function renderGnomeNameInputs() {
           <span class="setup-color-dot" style="background:${GNOME_COLORS[i]};"></span>
           <span>${GNOME_NAMES_DEFAULT[i]}</span>
           <span class="setup-role-chip ${active ? 'ready' : ''}">${active ? 'Playing' : 'Bench'}</span>
+        </div>
+        <div class="setup-hat-block">
+          <div class="setup-hat-name">${hatDef?.emoji || ''} ${hatDef?.name || 'No Hat'}</div>
+          <div class="setup-hat-desc">${hatDef?.desc || ''}</div>
         </div>
       </button>`;
   }).join('');
@@ -9178,23 +9189,23 @@ function runSmokeTests() {
   };
 
   test('fresh state invariants', () => {
-    const temp = createBaseState(2, ['Pip', 'Brim']);
-    withTempState(temp, () => hydrateInitialBoard(temp, 2, ['Pip', 'Brim']));
+    const temp = createBaseState(2, ['Bill', 'Brim']);
+    withTempState(temp, () => hydrateInitialBoard(temp, 2, ['Bill', 'Brim']));
     const report = verifyStateInvariants(temp);
     assertSmoke(report.ok, report.issues.join(' | '));
   });
 
   test('connected-room query remains stable on fresh board', () => {
-    const temp = createBaseState(2, ['Pip', 'Brim']);
-    withTempState(temp, () => hydrateInitialBoard(temp, 2, ['Pip', 'Brim']));
+    const temp = createBaseState(2, ['Bill', 'Brim']);
+    withTempState(temp, () => hydrateInitialBoard(temp, 2, ['Bill', 'Brim']));
     const connected = withTempState(temp, () => getConnectedRooms(temp.CENTER, temp.CENTER));
     assertSmoke(Array.isArray(connected), 'Connected rooms query must return an array.');
     assertSmoke(connected.length === 0, 'Fresh board should not begin with adjacent connected rooms.');
   });
 
   test('reveal query exposes legal empty neighbors from laundry', () => {
-    const temp = createBaseState(2, ['Pip', 'Brim']);
-    withTempState(temp, () => hydrateInitialBoard(temp, 2, ['Pip', 'Brim']));
+    const temp = createBaseState(2, ['Bill', 'Brim']);
+    withTempState(temp, () => hydrateInitialBoard(temp, 2, ['Bill', 'Brim']));
     const revealable = withTempState(temp, () => getRevealableFrom(temp.CENTER, temp.CENTER));
     assertSmoke(revealable.length >= 1, 'Laundry Room should reveal at least one legal room.');
     revealable.forEach(([r, c]) => {
