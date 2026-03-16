@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v215</title>
+  <title>Gnome Invasion v221</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -398,6 +398,10 @@ url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/backgroundtil
   .cell.room{--room-art-url:url('https://raw.githubusercontent.com/fletchbomb/gnome/main/files/roomtile3.png');background:linear-gradient(180deg, #6a4a32, #3b2617);border:2px solid #7a5737;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:2px;transition:transform .1s,box-shadow .1s;isolation:isolate;}
   .cell.room:hover{transform:scale(1.03);z-index:30;}
   .room-art-layer{position:absolute;inset:2px;border-radius:5px;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(22,13,6,.08), rgba(22,13,6,.08)), var(--room-art-url);background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);}
+  .cell.room.room-reveal-pop{animation:roomRevealPop .18s cubic-bezier(.22,.8,.2,1) both;}
+  .cell.room:hover{filter:brightness(1.04);}
+  .cell.room:hover .room-art-layer{filter:brightness(1.06) saturate(1.03);}
+  @keyframes roomRevealPop{0%{opacity:0;transform:scale(.92);box-shadow:0 2px 4px rgba(0,0,0,.18);}65%{opacity:1;transform:scale(1.02);box-shadow:0 10px 22px rgba(0,0,0,.42);}100%{opacity:1;transform:scale(1);box-shadow:var(--board-room-shadow-heavy);}}
   .cell.room.laundry{}
   .cell.room.move-target{border-color:#4cff9e;box-shadow:var(--board-room-shadow-heavy), 0 0 8px #4cff9e88, 0 0 24px 10px rgba(8,20,14,.42);}
   .cell.room.current-gnome{background:linear-gradient(180deg, rgba(122,86,58,.98), rgba(77,53,36,.98)),repeating-linear-gradient(0deg, rgba(109,74,48,.92) 0 1px, transparent 1px 12px),repeating-linear-gradient(90deg, rgba(109,74,48,.92) 0 1px, transparent 1px 12px),repeating-linear-gradient(180deg, rgba(245,225,187,.16) 0 5px, rgba(188,145,90,.16) 5px 11px, rgba(84,57,35,.08) 11px 12px),repeating-linear-gradient(90deg, rgba(245,225,187,.14) 0 5px, rgba(188,145,90,.14) 5px 11px, rgba(84,57,35,.08) 11px 12px);border-color:var(--gold);box-shadow:var(--board-room-shadow-heavy), inset 0 0 0 1px rgba(245,229,201,.18), inset 0 0 28px rgba(36,22,12,.22), 0 0 26px 12px rgba(18,10,5,.26);background-size:auto,12px 12px,12px 12px,12px 12px,12px 12px;}
@@ -436,6 +440,10 @@ url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/backgroundtil
     perspective: 200px;
     -webkit-perspective: 200px;
   }
+  .gnome-token.token-pop,.patrol-coin.token-pop{animation:tokenPopIn .16s cubic-bezier(.22,.8,.2,1) both;}
+  .gnome-token.active-turn::before{content:'';position:absolute;left:50%;top:50%;width:2.25em;height:2.25em;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle, rgba(242,192,107,.34) 0%, rgba(214,166,82,.22) 42%, rgba(214,166,82,0) 72%);filter:blur(1px);animation:activeTurnHalo 2.2s ease-in-out infinite;}
+  @keyframes tokenPopIn{0%{opacity:0;transform:scale(.86);}100%{opacity:1;transform:scale(1);}}
+  @keyframes activeTurnHalo{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.96);}50%{opacity:.92;transform:translate(-50%,-50%) scale(1.08);}}
   .gnome-token-inner {
     position: relative;
     width: 100%; height: 100%;
@@ -525,8 +533,15 @@ url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/backgroundtil
   .patrol-facing-dot.E { right: 3px;  top: 50%;  transform: translateY(-50%); }
 
   /* DOOR INDICATORS — rendered as notches on the cell border, clickable */
-  .door{position:absolute;background:#f5a623;z-index:5;cursor:pointer;transition:background .15s, opacity .15s, box-shadow .15s;}
+  .door{position:absolute;background:#f5a623;z-index:5;cursor:pointer;transition:background .15s, opacity .15s, box-shadow .15s, transform .15s ease, filter .15s ease;}
   .door:hover{background:#ffe082;}
+  .cell.room:hover .door:not(.disabled),
+  .cell.room.move-target .door:not(.disabled),
+  .cell.room.current-gnome .door:not(.disabled){background:#ffd36f;box-shadow:0 0 0 1px rgba(255,233,180,.24),0 0 10px rgba(242,192,107,.38),0 0 18px rgba(214,166,82,.24);filter:brightness(1.06);}
+  .cell.room:hover .door.N:not(.disabled), .cell.room.move-target .door.N:not(.disabled), .cell.room.current-gnome .door.N:not(.disabled){transform:translateX(-50%) translateY(-1px);}
+  .cell.room:hover .door.S:not(.disabled), .cell.room.move-target .door.S:not(.disabled), .cell.room.current-gnome .door.S:not(.disabled){transform:translateX(-50%) translateY(1px);}
+  .cell.room:hover .door.W:not(.disabled), .cell.room.move-target .door.W:not(.disabled), .cell.room.current-gnome .door.W:not(.disabled){transform:translateY(-50%) translateX(-1px);}
+  .cell.room:hover .door.E:not(.disabled), .cell.room.move-target .door.E:not(.disabled), .cell.room.current-gnome .door.E:not(.disabled){transform:translateY(-50%) translateX(1px);}
   .door.disabled{background:#6b7280;opacity:.55;cursor:not-allowed;box-shadow:inset 0 0 0 1px rgba(214,166,82,.12);}
   .door.disabled:hover{background:#6b7280;}
   .door.N{top:-3px;left:50%;transform:translateX(-50%);width:48px;height:8px;border-radius:3px 3px 0 0;}
@@ -1405,7 +1420,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 
 .room-token-lane > *{margin-left:-2px;margin-right:-2px;}
 .gnome-token.active-turn .gnome-token-front{animation:activeTurnGlow 2.6s ease-in-out infinite;}
-@keyframes activeTurnGlow{0%,100%{filter:drop-shadow(0 0 0px transparent);}50%{filter:drop-shadow(0 0 2px rgba(255,255,255,.9)) drop-shadow(0 0 1px rgba(255,255,255,.7));}}
+@keyframes activeTurnGlow{0%,100%{filter:drop-shadow(0 0 1px rgba(242,192,107,.18));}50%{filter:drop-shadow(0 0 4px rgba(242,192,107,.95)) drop-shadow(0 0 8px rgba(214,166,82,.65));}}
 .action-btn.end-turn.ready{background:#b40000 !important;border-color:#ff4d4d !important;color:#fff !important;animation:endTurnPulse 1.6s ease-in-out infinite;opacity:1;filter:none;}
 .action-btn.free-move-ready{background:#5a1018 !important;border-color:#ff5a6a !important;color:#fff !important;animation:freeMovePulse 1.4s ease-in-out infinite;box-shadow:0 0 0 1px rgba(255,90,106,.25),0 0 16px rgba(255,90,106,.35);}
 @keyframes freeMovePulse{0%,100%{transform:translateY(0);box-shadow:0 0 0 1px rgba(255,90,106,.18),0 0 10px rgba(255,90,106,.24);}50%{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,90,106,.32),0 0 18px rgba(255,90,106,.48);}}
@@ -1901,21 +1916,23 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 }
 .game-screen.screen-setup{
   padding:18px 24px 24px;
+  justify-content:flex-start;
+  overflow:auto;
 }
 .game-screen.screen-setup .screen-setup-ui{
+  position:relative;
   width:min(1100px, calc(100vw - 48px));
-  height:100%;
+  min-height:100%;
   margin:0 auto;
-  display:grid;
-  grid-template-rows:auto auto 1fr;
-  justify-items:center;
-  align-items:start;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 .game-screen.screen-setup .setup-logo{
   display:block;
   width:min(520px, 72vw);
   max-width:520px;
-  margin-top:6px;
+  margin:6px auto 0;
   filter:drop-shadow(0 12px 28px rgba(0,0,0,.48));
 }
 .game-screen.screen-setup .setup-start-wrap{
@@ -1926,16 +1943,19 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .game-screen.screen-setup .setup-roster{
   position:relative !important;
   left:auto !important;
+  right:auto !important;
   bottom:auto !important;
+  top:auto !important;
   transform:none !important;
-  width:min(1040px, calc(100vw - 48px));
-  display:grid !important;
-  grid-template-columns:repeat(4, minmax(0, 1fr));
-  gap:16px;
+  width:min(760px, calc(100vw - 48px));
+  display:grid;
+  grid-template-columns:repeat(4, minmax(160px, 174px));
+  justify-content:center;
+  gap:11px;
   align-items:end;
-  align-self:end;
-  justify-self:center;
-  padding:0 0 8px;
+  margin:24px auto 0;
+  padding-bottom:8px;
+  z-index:3;
 }
 
 .game-screen.screen-end{
@@ -2129,6 +2149,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
     grid-template-columns:repeat(2, minmax(0, 1fr));
     width:min(760px, calc(100vw - 24px));
     gap:12px;
+    bottom:18px;
   }
   .game-screen.screen-weaver .weaver-shell{
     width:min(760px, calc(100vw - 24px));
@@ -2151,7 +2172,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 }
 @media (max-width: 640px){
   .game-screen.screen-setup .setup-logo{width:min(360px,78vw);}
-  .game-screen.screen-setup .setup-roster{width:calc(100vw - 24px);}
+  .game-screen.screen-setup .setup-roster{width:calc(100vw - 24px);max-width:760px;}
   .game-screen.screen-weaver .weaver-shell{width:calc(100vw - 24px);}
   .game-screen.screen-weaver .weaver-shop-grid-split{grid-template-columns:1fr;}
 }
@@ -3864,7 +3885,7 @@ function deferDocumentOneShotClick(handler, delay = 10) {
 
 function parseCommandArg(raw) {
   if (raw == null || raw === '') return undefined;
-  if (/^[\[{]/.test(raw)) {
+  if (/^[\[\{]/.test(raw)) {
     try { return JSON.parse(raw); } catch (_err) {}
   }
   if (/^-?\d+$/.test(raw)) return Number(raw);
@@ -3939,7 +3960,6 @@ function initCommandBindings(root = document) {
     command(trigger, arg, event);
   });
 }
-
 
 const ACTION_BUTTON_META = {
   'btn-move': { icon: '🚶', label: 'Move' },
@@ -5436,7 +5456,7 @@ function attachGoodieTileBehavior(span, gid, clickHandler) {
 
 function buildTokenNodeForGnome(og, r, c) {
   const wrap = document.createElement('span');
-  wrap.className = cx('gnome-token', THEME_CLASSES.component.tokenGnome);
+  wrap.className = cx('gnome-token', 'token-pop', THEME_CLASSES.component.tokenGnome);
   wrap.title = og.hidden ? `${og.name} (hidden)` : og.name;
   const wasHidden = og.hidden;
   if (og.stickyBlocked) wrap.classList.add('sticky-gnome');
@@ -5470,7 +5490,7 @@ function buildTokenNodeForGnome(og, r, c) {
 }
 
 function buildTokenNodeForKoGnome(og, r, c) {
-  return createEmojiToken({
+  const node = createEmojiToken({
     emoji: og.emoji,
     title: `${og.name} (KO)`,
     className: [THEME_CLASSES.component.tokenKo],
@@ -5481,6 +5501,8 @@ function buildTokenNodeForKoGnome(og, r, c) {
       showOccupantPopup(e.currentTarget, og, 'gnome', r, c);
     },
   });
+  node.classList.add('token-pop');
+  return node;
 }
 
 function buildTokenNodeForHamper(r, c) {
@@ -5496,6 +5518,7 @@ function buildTokenNodeForHamper(r, c) {
 function buildTokenNodeForPatrol(p, r, c) {
   const coin = createElement('span', { className: cx('patrol-coin', THEME_CLASSES.component.tokenPatrol) });
   coin.title = `${capitalize(p.type)} patrol`;
+  coin.classList.add('token-pop');
   const emo = createElement('span', { className: 'patrol-coin-emoji', text: patrolEmoji(p.type) });
   coin.appendChild(emo);
   if (p.nextDir) {
@@ -5519,6 +5542,8 @@ function distributeRoomOccupants({ gnomsHere, koHere, hamperHere, patrolsHere, r
   return { top, bottom };
 }
 
+let LAST_RENDERED_ROOM_KEYS = null;
+
 function renderBoard() {
   const board = el('board');
   board.style.gridTemplateColumns = `repeat(${G.GRID}, ${GAME_BUILD.boardCellSize}px)`;
@@ -5538,6 +5563,7 @@ function renderBoard() {
     ? getRevealableFrom(gnome.row, gnome.col)
     : [];
   const revealSet = new Set(revealable.map(([r,c]) => getCellKey(r, c)));
+  const currentRoomKeys = new Set();
 
   for (let r=0;r<G.GRID;r++) {
     for (let c=0;c<G.GRID;c++) {
@@ -5546,6 +5572,7 @@ function renderBoard() {
 
       if (tile) {
         const cellKey = getCellKey(r, c);
+        currentRoomKeys.add(cellKey);
         cell.className = getRoomCellClassNames({
           tile,
           key: cellKey,
@@ -5652,6 +5679,7 @@ function renderBoard() {
         if (tile.roomId === 1) {
           artLayer.style.setProperty('--room-art-url', "url('https://raw.githubusercontent.com/fletchbomb/gnome/main/files/roomtile4.png')");
         }
+        if (LAST_RENDERED_ROOM_KEYS && !LAST_RENDERED_ROOM_KEYS.has(cellKey)) cell.classList.add('room-reveal-pop');
         cell.appendChild(artLayer);
 
         const inner = createElement('div');
@@ -5811,6 +5839,7 @@ function renderBoard() {
     }
   }
   board.replaceChildren(frag);
+  LAST_RENDERED_ROOM_KEYS = currentRoomKeys;
 }
 
 
