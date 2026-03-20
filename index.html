@@ -3582,11 +3582,11 @@ function reconcileDoorConnections(state = G) {
 // ─────────────────────────────────────────────
 // DATA DEFINITIONS
 // ─────────────────────────────────────────────
-const GNOME_COLORS = ['#ef4444','#3b82f6','#facc15','#a855f7'];
-const GNOME_EMOJIS = ['🔴','🔵','🟡','🟣'];
+const GNOME_COLORS = ['#8ea86a','#3b82f6','#facc15','#a855f7'];
+const GNOME_EMOJIS = ['🟢','🔵','🟡','🟣'];
 const GNOME_NAMES_DEFAULT = ['Bill','Brim','Bog','Bree'];
 const GNOME_PORTRAIT_URLS = [
-  'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/pip.png',
+  'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/bill.png',
   'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/brim.png',
   'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/bog.png',
   'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/bree.png',
@@ -3628,7 +3628,7 @@ const GOODIES_DEFS = [
 ];
 
 const HATS_DEFS = [
-  {id:1,name:'Red Hat',emoji:'🔺',iconKey:'hat_red',desc:'Gain an action free Move.',default:true, freeMove:true},
+  {id:1,name:'Green Hat',emoji:'🔺',iconKey:'hat_red',desc:'Gain an action free Move.',default:true, freeMove:true},
   {id:2,name:'Blue Hat',emoji:'🎩',iconKey:'hat_blue',desc:'+1 Satchel slot.',satchelBonus:1},
   {id:3,name:'Fedora',emoji:'🪖',desc:'+2 Actions per turn.',actionBonus:2},
   {id:4,name:'Party Hat',emoji:'🎉',desc:'Draw an Item.'},
@@ -4785,7 +4785,7 @@ function withTempState(tempState, fn) {
 
 const PATROL_EMOJI_BY_TYPE = Object.freeze({ roomba:'🤖', dog:'🐶', kid:'👦', dad:'👨' });
 const ICON_LIBRARY = Object.freeze({
-  hat_red:    { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/redhat.png' },
+  hat_red:    { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/greenhat.png' },
   hat_blue:   { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/bluehat.png' },
   hat_yellow: { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/yellowhat.png' },
   hat_purple: { type:'image', src:'https://raw.githubusercontent.com/fletchbomb/gnome/main/files/purplehat.png' },
@@ -6565,7 +6565,7 @@ function renderActions() {
     label: freeMoveReady ? 'Free Move' : UI_TEXT.action.move.replace(/^🚶\s*/, ''),
     icon: freeMoveReady ? '🔺' : '🚶',
     active: G.selectedAction === 'move',
-    title: freeMoveReady ? 'Red Hat: one free normal move at 0 actions' : '',
+    title: freeMoveReady ? 'Green Hat: one free normal move at 0 actions' : '',
     commandName: 'selectAction',
     commandArg: 'move',
   });
