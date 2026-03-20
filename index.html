@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v221</title>
+  <title>Gnome Invasion v223</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -2509,6 +2509,358 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 #debug-panel .debug-btn.secondary{background:var(--color-surface-debug-muted) !important;}
 #debug-panel .debug-chip{background:linear-gradient(180deg, rgba(79,55,35,.9), rgba(43,30,22,.96)) !important;}
 
+
+/* v223 setup menu redesign */
+.game-screen.screen-setup{
+  padding:18px 24px 26px;
+  justify-content:flex-start;
+  overflow:auto;
+}
+.game-screen.screen-setup .screen-setup-ui{
+  width:min(1100px, calc(100vw - 48px));
+  min-height:100%;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+#setup-menu-shell{
+  position:relative;
+  z-index:3;
+  width:min(760px, calc(100vw - 48px));
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  margin-top:12px;
+}
+#setup-mode-buttons{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+#setup-mode-buttons.is-hidden{
+  display:none;
+}
+.setup-mode-btn{
+  min-width:220px;
+}
+#setup-online-panel{
+  width:min(640px, 100%);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+#setup-online-panel.is-hidden{
+  display:none;
+}
+.setup-online-view{
+  display:none;
+  width:100%;
+}
+.setup-online-view.is-active{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+}
+.setup-inline-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  width:100%;
+}
+.setup-small-btn{
+  padding:10px 16px;
+  min-height:46px;
+  border-radius:14px;
+  border:1px solid rgba(214,166,82,.26);
+  background:linear-gradient(180deg, rgba(111,76,52,.96), rgba(58,40,27,.98));
+  color:var(--ui-text);
+  font:800 .86rem/1 var(--font-body);
+  cursor:pointer;
+  box-shadow:0 10px 22px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,245,224,.05);
+  transition:transform .14s ease, background .14s ease, border-color .14s ease, box-shadow .14s ease, opacity .14s ease;
+}
+.setup-small-btn:hover:not(:disabled){
+  transform:translateY(-1px);
+  background:linear-gradient(180deg, rgba(126,89,62,.98), rgba(67,47,33,.99));
+  border-color:rgba(242,192,107,.56);
+}
+.setup-small-btn:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+  transform:none;
+}
+.setup-muted-btn{
+  background:transparent;
+  box-shadow:none;
+}
+.setup-join-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  width:100%;
+}
+#setup-join-code-input{
+  width:126px;
+  min-height:46px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(214,166,82,.22);
+  background:rgba(26,18,13,.92);
+  color:var(--ui-text);
+  font:900 1.08rem/1 var(--font-body);
+  text-align:center;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+#setup-join-code-input:focus{
+  outline:none;
+  border-color:rgba(242,192,107,.68);
+  box-shadow:0 0 0 2px rgba(242,192,107,.16);
+}
+.setup-online-meta{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  width:100%;
+}
+.setup-online-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:38px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(79,55,35,.92), rgba(43,30,22,.96));
+  border:1px solid rgba(214,166,82,.22);
+  box-shadow:0 10px 18px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,245,224,.04);
+  font:800 .75rem/1 var(--font-body);
+  color:var(--ui-text);
+}
+.setup-online-players{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  width:100%;
+  min-height:38px;
+}
+.setup-player-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:34px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,245,224,.06);
+  border:1px solid rgba(214,166,82,.12);
+  font:800 .72rem/1 var(--font-body);
+  color:var(--ui-text-dim);
+}
+.setup-player-pill.is-connected{
+  color:var(--ui-text);
+  border-color:rgba(214,166,82,.22);
+  background:linear-gradient(180deg, rgba(111,76,52,.28), rgba(58,40,27,.44));
+}
+.setup-player-pill.is-self{
+  border-color:rgba(242,192,107,.54);
+  box-shadow:0 0 0 1px rgba(255,245,224,.06) inset, 0 0 18px rgba(242,192,107,.14);
+}
+.setup-online-status,
+#setup-status-line{
+  min-height:1.3em;
+  text-align:center;
+  font:800 .82rem/1.35 var(--font-body);
+  color:var(--ui-text);
+  text-shadow:0 4px 12px rgba(0,0,0,.26);
+}
+#setup-status-line:empty{
+  display:none;
+}
+#setup-start-wrap{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+#setup-start-wrap.is-visible{
+  display:flex;
+}
+#setup-waiting-host{
+  display:none;
+  font:800 .84rem/1.3 var(--font-body);
+  color:var(--ui-text);
+  text-shadow:0 4px 12px rgba(0,0,0,.24);
+}
+#setup-waiting-host.is-visible{
+  display:block;
+}
+#gnome-names.setup-roster{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  top:auto !important;
+  transform:none !important;
+  width:min(760px, calc(100vw - 48px));
+  display:grid;
+  grid-template-columns:repeat(4, minmax(160px, 174px));
+  justify-content:center;
+  gap:11px;
+  align-items:end;
+  margin:28px auto 0;
+  padding-bottom:8px;
+  z-index:3;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(42px) !important;
+}
+#gnome-names.is-hidden{
+  display:none;
+}
+#gnome-names.is-visible{
+  display:grid;
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0) !important;
+  transition:transform .38s cubic-bezier(.2,.8,.2,1), opacity .28s ease;
+}
+#gnome-names.is-visible .setup-gnome-card{
+  animation:setupCardRise .34s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--setup-card-index, 0) * 55ms);
+}
+@keyframes setupCardRise{
+  from{opacity:0;transform:translateY(34px) scale(.96);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+#gnome-names .setup-gnome-card{
+  opacity:1 !important;
+  filter:none !important;
+  transform:translateY(0);
+  border:2px solid rgba(214,166,82,.18);
+  box-shadow:0 16px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,245,224,.06);
+  overflow:visible;
+}
+#gnome-names .setup-gnome-card:hover{
+  transform:translateY(-3px) scale(1.01);
+  border-color:rgba(242,192,107,.44);
+  box-shadow:0 22px 34px rgba(0,0,0,.32), 0 0 16px rgba(242,192,107,.12);
+}
+#gnome-names .setup-gnome-card.is-active{
+  transform:translateY(-6px) scale(1.01);
+  border-color:color-mix(in srgb, var(--gnome-accent) 78%, white);
+  box-shadow:0 22px 34px rgba(0,0,0,.32), 0 0 0 1px rgba(255,255,255,.08) inset, 0 0 0 3px color-mix(in srgb, var(--gnome-accent) 20%, transparent), 0 0 26px color-mix(in srgb, var(--gnome-accent) 30%, transparent);
+}
+#gnome-names .setup-gnome-card.is-claimed-other{
+  border-color:rgba(214,166,82,.34);
+  box-shadow:0 18px 30px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.05) inset;
+}
+.setup-card-topline{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.setup-gnome-head{
+  flex:1 1 auto;
+  min-width:0;
+}
+.setup-name-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  min-width:0;
+}
+.setup-name-wrap span:first-child{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.setup-card-chips{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
+  flex:0 0 auto;
+}
+.setup-role-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:26px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:rgba(255,245,224,.08);
+  font-size:.58rem;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--ui-text-dim);
+  font-weight:900;
+}
+.setup-role-chip.ready{
+  background:color-mix(in srgb, var(--gnome-accent) 30%, rgba(255,245,224,.08));
+  color:var(--ui-text);
+  box-shadow:0 0 0 1px rgba(255,245,224,.06) inset;
+}
+.setup-owner-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  padding:4px 9px;
+  border-radius:999px;
+  border:1px solid rgba(214,166,82,.20);
+  background:rgba(255,245,224,.06);
+  font:900 .56rem/1 var(--font-body);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ui-text);
+}
+.setup-owner-chip.self{
+  border-color:rgba(242,192,107,.52);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent) 30%, rgba(255,245,224,.08)), rgba(58,40,27,.96));
+  box-shadow:0 0 0 1px rgba(255,255,255,.05) inset, 0 0 18px color-mix(in srgb, var(--gnome-accent) 26%, transparent);
+}
+.setup-owner-chip.other{
+  border-color:rgba(214,166,82,.22);
+  color:var(--ui-text-soft);
+}
+@media (max-width: 980px){
+  #gnome-names.setup-roster{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    width:min(760px, calc(100vw - 24px));
+    gap:12px;
+  }
+  #setup-menu-shell{
+    width:min(760px, calc(100vw - 24px));
+  }
+}
+@media (max-width: 640px){
+  #setup-menu-shell{
+    width:calc(100vw - 24px);
+  }
+  #setup-mode-buttons{
+    width:100%;
+  }
+  .setup-mode-btn{
+    min-width:0;
+    width:100%;
+  }
+  #gnome-names.setup-roster{
+    width:calc(100vw - 24px);
+  }
+}
 </style>
 
 
@@ -2519,10 +2871,53 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
   <div class="screen-backdrop"></div>
   <div class="screen-ui screen-setup-ui">
     <img class="setup-logo" src="https://raw.githubusercontent.com/fletchbomb/gnome/main/files/logo.png" alt="Gnome Invasion logo">
-    <div class="setup-start-wrap">
-      <button id="start-game-btn" class="start-btn" data-command="startGame">Start Invasion! 🧦</button>
+    <div id="setup-menu-shell" class="setup-menu-shell">
+      <div id="setup-mode-buttons" class="setup-mode-buttons">
+        <button id="setup-local-btn" class="start-btn setup-mode-btn" data-command="enterLocalSetup">Play Local</button>
+        <button id="setup-online-btn" class="start-btn setup-mode-btn" data-command="enterOnlineSetup">Play Online</button>
+      </div>
+
+      <div id="setup-online-panel" class="setup-online-panel is-hidden">
+        <div id="setup-online-choice-view" class="setup-online-view is-active">
+          <div class="setup-inline-actions">
+            <button id="setup-host-btn" class="setup-small-btn" type="button">Host Game</button>
+            <button id="setup-show-join-btn" class="setup-small-btn" type="button">Join Game</button>
+            <button class="setup-small-btn setup-muted-btn" type="button" data-command="resetSetupMenu">Back</button>
+          </div>
+        </div>
+
+        <div id="setup-online-join-view" class="setup-online-view">
+          <div class="setup-join-row">
+            <input type="text" id="setup-join-code-input" placeholder="PIN" maxlength="4" inputmode="numeric" autocomplete="one-time-code" aria-label="Room PIN">
+            <button id="setup-join-btn" class="setup-small-btn" type="button">Join</button>
+          </div>
+          <div class="setup-inline-actions">
+            <button id="setup-join-back-btn" class="setup-small-btn setup-muted-btn" type="button">Back</button>
+          </div>
+        </div>
+
+        <div id="setup-online-room-view" class="setup-online-view">
+          <div class="setup-online-meta">
+            <div class="setup-online-pill" id="setup-online-role">Not connected</div>
+            <div class="setup-online-pill" id="setup-online-room-pill">Room <strong id="setup-room-code">----</strong></div>
+          </div>
+          <div id="setup-online-players" class="setup-online-players"></div>
+          <div id="setup-online-status" class="setup-online-status"></div>
+          <div class="setup-inline-actions">
+            <button id="setup-online-leave-btn" class="setup-small-btn setup-muted-btn" type="button">Back</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="setup-status-line" class="setup-status-line"></div>
+
+      <div id="setup-start-wrap" class="setup-start-wrap">
+        <button id="start-game-btn" class="start-btn" data-command="startGame">Start Invasion! 🧦</button>
+        <div id="setup-waiting-host" class="setup-waiting-host">Waiting for host to start</div>
+      </div>
     </div>
-    <div id="gnome-names" class="setup-roster"></div>
+
+    <div id="gnome-names" class="setup-roster is-hidden"></div>
   </div>
 </div>
 
@@ -3936,7 +4331,7 @@ function clearInteractionModes({ log = false, render = false, clearScurry = fals
 
 function initCommandBindings(root = document) {
   const UI_CLICK_COMMANDS = new Set([
-    'startGame','resetGame','visitWeaverAfterEscape','startNextHouse','toggleLogCollapsed','selectPlayers',
+    'enterLocalSetup','enterOnlineSetup','resetSetupMenu','startGame','resetGame','visitWeaverAfterEscape','startNextHouse','toggleLogCollapsed','selectPlayers',
     'selectAction','doKick','cancelKick','doVent','cancelVent','cancelDynamite','cancelShroom',
     'dismissCard','openWeaver','hamperInteract','winHouse','endGnomeTurn'
   ]);
@@ -3977,6 +4372,9 @@ const ACTION_BUTTON_META = {
 };
 
 const UI_COMMANDS = Object.freeze({
+  enterLocalSetup: () => enterLocalSetup(),
+  enterOnlineSetup: () => enterOnlineSetup(),
+  resetSetupMenu: () => resetSetupMenu(),
   selectPlayers: (_node, value) => selectPlayers(Number(value)),
   toggleSetupGnome: (_node, value) => toggleSetupGnome(Number(value)),
   startGame: () => startGame(),
@@ -4484,7 +4882,7 @@ const EVENT_CARDS = [
 // ─────────────────────────────────────────────
 // GAME STATE
 // ─────────────────────────────────────────────
-let G = {};
+var G = {};
 
 const GAME_BUILD = Object.freeze({
   version: 'v189',
@@ -5102,41 +5500,139 @@ function drawConnectingRoom(fromDir) {
 // ─────────────────────────────────────────────
 // SETUP UI
 // ─────────────────────────────────────────────
-let setupPlayerCount = 1;
-let setupSelectedGnomes = [0];
+var setupMode = null;
+var setupOnlineView = 'choice';
+var setupPlayerCount = 0;
+var setupSelectedGnomes = [];
+
+function normalizeSetupSelection(indices) {
+  return [...new Set((indices || [])
+    .map(v => Number(v))
+    .filter(v => Number.isInteger(v) && v >= 0 && v <= 3))].sort((a,b)=>a-b);
+}
+
+function setSetupMode(mode) {
+  setupMode = mode === 'local' || mode === 'online' ? mode : null;
+  renderSetupUi();
+}
+
+function setSetupOnlineView(view) {
+  setupOnlineView = view === 'join' || view === 'room' ? view : 'choice';
+  renderSetupUi();
+}
+
+function enterLocalSetup() {
+  setupMode = 'local';
+  setupOnlineView = 'choice';
+  renderSetupUi();
+}
+
+function enterOnlineSetup() {
+  setupMode = 'online';
+  if (window.__gnomeMPApi && typeof window.__gnomeMPApi.prepareOnlineMode === 'function') {
+    window.__gnomeMPApi.prepareOnlineMode();
+  }
+  setupOnlineView = window.__gnomeMPApi?.hasSession?.() ? 'room' : 'choice';
+  renderSetupUi();
+}
+
+function resetSetupMenu() {
+  setupMode = null;
+  setupOnlineView = 'choice';
+  setupSelectedGnomes = [];
+  setupPlayerCount = 0;
+  const joinInput = el('setup-join-code-input');
+  if (joinInput) joinInput.value = '';
+  if (window.__gnomeMPApi && typeof window.__gnomeMPApi.leaveMenuToLanding === 'function') {
+    window.__gnomeMPApi.leaveMenuToLanding();
+  }
+  renderSetupUi();
+}
 
 function selectPlayers(n) {
-  setupSelectedGnomes = Array.from({length:Math.max(1, Math.min(4, n))}, (_, i) => i);
+  const count = Math.max(0, Math.min(4, Number(n) || 0));
+  setupSelectedGnomes = Array.from({ length: count }, (_, i) => i);
   setupPlayerCount = setupSelectedGnomes.length;
-  renderGnomeNameInputs();
+  renderSetupUi();
+}
+
+function setSetupSelectedGnomes(indices, options = {}) {
+  setupSelectedGnomes = normalizeSetupSelection(indices);
+  setupPlayerCount = setupSelectedGnomes.length;
+  if (options.render !== false) renderSetupUi();
+  return setupSelectedGnomes.slice();
+}
+
+function getSetupOnlineMeta() {
+  if (window.__gnomeMPApi && typeof window.__gnomeMPApi.getOnlineUiState === 'function') {
+    return window.__gnomeMPApi.getOnlineUiState();
+  }
+  return null;
 }
 
 function toggleSetupGnome(idx) {
   const index = Number(idx);
-  if (Number.isNaN(index) || index < 0 || index > 3) return;
-  if (setupSelectedGnomes.includes(index)) {
-    if (setupSelectedGnomes.length === 1) return;
-    setupSelectedGnomes = setupSelectedGnomes.filter(v => v !== index);
-  } else {
-    setupSelectedGnomes = [...setupSelectedGnomes, index].sort((a,b)=>a-b);
+  if (!Number.isInteger(index) || index < 0 || index > 3) return;
+  if (setupMode === 'online') {
+    if (window.__gnomeMPApi && typeof window.__gnomeMPApi.requestClaim === 'function') {
+      window.__gnomeMPApi.requestClaim(index);
+    }
+    return;
   }
+  if (setupMode !== 'local') return;
+  if (setupSelectedGnomes.includes(index)) setupSelectedGnomes = setupSelectedGnomes.filter(v => v !== index);
+  else setupSelectedGnomes = [...setupSelectedGnomes, index].sort((a,b)=>a-b);
   setupPlayerCount = setupSelectedGnomes.length;
-  renderGnomeNameInputs();
+  renderSetupUi();
+}
+
+function renderSetupOnlineSubviews() {
+  const choice = el('setup-online-choice-view');
+  const join = el('setup-online-join-view');
+  const room = el('setup-online-room-view');
+  if (!choice || !join || !room) return;
+  choice.classList.toggle('is-active', setupMode === 'online' && setupOnlineView === 'choice');
+  join.classList.toggle('is-active', setupMode === 'online' && setupOnlineView === 'join');
+  room.classList.toggle('is-active', setupMode === 'online' && setupOnlineView === 'room');
 }
 
 function renderGnomeNameInputs() {
+  const container = el('gnome-names');
+  if (!container) return;
   const selected = new Set(setupSelectedGnomes);
-  el('gnome-names').innerHTML = Array.from({length:4},(_,i)=> {
+  const onlineMeta = setupMode === 'online' && window.__gnomeMPApi && typeof window.__gnomeMPApi.getSetupCardMeta === 'function'
+    ? window.__gnomeMPApi
+    : null;
+
+  container.innerHTML = Array.from({length:4},(_,i)=> {
     const active = selected.has(i);
     const startingHatByProfile = [1,2,9,6];
     const hatDef = getHatDef(startingHatByProfile[i]);
+    const cardMeta = onlineMeta ? onlineMeta.getSetupCardMeta(i) : null;
+    const ownerChip = cardMeta?.ownerLabel
+      ? `<span class="setup-owner-chip ${cardMeta.ownerSelf ? 'self' : 'other'}">${cardMeta.ownerLabel}</span>`
+      : '';
+    const cardClasses = [
+      'setup-gnome-card',
+      active ? 'is-active' : '',
+      cardMeta?.claimed && !cardMeta?.ownerSelf ? 'is-claimed-other' : ''
+    ].filter(Boolean).join(' ');
+
     return `
-      <button class="setup-gnome-card ${active ? 'is-active' : 'is-inactive'}" style="--gnome-accent:${GNOME_COLORS[i]};" type="button" data-command="toggleSetupGnome" data-command-arg="${i}">
+      <button class="${cardClasses}" style="--setup-card-index:${i}; --gnome-accent:${GNOME_COLORS[i]};" type="button" data-command="toggleSetupGnome" data-command-arg="${i}">
         <div class="setup-portrait-frame"><img src="${GNOME_PORTRAIT_URLS[i]}" alt="${GNOME_NAMES_DEFAULT[i]} portrait"></div>
-        <div class="setup-gnome-head">
-          <span class="setup-color-dot" style="background:${GNOME_COLORS[i]};"></span>
-          <span>${GNOME_NAMES_DEFAULT[i]}</span>
-          <span class="setup-role-chip ${active ? 'ready' : ''}">${active ? 'Playing' : 'Bench'}</span>
+        <div class="setup-card-topline">
+          <div class="setup-gnome-head">
+            <span class="setup-color-dot" style="background:${GNOME_COLORS[i]};"></span>
+            <span class="setup-name-wrap">
+              <span>${GNOME_NAMES_DEFAULT[i]}</span>
+              <span class="setup-hat-desc">${hatDef?.desc || ''}</span>
+            </span>
+          </div>
+          <div class="setup-card-chips">
+            <span class="setup-role-chip ${active ? 'ready' : ''}">${active ? 'Playing' : 'Bench'}</span>
+            ${ownerChip}
+          </div>
         </div>
         <div class="setup-hat-block">
           <div class="setup-hat-name">${hatDef ? `${getIconHTML({ ...getHatIconProps(hatDef), alt: hatDef.name, className: 'ui-icon' })} ${hatDef.name}` : 'No Hat'}</div>
@@ -5144,11 +5640,53 @@ function renderGnomeNameInputs() {
         </div>
       </button>`;
   }).join('');
-  const startBtn = el('start-game-btn');
-  if (startBtn) startBtn.disabled = setupSelectedGnomes.length === 0;
-  el('gnome-names').style.display = "grid";
 }
 
+function renderSetupUi() {
+  renderGnomeNameInputs();
+  renderSetupOnlineSubviews();
+
+  const modeButtons = el('setup-mode-buttons');
+  const onlinePanel = el('setup-online-panel');
+  const roster = el('gnome-names');
+  const startWrap = el('setup-start-wrap');
+  const startBtn = el('start-game-btn');
+  const waitingHost = el('setup-waiting-host');
+  const statusLine = el('setup-status-line');
+
+  if (modeButtons) modeButtons.classList.toggle('is-hidden', !!setupMode);
+  if (onlinePanel) onlinePanel.classList.toggle('is-hidden', setupMode !== 'online');
+  if (roster) {
+    roster.classList.toggle('is-hidden', !setupMode);
+    roster.classList.toggle('is-visible', !!setupMode);
+  }
+
+  let statusText = '';
+  let showStartButton = false;
+  let showWaitingForHost = false;
+
+  if (setupMode === 'local') {
+    showStartButton = setupSelectedGnomes.length >= 1;
+  } else if (setupMode === 'online') {
+    const online = getSetupOnlineMeta();
+    if (online) {
+      statusText = online.statusText || '';
+      showStartButton = !!(online.sessionActive && online.isHost && online.startReady);
+      showWaitingForHost = !!(online.sessionActive && online.isClient && online.startReady);
+    }
+  }
+
+  if (statusLine) statusLine.textContent = statusText;
+  if (startWrap) startWrap.classList.toggle('is-visible', showStartButton || showWaitingForHost);
+  if (startBtn) {
+    startBtn.style.display = showStartButton ? '' : 'none';
+    startBtn.disabled = !showStartButton;
+  }
+  if (waitingHost) {
+    waitingHost.classList.toggle('is-visible', showWaitingForHost);
+    waitingHost.textContent = showWaitingForHost ? 'Waiting for host to start' : '';
+  }
+}
 
 function startGame() {
   unlockGameAudio();
@@ -5156,7 +5694,8 @@ function startGame() {
   THEME_MUSIC.play().catch(()=>{});
   applyThemeArchitectureShells();
   mountUnifiedTurnDock();
-  const selected = [...setupSelectedGnomes].sort((a,b)=>a-b);
+  const selected = normalizeSetupSelection(setupSelectedGnomes);
+  if (!selected.length) return;
   setupPlayerCount = selected.length;
   const names = selected.map(i => GNOME_NAMES_DEFAULT[i]);
   warmUiPerformance().catch(() => undefined);
@@ -5195,7 +5734,17 @@ function resetGame() {
   el('screen-weaver').classList.remove('show');
   syncWeaverScreenMode('');
   el('screen-setup').classList.add('show');
-  setupSelectedGnomes = [0]; setupPlayerCount = 1; renderGnomeNameInputs();
+  if (window.__gnomeMPApi && typeof window.__gnomeMPApi.hasSession === 'function' && window.__gnomeMPApi.hasSession()) {
+    setupMode = 'online';
+    setupOnlineView = 'room';
+    if (typeof window.__gnomeMPApi.afterGameReset === 'function') window.__gnomeMPApi.afterGameReset();
+  } else {
+    setupMode = null;
+    setupOnlineView = 'choice';
+    setupSelectedGnomes = [];
+    setupPlayerCount = 0;
+  }
+  renderSetupUi();
 initDebugFork();
 refreshDebugForkUi();
 }
@@ -10514,8 +11063,11 @@ initCommandBindings();
 ensureLogUiState();
 applyLogCollapsedState();
 renderLogEntries();
-selectPlayers(1);
-renderGnomeNameInputs();
+setupMode = null;
+setupOnlineView = 'choice';
+setupSelectedGnomes = [];
+setupPlayerCount = 0;
+renderSetupUi();
 initDebugFork();
 refreshDebugForkUi();
 
