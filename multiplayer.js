@@ -1,4 +1,4 @@
-// multiplayer.js - Online Sync Mod for Gnome Invasion (v3 with Set Serialization & Connection Fixes)
+// multiplayer.js - Online Sync Mod for Gnome Invasion (v4 - Input Replication)
 
 // 1. Dynamically load PeerJS for networking
 const script = document.createElement('script');
@@ -12,7 +12,8 @@ let isOffline = false; // Tracks if we bypassed multiplayer for local testing
 let peer = null;
 let conn = null;
 let clients =[];
-let myGnomeIds = [0]; // The person who loads the page claims Gnome 0 by default
+let myGnomeIds = [0]; // The Host claims Gnome 0 (Bill) by default
+let isExecutingRemoteClick = false;
 
 function initMultiplayer() {
     // 2. Build the Multiplayer Lobby UI Overlay
@@ -42,35 +43,32 @@ function initMultiplayer() {
     `;
     document.body.appendChild(lobbyDiv);
 
-    // Bypass Multiplayer - Play Locally
+    // Bypass Multiplayer
     document.getElementById('mp-local-btn').addEventListener('click', () => {
         isOffline = true;
         document.getElementById('mp-lobby').style.display = 'none';
     });
 
-    // Host Button Logic
+    // Host Logic
     document.getElementById('mp-host-btn').addEventListener('click', () => {
         document.getElementById('mp-host-info').style.display = 'block';
         document.getElementById('mp-status').innerText = "Status: Generating PIN...";
         document.getElementById('mp-join-btn').disabled = true;
         document.getElementById('mp-join-id').disabled = true;
         document.getElementById('mp-local-btn').style.display = 'none';
-        
         attemptHost();
     });
 
-    // Join Button Logic
+    // Join Logic
     document.getElementById('mp-join-btn').addEventListener('click', () => {
         const roomId = document.getElementById('mp-join-id').value.trim();
-        if (!roomId || roomId.length !== 4) {
-            alert("Please enter a 4-digit PIN.");
-            return;
-        }
+        if (!roomId || roomId.length !== 4) { alert("Please enter a 4-digit PIN."); return; }
+        
         document.getElementById('mp-status').innerText = "Status: Connecting...";
         document.getElementById('mp-host-btn').disabled = true;
         document.getElementById('mp-local-btn').style.display = 'none';
         
-        myGnomeIds =[]; // Clear default claim when joining someone else's game
+        myGnomeIds =[]; // Client drops default ownership, builds it by clicking
         peer = new Peer();
         peer.on('open', () => {
             conn = peer.connect(roomId);
@@ -78,20 +76,15 @@ function initMultiplayer() {
                 isClient = true;
                 document.getElementById('mp-status').innerText = "Status: Connected!";
                 document.getElementById('mp-host-btn').style.display = 'none';
-                conn.on('data', handleHostData);
+                conn.on('data', data => handleNetworkMessage(data, conn));
             });
-            conn.on('error', () => {
-                document.getElementById('mp-status').innerText = "Status: Connection failed.";
-            });
+            conn.on('error', () => { document.getElementById('mp-status').innerText = "Status: Connection failed."; });
         });
     });
-
-    hijackSyncFunctions();
 }
 
-// Attempts to create a room with a random 4-digit PIN
 function attemptHost() {
-    const pin = Math.floor(1000 + Math.random() * 9000).toString(); // Generate '1000' to '9999'
+    const pin = Math.floor(1000 + Math.random() * 9000).toString();
     peer = new Peer(pin);
     
     peer.on('open', id => {
@@ -101,194 +94,155 @@ function attemptHost() {
     });
 
     peer.on('connection', connection => {
-        // We MUST wait for the connection to fully open before pushing it to our active list!
         connection.on('open', () => {
             clients.push(connection);
             document.getElementById('mp-status').innerText = `Status: Hosting (${clients.length} connected)`;
-            connection.on('data', handleClientData);
+            connection.on('data', data => handleNetworkMessage(data, connection));
             
             connection.on('close', () => {
                 clients = clients.filter(c => c !== connection);
                 document.getElementById('mp-status').innerText = `Status: Hosting (${clients.length} connected)`;
             });
-
-            broadcastState(); // Send current lobby state to new player
         });
     });
 
     peer.on('error', err => {
-        if (err.type === 'unavailable-id') {
-            // PIN collision! Someone else is using this 4-digit PIN. Try again instantly.
-            attemptHost();
-        } else {
-            document.getElementById('mp-status').innerText = "Error: " + err.message;
-        }
+        if (err.type === 'unavailable-id') attemptHost(); // PIN collision, try again
+        else document.getElementById('mp-status').innerText = "Error: " + err.message;
     });
 }
 
-// --- STATE SERIALIZATION HELPERS ---
-// JSON strips 'Set' objects into {}. We need to safely convert them to arrays to send, and back to Sets to receive.
-function prepStateForNetwork(state) {
-    if (!state) return state;
-    const copy = Object.assign({}, state);
-    if (copy.newlySpawnedCells instanceof Set) copy.newlySpawnedCells = Array.from(copy.newlySpawnedCells);
-    if (copy.newPatrolTypes instanceof Set) copy.newPatrolTypes = Array.from(copy.newPatrolTypes);
-    if (copy.stickyAnimated instanceof Set) copy.stickyAnimated = Array.from(copy.stickyAnimated);
-    if (copy.crackedRooms instanceof Set) copy.crackedRooms = Array.from(copy.crackedRooms);
-    return copy;
-}
-
-function restoreStateFromNetwork(dataState) {
-    if (!dataState) return dataState;
-    if (Array.isArray(dataState.newlySpawnedCells)) dataState.newlySpawnedCells = new Set(dataState.newlySpawnedCells);
-    if (Array.isArray(dataState.newPatrolTypes)) dataState.newPatrolTypes = new Set(dataState.newPatrolTypes);
-    if (Array.isArray(dataState.stickyAnimated)) dataState.stickyAnimated = new Set(dataState.stickyAnimated);
-    if (Array.isArray(dataState.crackedRooms)) dataState.crackedRooms = new Set(dataState.crackedRooms);
-    return dataState;
-}
-// -----------------------------------
-
-
-// 3. State Synchronization Logic
-function broadcastState() {
-    if (!isHost || isOffline) return;
-    const payload = {
-        type: 'state',
-        G: prepStateForNetwork(window.G),
-        setupSelectedGnomes: window.setupSelectedGnomes,
-        setupPlayerCount: window.setupPlayerCount
-    };
-    clients.forEach(c => c.send(payload));
-}
-
-function handleClientData(data) {
-    if (data.type === 'clientStateUpdate') {
-        const wasStarted = window.G && window.G.grid && window.G.grid.length > 0;
-        
-        window.G = restoreStateFromNetwork(data.G);
-        window.setupSelectedGnomes = data.setupSelectedGnomes;
-        window.setupPlayerCount = data.setupPlayerCount;
-        
-        const isStarted = window.G && window.G.grid && window.G.grid.length > 0;
-
-        // If the game just started via a client command, prep the UI
-        if (!wasStarted && isStarted) {
-            document.getElementById('screen-setup').classList.remove('show');
-            if (typeof window.applyThemeArchitectureShells === 'function') window.applyThemeArchitectureShells();
-            if (typeof window.mountUnifiedTurnDock === 'function') window.mountUnifiedTurnDock();
+// --- NETWORK MESSAGE ROUTER ---
+function handleNetworkMessage(data, senderConn = null) {
+    if (data.type === 'remoteClick') {
+        // If Host receives a click from a client, bounce it to all OTHER clients so everyone is synced
+        if (isHost && senderConn) {
+            clients.forEach(c => { if (c !== senderConn) c.send(data); });
         }
-
-        if (isStarted) {
-            window.orig_renderAll();
-        } else {
-            if (window.renderGnomeNameInputs) window.renderGnomeNameInputs();
+        // Execute the click locally!
+        const el = document.querySelector(data.selector);
+        if (el) {
+            isExecutingRemoteClick = true;
+            el.click();
+            isExecutingRemoteClick = false;
         }
-        broadcastState(); 
-    }
-}
-
-function handleHostData(data) {
-    if (data.type === 'state') {
-        const wasStarted = window.G && window.G.grid && window.G.grid.length > 0;
-        
-        window.G = restoreStateFromNetwork(data.G);
-        window.setupSelectedGnomes = data.setupSelectedGnomes;
-        window.setupPlayerCount = data.setupPlayerCount;
-
-        const isStarted = window.G && window.G.grid && window.G.grid.length > 0;
-
-        // If the game just started via the host, wake up the client UI
-        if (!wasStarted && isStarted) {
-            document.getElementById('screen-setup').classList.remove('show');
-            document.getElementById('mp-lobby').style.display = 'none'; // Hide MP menu on start
-            if (typeof window.applyThemeArchitectureShells === 'function') window.applyThemeArchitectureShells();
-            if (typeof window.mountUnifiedTurnDock === 'function') window.mountUnifiedTurnDock();
-        }
-
-        if (isStarted) {
-            window.orig_renderAll();
-        } else {
-            if (window.renderGnomeNameInputs) window.renderGnomeNameInputs();
+    } else if (data.type === 'syncState' && isClient) {
+        // Quietly absorb the Host's game state if our game is sitting perfectly still
+        if (window.GnomeInvasionDev && typeof SEQ !== 'undefined' && SEQ.queuedCount === 0) {
+            window.GnomeInvasionDev.restoreGameState(restoreStateFromNetwork(data.G));
         }
     }
 }
 
-// 4. Hooking into the game's UI and Render flow
-function hijackSyncFunctions() {
-    if (typeof window.renderAll === 'function') {
-        window.orig_renderAll = window.renderAll;
-        window.renderAll = function(...args) {
-            window.orig_renderAll.apply(this, args);
-            if (isOffline) return;
-            if (isHost) broadcastState();
-            else if (isClient) conn.send({ type: 'clientStateUpdate', G: prepStateForNetwork(window.G), setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
-        }
-    }
-
-    if (typeof window.renderAllNoBoard === 'function') {
-        window.orig_renderAllNoBoard = window.renderAllNoBoard;
-        window.renderAllNoBoard = function(...args) {
-            window.orig_renderAllNoBoard.apply(this, args);
-            if (isOffline) return;
-            if (isHost) broadcastState();
-            else if (isClient) conn.send({ type: 'clientStateUpdate', G: prepStateForNetwork(window.G), setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
-        }
-    }
-
-    if (typeof window.toggleSetupGnome === 'function') {
-        window.orig_toggleSetupGnome = window.toggleSetupGnome;
-        window.toggleSetupGnome = function(idx) {
-            const numIdx = Number(idx);
-            
-            if (!isOffline && window.setupSelectedGnomes.includes(numIdx) && !myGnomeIds.includes(numIdx)) {
-                alert("Another player has already claimed this gnome!");
-                return;
+// --- BACKGROUND STATE CORRECTOR ---
+setInterval(() => {
+    if (isHost && !isOffline && window.GnomeInvasionDev) {
+        const G = window.GnomeInvasionDev.getCurrentState();
+        // Only send alignment states when the board is totally idle and animations are done
+        if (typeof SEQ !== 'undefined' && SEQ.queuedCount === 0 && !document.body.classList.contains('card-showing') && G.phase === 'gnome') {
+            const stateStr = JSON.stringify(prepStateForNetwork(G));
+            if (stateStr !== window.lastSyncedHash) {
+                window.lastSyncedHash = stateStr;
+                const payload = { type: 'syncState', G: prepStateForNetwork(G) };
+                clients.forEach(c => c.send(payload));
             }
-
-            if (myGnomeIds.includes(numIdx)) {
-                myGnomeIds = myGnomeIds.filter(id => id !== numIdx);
-            } else {
-                myGnomeIds.push(numIdx);
-            }
-
-            window.orig_toggleSetupGnome.apply(this,[idx]);
-            
-            if (isOffline) return;
-            if (isHost) broadcastState();
-            else if (isClient) conn.send({ type: 'clientStateUpdate', G: prepStateForNetwork(window.G), setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
         }
     }
-    
-    // Hide Lobby menu when host clicks start game directly
-    document.getElementById('start-game-btn')?.addEventListener('click', () => {
-        if (!isOffline && (isHost || isClient)) {
-            document.getElementById('mp-lobby').style.display = 'none';
-        }
-    });
+}, 1500);
 
-    // 5. Turn Enforcement Logic
-    document.addEventListener('click', (e) => {
-        if (isOffline) return; // Completely bypass networking rules
-        if (!isClient && !isHost) return; 
-        if (!window.G || !window.G.gnomes) return; 
+// --- THE INPUT REPLICATOR ---
+document.addEventListener('click', (e) => {
+    if (isOffline) return; 
+    if (!isClient && !isHost) return; 
+    if (isExecutingRemoteClick) return; // Allow our "ghost clicks" to pass through!
 
-        const isWeaver = document.getElementById('screen-weaver').classList.contains('show');
-        if (isWeaver && isClient) {
-            e.stopPropagation();
-            e.preventDefault();
-            alert("Player 1 (Host) controls the Weaver shopping screen.");
+    // Find what element the player actually tried to click
+    const target = e.target.closest('button, .cell, .door, .room-item, .ui-icon-host, .setup-gnome-card, .weaver-token-shell, .weaver-card');
+    if (!target) return;
+
+    // 1. Gnome Ownership in Setup Lobby
+    if (target.classList.contains('setup-gnome-card')) {
+        const cards = Array.from(document.querySelectorAll('.setup-gnome-card'));
+        const idx = cards.indexOf(target);
+        
+        if (target.classList.contains('is-active') && !myGnomeIds.includes(idx)) {
+            e.preventDefault(); e.stopPropagation();
+            alert("Another player controls this gnome.");
             return;
         }
+        // Toggle personal ownership
+        if (myGnomeIds.includes(idx)) myGnomeIds = myGnomeIds.filter(id => id !== idx);
+        else myGnomeIds.push(idx);
+    }
 
-        const isGameAction = e.target.closest('.action-btn') || e.target.closest('.cell') || e.target.closest('.card-ok') || e.target.closest('[data-command]');
-        
-        if (isGameAction && window.G.phase === 'gnome') {
-            const currentGnomeId = window.G.gnomes[window.G.currentGnomeIdx].id;
-            if (!myGnomeIds.includes(currentGnomeId)) {
-                e.stopPropagation();
-                e.preventDefault();
-                console.log("Ignored click - It is not your turn!");
+    // 2. Hide Menu when start is clicked
+    if (target.id === 'start-game-btn') document.getElementById('mp-lobby').style.display = 'none';
+
+    // 3. Turn Enforcement (Is it my turn?)
+    if (window.GnomeInvasionDev) {
+        const G = window.GnomeInvasionDev.getCurrentState();
+        if (G && G.grid && G.grid[7][7]) { // Game has started
+            let canClick = false;
+            const isWeaver = document.getElementById('screen-weaver').classList.contains('show');
+            
+            if (isWeaver) {
+                if (isHost) canClick = true;
+                else if (G.weaverModal && G.weaverModal.mode === 'room') {
+                    canClick = myGnomeIds.includes(G.gnomes[G.currentGnomeIdx].id);
+                }
+            } else if (G.phase === 'gnome') {
+                canClick = myGnomeIds.includes(G.gnomes[G.currentGnomeIdx].id);
+            } else if (G.phase === 'panic' && G.panicState && G.panicState.panicQueue.length > 0) {
+                canClick = myGnomeIds.includes(G.gnomes[G.panicState.panicQueue[0]].id);
+            } else if (G.gameEnded || document.getElementById('screen-victory').classList.contains('show')) {
+                canClick = isHost;
+            } else if (document.getElementById('card-overlay').classList.contains('show')) {
+                if (G.phase === 'gnome') canClick = myGnomeIds.includes(G.gnomes[G.currentGnomeIdx].id);
+                else canClick = isHost;
+            }
+
+            // Exclude Debug & UI tools from locking
+            if (target.id === 'btn-audio-mute' || target.closest('#debug-panel') || target.id === 'debug-toggle') return;
+
+            if (!canClick) {
+                e.stopPropagation(); e.preventDefault();
+                if (window.showGameTooltip) window.showGameTooltip("It is not your turn!", target);
+                else alert("It is not your turn!");
+                return;
             }
         }
-    }, true); 
-}
+    }
+
+    // 4. We are allowed to click! We let the click happen normally, AND we send it to our peers.
+    const selector = getElementIdentifier(target);
+    const payload = { type: 'remoteClick', selector };
+    
+    if (isHost) clients.forEach(c => c.send(payload));
+    else if (isClient) conn.send(payload);
+
+}, true); // We capture the click immediately as it hits the document!
+
+// --- SELECTOR GENERATOR ---
+// Generates a robust CSS path so the receiving browser knows exactly what element to click
+function getElementIdentifier(el) {
+   if (el.id) return `#${el.id}`;
+   if (el.dataset && el.dataset.command) {
+       let sel = `[data-command="${el.dataset.command}"]`;
+       if (el.dataset.commandArg) sel += `[data-command-arg="${el.dataset.commandArg}"]`;
+       return sel;
+   }
+   if (el.classList.contains('cell') && el.dataset.r) {
+       return `.cell[data-r="${el.dataset.r}"][data-c="${el.dataset.c}"]`;
+   }
+   if (el.classList.contains('door')) {
+       const cell = el.closest('.cell');
+       if (cell) {
+           const dir = ['N','E','S','W'].find(d => el.classList.contains(d));
+           return `.cell[data-r="${cell.dataset.r}"][data-c="${cell.dataset.c}"] .door.${dir}`;
+       }
+   }
+   if (el.classList.contains('setup-gnome-card')) {
+       const cards = Array.from(document.querySelectorAll('.setup-gnome-card'));
+       return `.setup-roster > button:nth-child(${cards.indexOf(el) + 1})`;
+   }
+   const path =
