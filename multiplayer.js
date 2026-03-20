@@ -1,1345 +1,1091 @@
-// multiplayer_fixed.js - standalone online multiplayer overlay for Gnome Invasion
-// Drop-in replacement for multiplayer.js
-
+// multiplayer.js - integrated online menu + host-authoritative click replication
 (function () {
-    'use strict';
+  'use strict';
 
-    const MP = {
-        version: '4.2.1',
-        isHost: false,
-        isClient: false,
-        isOffline: false,
-        peer: null,
-        conn: null,
-        clients: [],
-        roomId: null,
-        hostPeerId: null,
-        myPlayerId: null,
-        gnomeOwners: {},
-        hooksInstalled: {
-            renderAll: false,
-            renderAllNoBoard: false,
-            toggleSetupGnome: false,
-            startButton: false,
-            clickCapture: false,
-            poller: false
-        },
-        uiBuilt: false,
-        pollerId: null,
-        syncIntervalId: null,
-        suppressNetwork: false,
-        suppressStartClick: false,
-        lastDeniedAlertAt: 0,
-        maxPlayers: 4,
-        oneGnomePerPlayer: true,
-        snapshotSeq: 0,
-        lastReplaySeq: 0,
-        debug: false,
-        applyingSetupClaims: false
+  const MP = {
+    version: '5.0.0',
+    debug: false,
+    peerLibLoading: false,
+    peerLibReady: false,
+    peer: null,
+    hostConn: null,
+    clients: new Map(),
+    isHost: false,
+    isClient: false,
+    roomId: '',
+    hostPeerId: '',
+    myPlayerId: '',
+    playerOrder: [],
+    gnomeOwners: {},
+    rosterOwners: [],
+    statusText: '',
+    syncingSnapshot: false,
+    replayingClick: false,
+    suppressStartWrap: false,
+    lastDeniedAlertAt: 0,
+    lastReplaySeq: 0,
+    syncTimers: new Set(),
+    wrapped: {
+      startGame: false,
+      resetGame: false,
+      renderAll: false,
+      renderAllNoBoard: false
+    },
+    originals: {
+      startGame: null,
+      resetGame: null,
+      renderAll: null,
+      renderAllNoBoard: null
+    }
+  };
+
+  window.__gnomeMP = MP;
+
+  function log(...args) {
+    if (MP.debug) console.log('[gnome-mp]', ...args);
+  }
+
+  function ready(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once: true });
+    } else {
+      fn();
+    }
+  }
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function normalizeText(text) {
+    return String(text || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+  }
+
+  function isGameStarted() {
+    return !!(window.G && Array.isArray(window.G.grid) && window.G.grid.length);
+  }
+
+  function isSetupVisible() {
+    const setup = el('screen-setup');
+    return !!(setup && setup.classList.contains('show'));
+  }
+
+  function isWeaverVisible() {
+    const weaver = el('screen-weaver');
+    return !!(weaver && weaver.classList.contains('show'));
+  }
+
+  function hasSession() {
+    return !!(MP.isHost || MP.isClient);
+  }
+
+  function activeConnections() {
+    return MP.playerOrder.filter(Boolean);
+  }
+
+  function playerHasClaim(playerId) {
+    return Object.values(MP.gnomeOwners).some(ownerId => ownerId === playerId);
+  }
+
+  function getClaimedProfileForPlayer(playerId) {
+    for (const [profileIdx, ownerId] of Object.entries(MP.gnomeOwners)) {
+      if (ownerId === playerId) return Number(profileIdx);
+    }
+    return null;
+  }
+
+  function getSelectedProfiles() {
+    return Object.keys(MP.gnomeOwners)
+      .map(v => Number(v))
+      .filter(v => Number.isInteger(v) && v >= 0 && v <= 3)
+      .sort((a, b) => a - b);
+  }
+
+  function syncSetupSelectionsFromClaims(options = {}) {
+    const selected = getSelectedProfiles();
+    if (typeof window.setSetupSelectedGnomes === 'function') {
+      window.setSetupSelectedGnomes(selected, { render: options.render !== false });
+    } else {
+      window.setupSelectedGnomes = selected.slice();
+      window.setupPlayerCount = selected.length;
+      if (options.render !== false && typeof window.renderSetupUi === 'function') window.renderSetupUi();
+    }
+  }
+
+  function getPlayerSlot(playerId) {
+    const idx = MP.playerOrder.indexOf(playerId);
+    return idx >= 0 ? idx + 1 : null;
+  }
+
+  function getPlayerLabel(playerId) {
+    const slot = getPlayerSlot(playerId);
+    return slot ? `Player ${slot}` : 'Player';
+  }
+
+  function getOwnerBadgeLabel(ownerId) {
+    if (!ownerId) return '';
+    if (ownerId === MP.myPlayerId) return 'YOU';
+    const slot = getPlayerSlot(ownerId);
+    return slot ? `PLAYER ${slot}` : 'TAKEN';
+  }
+
+  function minimumPlayersMet() {
+    return activeConnections().length >= 2;
+  }
+
+  function everyoneHasExactlyOneClaim() {
+    const players = activeConnections();
+    if (!players.length) return false;
+    return players.every(playerId => playerHasClaim(playerId));
+  }
+
+  function canHostStart() {
+    return !!(MP.isHost && minimumPlayersMet() && everyoneHasExactlyOneClaim());
+  }
+
+  function setStatus(text) {
+    MP.statusText = String(text || '');
+    refreshUi();
+  }
+
+  function leaveMenuToLanding() {
+    if (hasSession()) disconnectSession({ keepOnlineMode: false });
+    else refreshUi();
+  }
+
+  function prepareOnlineMode() {
+    if (hasSession() && typeof window.setSetupOnlineView === 'function') {
+      window.setSetupOnlineView('room');
+      return;
+    }
+    refreshUi();
+  }
+
+  function afterGameReset() {
+    syncSetupSelectionsFromClaims({ render: false });
+    refreshUi();
+  }
+
+  function getOnlineUiState() {
+    const connected = activeConnections();
+    let statusText = MP.statusText || '';
+    if (hasSession()) {
+      if (MP.isHost) {
+        if (!minimumPlayersMet()) statusText = 'Waiting for 2 players to connect';
+        else if (!everyoneHasExactlyOneClaim()) statusText = 'Waiting for each player to pick a gnome';
+        else statusText = 'Ready to start';
+      } else if (MP.isClient) {
+        const meLabel = getPlayerLabel(MP.myPlayerId);
+        statusText = everyoneHasExactlyOneClaim() ? 'Waiting for host to start' : `Connected as ${meLabel}`;
+      }
+    }
+
+    const players = [];
+    for (let i = 0; i < 4; i += 1) {
+      const playerId = MP.playerOrder[i] || null;
+      players.push({
+        slot: i + 1,
+        label: `Player ${i + 1}`,
+        connected: !!playerId,
+        isSelf: playerId === MP.myPlayerId,
+        claimProfile: playerId ? getClaimedProfileForPlayer(playerId) : null
+      });
+    }
+
+    return {
+      sessionActive: hasSession(),
+      isHost: MP.isHost,
+      isClient: MP.isClient,
+      roomId: MP.roomId,
+      connectedCount: connected.length,
+      players,
+      startReady: canHostStart(),
+      statusText
+    };
+  }
+
+  function renderPlayerPills(players) {
+    const container = el('setup-online-players');
+    if (!container) return;
+    container.innerHTML = players.map(player => {
+      const claimName = Number.isInteger(player.claimProfile) && Array.isArray(window.GNOME_NAMES_DEFAULT)
+        ? window.GNOME_NAMES_DEFAULT[player.claimProfile]
+        : '';
+      const suffix = player.connected
+        ? (claimName ? `· ${claimName}` : '· Connected')
+        : '· Waiting';
+      const classes = [
+        'setup-player-pill',
+        player.connected ? 'is-connected' : '',
+        player.isSelf ? 'is-self' : ''
+      ].filter(Boolean).join(' ');
+      return `<span class="${classes}">${player.label} ${suffix}</span>`;
+    }).join('');
+  }
+
+  function refreshUi() {
+    const state = getOnlineUiState();
+
+    const rolePill = el('setup-online-role');
+    const roomCode = el('setup-room-code');
+    const status = el('setup-online-status');
+
+    if (rolePill) {
+      if (state.sessionActive) {
+        if (state.isHost) rolePill.textContent = 'You are Host';
+        else if (state.isClient) rolePill.textContent = `Connected as ${getPlayerLabel(MP.myPlayerId)}`;
+        else rolePill.textContent = 'Online';
+      } else {
+        rolePill.textContent = 'Not connected';
+      }
+    }
+
+    if (roomCode) roomCode.textContent = state.roomId || '----';
+    if (status) status.textContent = state.statusText || '';
+    renderPlayerPills(state.players);
+
+    if (typeof window.renderSetupUi === 'function') {
+      window.renderSetupUi();
+    }
+  }
+
+  function getSetupCardMeta(profileIdx) {
+    const ownerId = MP.gnomeOwners[String(profileIdx)] || null;
+    return {
+      claimed: !!ownerId,
+      ownerId,
+      ownerSelf: ownerId === MP.myPlayerId,
+      ownerLabel: getOwnerBadgeLabel(ownerId)
+    };
+  }
+
+  function loadPeerJs() {
+    if (window.Peer) {
+      MP.peerLibReady = true;
+      refreshUi();
+      return;
+    }
+    if (MP.peerLibLoading) return;
+    MP.peerLibLoading = true;
+    const existing = document.querySelector('script[data-gnome-peerjs="1"]');
+    if (existing) {
+      existing.addEventListener('load', () => {
+        MP.peerLibReady = !!window.Peer;
+        refreshUi();
+      }, { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js';
+    script.async = true;
+    script.dataset.gnomePeerjs = '1';
+    script.onload = () => {
+      MP.peerLibReady = !!window.Peer;
+      refreshUi();
+    };
+    script.onerror = () => {
+      MP.peerLibReady = false;
+      MP.peerLibLoading = false;
+      setStatus('Could not load multiplayer library');
+    };
+    document.head.appendChild(script);
+  }
+
+  function destroyPeer() {
+    try {
+      if (MP.peer && !MP.peer.destroyed) MP.peer.destroy();
+    } catch (err) {
+      log('destroy peer failed', err);
+    }
+    MP.peer = null;
+  }
+
+  function clearSyncTimers() {
+    for (const timer of MP.syncTimers) window.clearTimeout(timer);
+    MP.syncTimers.clear();
+  }
+
+  function disconnectSession({ keepOnlineMode = true } = {}) {
+    clearSyncTimers();
+    try {
+      if (MP.hostConn) MP.hostConn.close();
+    } catch (err) {
+      log('host conn close failed', err);
+    }
+    MP.hostConn = null;
+
+    for (const connection of MP.clients.values()) {
+      try { connection.close(); } catch (err) { log('client close failed', err); }
+    }
+    MP.clients.clear();
+
+    destroyPeer();
+
+    MP.isHost = false;
+    MP.isClient = false;
+    MP.roomId = '';
+    MP.hostPeerId = '';
+    MP.myPlayerId = '';
+    MP.playerOrder = [];
+    MP.gnomeOwners = {};
+    MP.rosterOwners = [];
+    MP.lastReplaySeq = 0;
+    MP.statusText = keepOnlineMode ? 'Choose Host Game or Join Game' : '';
+    syncSetupSelectionsFromClaims({ render: false });
+
+    if (!keepOnlineMode && typeof window.setSetupOnlineView === 'function') {
+      window.setSetupOnlineView('choice');
+    }
+    refreshUi();
+  }
+
+  function safeSend(connection, payload) {
+    if (!connection || connection.open === false) return;
+    try {
+      connection.send(payload);
+    } catch (err) {
+      log('send failed', err);
+    }
+  }
+
+  function broadcast(payload) {
+    if (!MP.isHost) return;
+    for (const connection of MP.clients.values()) {
+      safeSend(connection, payload);
+    }
+  }
+
+  function deepSerialize(value, seen) {
+    if (!seen) seen = new WeakMap();
+    if (value === null || typeof value === 'undefined') return value;
+    if (typeof value === 'function') return undefined;
+    if (typeof Element !== 'undefined' && value instanceof Element) return undefined;
+    if (typeof Node !== 'undefined' && value instanceof Node) return undefined;
+    if (typeof value !== 'object') return value;
+    if (seen.has(value)) return seen.get(value);
+
+    if (value instanceof Set) {
+      const out = { __mpType: 'Set', values: [] };
+      seen.set(value, out);
+      out.values = Array.from(value).map(item => deepSerialize(item, seen));
+      return out;
+    }
+
+    if (value instanceof Map) {
+      const out = { __mpType: 'Map', entries: [] };
+      seen.set(value, out);
+      out.entries = Array.from(value.entries()).map(([k, v]) => [deepSerialize(k, seen), deepSerialize(v, seen)]);
+      return out;
+    }
+
+    if (Array.isArray(value)) {
+      const out = [];
+      seen.set(value, out);
+      value.forEach((item, idx) => {
+        const serialized = deepSerialize(item, seen);
+        if (typeof serialized !== 'undefined') out[idx] = serialized;
+      });
+      return out;
+    }
+
+    const out = {};
+    seen.set(value, out);
+    Object.keys(value).forEach(key => {
+      const serialized = deepSerialize(value[key], seen);
+      if (typeof serialized !== 'undefined') out[key] = serialized;
+    });
+    return out;
+  }
+
+  function deepDeserialize(value, seen) {
+    if (!seen) seen = new WeakMap();
+    if (value === null || typeof value === 'undefined' || typeof value !== 'object') return value;
+    if (seen.has(value)) return seen.get(value);
+
+    if (value.__mpType === 'Set') {
+      const out = new Set();
+      seen.set(value, out);
+      (value.values || []).forEach(item => out.add(deepDeserialize(item, seen)));
+      return out;
+    }
+
+    if (value.__mpType === 'Map') {
+      const out = new Map();
+      seen.set(value, out);
+      (value.entries || []).forEach(entry => {
+        out.set(deepDeserialize(entry[0], seen), deepDeserialize(entry[1], seen));
+      });
+      return out;
+    }
+
+    if (Array.isArray(value)) {
+      const out = [];
+      seen.set(value, out);
+      value.forEach((item, idx) => {
+        out[idx] = deepDeserialize(item, seen);
+      });
+      return out;
+    }
+
+    const out = {};
+    seen.set(value, out);
+    Object.keys(value).forEach(key => {
+      out[key] = deepDeserialize(value[key], seen);
+    });
+    return out;
+  }
+
+  function makeSnapshotPayload() {
+    return {
+      type: 'snapshot',
+      state: deepSerialize(window.G),
+      selectedProfiles: getSelectedProfiles(),
+      rosterOwners: MP.rosterOwners.slice(),
+      gnomeOwners: Object.assign({}, MP.gnomeOwners),
+      playerOrder: MP.playerOrder.slice()
+    };
+  }
+
+  function scheduleHostSnapshot(delayMs = 80) {
+    if (!MP.isHost || !isGameStarted()) return;
+    const timer = window.setTimeout(() => {
+      MP.syncTimers.delete(timer);
+      broadcast(makeSnapshotPayload());
+    }, delayMs);
+    MP.syncTimers.add(timer);
+  }
+
+  function broadcastLobbyState() {
+    if (!MP.isHost) return;
+    syncSetupSelectionsFromClaims({ render: false });
+    const payload = {
+      type: 'lobby_state',
+      hostPeerId: MP.hostPeerId,
+      roomId: MP.roomId,
+      playerOrder: MP.playerOrder.slice(),
+      gnomeOwners: Object.assign({}, MP.gnomeOwners),
+      selectedProfiles: getSelectedProfiles()
+    };
+    broadcast(payload);
+    refreshUi();
+  }
+
+  function handleConnectionClose(playerId) {
+    if (MP.isHost) {
+      MP.clients.delete(playerId);
+      MP.playerOrder = MP.playerOrder.filter(id => id !== playerId);
+      Object.keys(MP.gnomeOwners).forEach(profileIdx => {
+        if (MP.gnomeOwners[profileIdx] === playerId) delete MP.gnomeOwners[profileIdx];
+      });
+      syncSetupSelectionsFromClaims({ render: false });
+      broadcastLobbyState();
+      setStatus(MP.playerOrder.length >= 2 ? 'Waiting for each player to pick a gnome' : 'Waiting for 2 players to connect');
+    } else {
+      disconnectSession({ keepOnlineMode: true });
+      if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('choice');
+      setStatus('Connection closed');
+    }
+  }
+
+  function handleIncomingConnection(connection) {
+    connection.on('open', () => {
+      const playerId = connection.peer;
+      if (MP.playerOrder.length >= 4) {
+        safeSend(connection, { type: 'status', message: 'Room is full.', alert: true });
+        connection.close();
+        return;
+      }
+      MP.clients.set(playerId, connection);
+      if (!MP.playerOrder.includes(playerId)) MP.playerOrder.push(playerId);
+
+      connection.on('data', data => handlePeerMessage(playerId, data));
+      connection.on('close', () => handleConnectionClose(playerId));
+      connection.on('error', err => log('client connection error', err));
+
+      safeSend(connection, {
+        type: 'welcome',
+        hostPeerId: MP.hostPeerId,
+        roomId: MP.roomId,
+        playerOrder: MP.playerOrder.slice(),
+        gnomeOwners: Object.assign({}, MP.gnomeOwners),
+        selectedProfiles: getSelectedProfiles()
+      });
+      broadcastLobbyState();
+    });
+  }
+
+  function hostGame() {
+    if (!MP.peerLibReady || !window.Peer) {
+      setStatus('Loading multiplayer library...');
+      loadPeerJs();
+      return;
+    }
+
+    disconnectSession({ keepOnlineMode: true });
+    if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('room');
+    setStatus('Generating room code...');
+
+    const attempt = () => {
+      const roomId = String(Math.floor(1000 + Math.random() * 9000));
+      const peer = new window.Peer(roomId);
+
+      peer.on('open', id => {
+        MP.peer = peer;
+        MP.isHost = true;
+        MP.isClient = false;
+        MP.roomId = id;
+        MP.hostPeerId = id;
+        MP.myPlayerId = id;
+        MP.playerOrder = [id];
+        MP.gnomeOwners = {};
+        MP.rosterOwners = [];
+        peer.on('connection', handleIncomingConnection);
+        peer.on('error', err => {
+          if (err && err.type === 'unavailable-id') {
+            attempt();
+            return;
+          }
+          log('host peer error', err);
+          setStatus(err?.message || 'Host connection error');
+        });
+        setStatus('Waiting for 2 players to connect');
+        refreshUi();
+      });
+
+      peer.on('error', err => {
+        if (err && err.type === 'unavailable-id') {
+          attempt();
+          return;
+        }
+        setStatus(err?.message || 'Could not host game');
+      });
     };
 
-    window.__gnomeMP = MP;
+    attempt();
+  }
 
-    function log(...args) {
-        if (MP.debug) console.log('[mp]', ...args);
+  function joinGame(roomId) {
+    if (!MP.peerLibReady || !window.Peer) {
+      setStatus('Loading multiplayer library...');
+      loadPeerJs();
+      return;
     }
 
-    function whenReady(fn) {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', fn, { once: true });
-        } else {
-            fn();
-        }
+    const normalized = String(roomId || '').replace(/\D+/g, '').slice(0, 4);
+    if (!/^\d{4}$/.test(normalized)) {
+      alert('Please enter a 4-digit PIN.');
+      return;
     }
 
-    function loadPeerJs() {
-        if (window.Peer) {
-            whenReady(initMultiplayer);
-            return;
-        }
+    disconnectSession({ keepOnlineMode: true });
+    setStatus('Connecting...');
 
-        const existing = document.querySelector('script[data-mp-peerjs="1"]');
-        if (existing) {
-            existing.addEventListener('load', () => whenReady(initMultiplayer), { once: true });
-            return;
-        }
+    const peer = new window.Peer();
+    MP.peer = peer;
 
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js';
-        script.async = true;
-        script.dataset.mpPeerjs = '1';
-        script.onload = () => whenReady(initMultiplayer);
-        script.onerror = () => {
-            whenReady(() => {
-                buildUi();
-                setStatus('Status: Could not load networking library.');
-            });
-        };
-        document.head.appendChild(script);
-    }
+    peer.on('open', id => {
+      MP.myPlayerId = id;
+      MP.hostPeerId = normalized;
+      MP.roomId = normalized;
+      const connection = peer.connect(normalized, { reliable: true });
+      MP.hostConn = connection;
 
-    function initMultiplayer() {
-        buildUi();
-        installGlobalHooks();
-        startHookPoller();
-        startHostSnapshotLoop();
-        syncMultiplayerPanelVisibility();
+      connection.on('open', () => {
+        MP.isClient = true;
+        MP.isHost = false;
+        if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('room');
         refreshUi();
+      });
+
+      connection.on('data', data => handlePeerMessage(normalized, data));
+      connection.on('close', () => handleConnectionClose(normalized));
+      connection.on('error', err => {
+        log('join connection error', err);
+        setStatus(err?.message || 'Join failed');
+      });
+    });
+
+    peer.on('error', err => {
+      log('join peer error', err);
+      setStatus(err?.message || 'Join failed');
+    });
+  }
+
+  function claimForPlayer(playerId, profileIdx) {
+    if (!MP.isHost) return;
+    const profile = Number(profileIdx);
+    if (!Number.isInteger(profile) || profile < 0 || profile > 3) return;
+
+    const currentOwner = MP.gnomeOwners[String(profile)] || null;
+    const currentlyOwnedProfile = getClaimedProfileForPlayer(playerId);
+
+    if (currentOwner && currentOwner !== playerId) {
+      const connection = MP.clients.get(playerId);
+      safeSend(connection, { type: 'status', message: 'That gnome is already taken.', alert: true });
+      return;
     }
 
-    function buildUi() {
-        if (MP.uiBuilt || document.getElementById('mp-lobby')) return;
-
-        const wrapper = document.createElement('div');
-        wrapper.id = 'mp-lobby';
-        wrapper.innerHTML = `
-            <div style="position:fixed; top:15px; right:15px; background:rgba(26,18,13,0.96); padding:15px; color:#f4e6c8; z-index:9999; border-radius:10px; border:2px solid #d6a652; font-family:'Nunito', sans-serif; box-shadow:0 4px 15px rgba(0,0,0,0.5); width:240px; line-height:1.35;">
-                <h3 style="margin-top:0; margin-bottom:12px; font-family:'Fredoka One', sans-serif; color:#f2c06b; text-align:center;">Gnome Invasion</h3>
-
-                <div id="mp-controls">
-                    <button id="mp-local-btn" style="background:#5a3f2b; color:white; border:1px solid #d6a652; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold; margin-bottom:15px; width:100%;">Play Local (Hotseat)</button>
-
-                    <h4 style="margin:0 0 10px 0; color:#e7c17c; border-bottom:1px solid #7a5737; padding-bottom:5px; text-align:center;">Online Multiplayer</h4>
-
-                    <button id="mp-host-btn" style="background:#31734f; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold; margin-bottom:10px; width:100%;">Host Game</button>
-
-                    <div id="mp-host-info" style="display:none; margin-bottom:10px; font-weight:bold; color:#e7c17c; text-align:center;">
-                        Room PIN:<br>
-                        <span id="mp-room-id" style="user-select:all; background:#000; padding:4px 8px; border-radius:5px; font-size:1.5em; letter-spacing:3px; display:inline-block; margin-top:5px;">....</span>
-                    </div>
-
-                    <div style="display:flex; gap:5px; margin-bottom:10px;">
-                        <input type="text" id="mp-join-id" placeholder="PIN" maxlength="4" inputmode="numeric" style="padding:5px; border-radius:5px; border:1px solid #7a5737; background:#2b1e16; color:white; width:78px; text-align:center; font-size:1.1em; font-weight:bold;">
-                        <button id="mp-join-btn" style="background:#6a4a32; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:bold; flex-grow:1;">Join</button>
-                    </div>
-                </div>
-
-                <div id="mp-info" style="font-size:0.85rem; color:#cdbb94; border-top:1px solid #7a5737; padding-top:8px;">
-                    <div id="mp-role" style="margin-bottom:4px;">Role: Waiting...</div>
-                    <div id="mp-turn" style="margin-bottom:4px;">Turn: --</div>
-                    <div id="mp-claims" style="margin-bottom:4px;">Claims: none</div>
-                    <div id="mp-status">Status: Waiting...</div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(wrapper);
-
-        const localBtn = document.getElementById('mp-local-btn');
-        const hostBtn = document.getElementById('mp-host-btn');
-        const joinBtn = document.getElementById('mp-join-btn');
-        const joinInput = document.getElementById('mp-join-id');
-
-        localBtn.addEventListener('click', () => {
-            MP.isOffline = true;
-            setStatus('Status: Local hotseat mode.');
-            document.getElementById('mp-controls').style.display = 'none';
-            refreshUi();
-        });
-
-        hostBtn.addEventListener('click', () => {
-            buildUi();
-            document.getElementById('mp-host-info').style.display = 'block';
-            document.getElementById('mp-local-btn').style.display = 'none';
-            document.getElementById('mp-host-btn').disabled = true;
-            document.getElementById('mp-join-btn').disabled = true;
-            document.getElementById('mp-join-id').disabled = true;
-            setStatus('Status: Generating PIN...');
-            attemptHost(0);
-        });
-
-        joinInput.addEventListener('input', () => {
-            joinInput.value = joinInput.value.replace(/\D+/g, '').slice(0, 4);
-        });
-
-        joinBtn.addEventListener('click', () => {
-            const roomId = (joinInput.value || '').trim();
-            if (!/^\d{4}$/.test(roomId)) {
-                alert('Please enter a 4-digit PIN.');
-                return;
-            }
-
-            document.getElementById('mp-local-btn').style.display = 'none';
-            document.getElementById('mp-host-btn').disabled = true;
-            document.getElementById('mp-join-btn').disabled = true;
-            document.getElementById('mp-join-id').disabled = true;
-            setStatus('Status: Connecting...');
-            connectToHost(roomId);
-        });
-
-        MP.uiBuilt = true;
+    if (currentOwner === playerId) {
+      delete MP.gnomeOwners[String(profile)];
+    } else {
+      if (Number.isInteger(currentlyOwnedProfile)) delete MP.gnomeOwners[String(currentlyOwnedProfile)];
+      MP.gnomeOwners[String(profile)] = playerId;
     }
 
-    function setStatus(text) {
-        const el = document.getElementById('mp-status');
-        if (el) el.textContent = text;
+    syncSetupSelectionsFromClaims({ render: false });
+    broadcastLobbyState();
+  }
+
+  function requestClaim(profileIdx) {
+    if (window.setupMode !== 'online') return;
+    const profile = Number(profileIdx);
+    if (!Number.isInteger(profile) || profile < 0 || profile > 3) return;
+
+    if (!hasSession()) {
+      alert('Host or join a room first.');
+      return;
     }
 
-    function refreshUi() {
-        const roleEl = document.getElementById('mp-role');
-        const turnEl = document.getElementById('mp-turn');
-        const claimsEl = document.getElementById('mp-claims');
-
-        if (roleEl) {
-            if (MP.isOffline) roleEl.textContent = 'Role: Local only';
-            else if (MP.isHost) roleEl.textContent = 'Role: Host';
-            else if (MP.isClient) roleEl.textContent = 'Role: Client';
-            else roleEl.textContent = 'Role: Waiting...';
-        }
-
-        if (turnEl) {
-            const controller = getCurrentControllerId();
-            let label = '--';
-            if (controller) {
-                if (controller === MP.hostPeerId) label = 'Host';
-                else if (controller === MP.myPlayerId) label = 'You';
-                else label = 'Another player';
-            }
-            turnEl.textContent = `Turn: ${label}`;
-        }
-
-        if (claimsEl) {
-            const claims = Object.keys(MP.gnomeOwners)
-                .sort((a, b) => Number(a) - Number(b))
-                .map(id => `G${Number(id) + 1}:${labelForPlayer(MP.gnomeOwners[id])}`);
-            claimsEl.textContent = `Claims: ${claims.length ? claims.join('  ') : 'none'}`;
-        }
+    if (MP.isHost) {
+      claimForPlayer(MP.myPlayerId, profile);
+      return;
     }
 
-    function labelForPlayer(playerId) {
-        if (!playerId) return '--';
-        if (playerId === MP.myPlayerId) return 'You';
-        if (playerId === MP.hostPeerId) return 'Host';
-        return 'P';
+    safeSend(MP.hostConn, { type: 'claim_request', profileIdx: profile });
+  }
+
+  function applyLobbyState(data) {
+    MP.hostPeerId = data.hostPeerId || MP.hostPeerId;
+    MP.roomId = data.roomId || MP.roomId;
+    MP.playerOrder = Array.isArray(data.playerOrder) ? data.playerOrder.slice() : MP.playerOrder;
+    MP.gnomeOwners = data.gnomeOwners && typeof data.gnomeOwners === 'object' ? Object.assign({}, data.gnomeOwners) : {};
+    syncSetupSelectionsFromClaims({ render: false });
+    refreshUi();
+  }
+
+  function handleStartSignal(data) {
+    MP.rosterOwners = Array.isArray(data.rosterOwners) ? data.rosterOwners.slice() : [];
+    if (Array.isArray(data.selectedProfiles) && typeof window.setSetupSelectedGnomes === 'function') {
+      window.setSetupSelectedGnomes(data.selectedProfiles, { render: false });
     }
 
-    function disableLobbyEntryUi() {
-        const localBtn = document.getElementById('mp-local-btn');
-        const hostBtn = document.getElementById('mp-host-btn');
-        const joinBtn = document.getElementById('mp-join-btn');
-        const joinInput = document.getElementById('mp-join-id');
-        if (localBtn) localBtn.style.display = 'none';
-        if (hostBtn) hostBtn.disabled = true;
-        if (joinBtn) joinBtn.disabled = true;
-        if (joinInput) joinInput.disabled = true;
+    if (MP.originals.startGame) {
+      MP.suppressStartWrap = true;
+      try {
+        MP.originals.startGame();
+      } finally {
+        MP.suppressStartWrap = false;
+      }
+    }
+  }
+
+  function applySnapshot(data) {
+    if (!data || typeof data !== 'object') return;
+    if (Array.isArray(data.playerOrder)) MP.playerOrder = data.playerOrder.slice();
+    if (data.gnomeOwners && typeof data.gnomeOwners === 'object') MP.gnomeOwners = Object.assign({}, data.gnomeOwners);
+    if (Array.isArray(data.rosterOwners)) MP.rosterOwners = data.rosterOwners.slice();
+    if (Array.isArray(data.selectedProfiles) && typeof window.setSetupSelectedGnomes === 'function') {
+      window.setSetupSelectedGnomes(data.selectedProfiles, { render: false });
     }
 
-    function attemptHost(retryCount) {
-        if (!window.Peer) {
-            setStatus('Status: Networking library unavailable.');
-            return;
-        }
-
-        const pin = String(Math.floor(1000 + Math.random() * 9000));
-        const peer = new window.Peer(pin);
-
-        peer.on('open', (id) => {
-            MP.peer = peer;
-            MP.isHost = true;
-            MP.isClient = false;
-            MP.roomId = id;
-            MP.hostPeerId = id;
-            MP.myPlayerId = id;
-            const roomEl = document.getElementById('mp-room-id');
-            if (roomEl) roomEl.textContent = id;
-            setStatus('Status: Hosting (waiting for players...)');
-            disableLobbyEntryUi();
-            clearDefaultSetupSelectionForOnlineLobby();
-            syncSetupSelectionsFromClaims();
-            refreshUi();
-            installPeerErrorHandler(peer);
-        });
-
-        peer.on('connection', (connection) => {
-            if (MP.clients.length >= MP.maxPlayers - 1) {
-                connection.on('open', () => {
-                    safeSend(connection, { type: 'server_full' });
-                    connection.close();
-                });
-                return;
-            }
-            registerHostConnection(connection);
-        });
-
-        peer.on('error', (err) => {
-            if (err && err.type === 'unavailable-id' && retryCount < 25) {
-                try { peer.destroy(); } catch (e) {}
-                attemptHost(retryCount + 1);
-                return;
-            }
-            setStatus(`Status: ${err && err.message ? err.message : 'Host error.'}`);
-            log('host error', err);
-        });
+    if (!data.state) {
+      refreshUi();
+      return;
     }
 
-    function installPeerErrorHandler(peer) {
-        if (!peer) return;
-        peer.on('disconnected', () => {
-            setStatus('Status: Peer disconnected.');
-        });
+    MP.syncingSnapshot = true;
+    try {
+      window.G = deepDeserialize(data.state);
+      if (isGameStarted()) {
+        if (MP.originals.renderAll) MP.originals.renderAll();
+        else if (typeof window.renderAll === 'function') window.renderAll();
+      } else if (typeof window.renderSetupUi === 'function') {
+        window.renderSetupUi();
+      }
+    } catch (err) {
+      log('snapshot apply failed', err);
+    } finally {
+      MP.syncingSnapshot = false;
+      refreshUi();
+    }
+  }
+
+  function handlePeerMessage(fromId, data) {
+    if (!data || typeof data !== 'object') return;
+
+    switch (data.type) {
+      case 'welcome':
+        MP.isClient = true;
+        MP.isHost = false;
+        applyLobbyState(data);
+        setStatus('Connected');
+        break;
+      case 'lobby_state':
+        applyLobbyState(data);
+        break;
+      case 'claim_request':
+        if (MP.isHost) claimForPlayer(fromId, data.profileIdx);
+        break;
+      case 'status':
+        if (typeof data.message === 'string') setStatus(data.message);
+        if (data.alert && data.message) alert(data.message);
+        break;
+      case 'start_signal':
+        handleStartSignal(data);
+        break;
+      case 'click_request':
+        if (MP.isHost) handleRemoteClickRequest(fromId, data.descriptor);
+        break;
+      case 'replay_click':
+        if (MP.isClient) replayRemoteClick(data.descriptor);
+        break;
+      case 'snapshot':
+        if (MP.isClient) applySnapshot(data);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function getCurrentControllerId() {
+    if (!hasSession()) return null;
+    if (isSetupVisible()) return null;
+    if (isWeaverVisible()) return MP.hostPeerId || MP.myPlayerId || null;
+    if (!window.G || !Array.isArray(window.G.gnomes) || !window.G.gnomes.length) return MP.hostPeerId || MP.myPlayerId || null;
+
+    const currentIdx = Number(window.G.currentGnomeIdx);
+    const overlayVisible = !!document.querySelector('#card-overlay.show');
+    if ((window.G.phase === 'gnome' || overlayVisible) && Number.isInteger(currentIdx)) {
+      return MP.rosterOwners[currentIdx] || MP.hostPeerId || MP.myPlayerId || null;
+    }
+    return MP.hostPeerId || MP.myPlayerId || null;
+  }
+
+  function localPlayerMayAct() {
+    const controller = getCurrentControllerId();
+    if (!controller) return true;
+    return controller === MP.myPlayerId;
+  }
+
+  function maybeTurnAlert() {
+    const now = Date.now();
+    if (now - MP.lastDeniedAlertAt < 1200) return;
+    MP.lastDeniedAlertAt = now;
+    alert('It is not your turn!');
+  }
+
+  function getReplicableElement(target) {
+    if (!(target instanceof Element)) return null;
+    if (target.closest('#screen-setup')) return null;
+    if (target.closest('#debug-panel') || target.closest('#debug-toggle')) return null;
+    const selector = '.action-btn, .cell, .card-ok, [data-command], button, [role="button"]';
+    const found = target.closest(selector);
+    if (!found) return null;
+    if (found.matches('input, textarea, select, option')) return null;
+    return found;
+  }
+
+  function buildDescriptor(elm) {
+    if (!(elm instanceof Element)) return null;
+    const dataset = {};
+    ['command', 'commandArg', 'r', 'c', 'popupGnome', 'popupType', 'popupSlot'].forEach(key => {
+      if (typeof elm.dataset[key] !== 'undefined') dataset[key] = elm.dataset[key];
+    });
+    return {
+      id: elm.id || null,
+      tag: elm.tagName,
+      text: normalizeText(elm.textContent || ''),
+      classes: Array.from(elm.classList || []).slice(0, 8),
+      dataset,
+      path: buildDomPath(elm)
+    };
+  }
+
+  function buildDomPath(elm) {
+    const path = [];
+    let node = elm;
+    while (node && node !== document.body) {
+      const parent = node.parentElement;
+      if (!parent) break;
+      path.unshift(Array.prototype.indexOf.call(parent.children, node));
+      node = parent;
+    }
+    return path;
+  }
+
+  function resolveDomPath(path) {
+    let node = document.body;
+    for (const idx of path || []) {
+      if (!node || !node.children || !node.children[idx]) return null;
+      node = node.children[idx];
+    }
+    return node;
+  }
+
+  function resolveDescriptor(descriptor) {
+    if (!descriptor) return null;
+
+    if (descriptor.id) {
+      const byId = document.getElementById(descriptor.id);
+      if (byId) return byId;
     }
 
-    function connectToHost(roomId) {
-        if (!window.Peer) {
-            setStatus('Status: Networking library unavailable.');
-            return;
-        }
-
-        const peer = new window.Peer();
-        MP.peer = peer;
-        MP.roomId = roomId;
-        MP.hostPeerId = roomId;
-
-        peer.on('open', (id) => {
-            MP.myPlayerId = id;
-            const conn = peer.connect(roomId, { reliable: true });
-            MP.conn = conn;
-
-            conn.on('open', () => {
-                MP.isClient = true;
-                MP.isHost = false;
-                disableLobbyEntryUi();
-                setStatus('Status: Connected!');
-                clearDefaultSetupSelectionForOnlineLobby();
-                syncSetupSelectionsFromClaims();
-                refreshUi();
-                safeSend(conn, { type: 'hello' });
-            });
-
-            conn.on('data', handleHostMessage);
-            conn.on('close', () => {
-                setStatus('Status: Host connection closed.');
-            });
-            conn.on('error', () => {
-                setStatus('Status: Connection failed.');
-            });
-        });
-
-        peer.on('error', (err) => {
-            setStatus(`Status: ${err && err.message ? err.message : 'Connection failed.'}`);
-            log('client error', err);
-        });
+    const ds = descriptor.dataset || {};
+    if (typeof ds.r !== 'undefined' && typeof ds.c !== 'undefined') {
+      const byCell = document.querySelector(`[data-r="${CSS.escape(String(ds.r))}"][data-c="${CSS.escape(String(ds.c))}"]`);
+      if (byCell) return byCell;
     }
 
-    function registerHostConnection(connection) {
-        connection.on('open', () => {
-            MP.clients.push(connection);
-            setStatus(`Status: Hosting (${MP.clients.length} connected)`);
-            refreshUi();
-
-            connection.on('data', (data) => handleClientMessage(data, connection));
-            connection.on('close', () => handleClientDisconnect(connection));
-            connection.on('error', () => handleClientDisconnect(connection));
-
-            safeSend(connection, {
-                type: 'welcome',
-                roomId: MP.roomId,
-                hostPeerId: MP.hostPeerId,
-                gnomeOwners: clonePlainObject(MP.gnomeOwners),
-                setupSelectedGnomes: cloneArray(window.setupSelectedGnomes),
-                setupPlayerCount: window.setupPlayerCount,
-                gameStarted: isGameStarted()
-            });
-
-            broadcastLobbyState();
-            if (isGameStarted()) scheduleHostSnapshot(80);
-        });
+    if (typeof ds.command !== 'undefined') {
+      let selector = `[data-command="${CSS.escape(String(ds.command))}"]`;
+      if (typeof ds.commandArg !== 'undefined') selector += `[data-command-arg="${CSS.escape(String(ds.commandArg))}"]`;
+      const byCommand = document.querySelector(selector);
+      if (byCommand) return byCommand;
     }
 
-    function handleClientDisconnect(connection) {
-        MP.clients = MP.clients.filter(c => c !== connection);
-        releaseClaimsForPlayer(connection.peer);
-        setStatus(`Status: Hosting (${MP.clients.length} connected)`);
-        broadcastLobbyState();
-        scheduleHostSnapshot(80);
-        refreshUi();
+    if (Array.isArray(descriptor.path)) {
+      const byPath = resolveDomPath(descriptor.path);
+      if (byPath) return byPath;
     }
 
-    function safeSend(connection, payload) {
-        if (!connection || !connection.open) return;
-        try {
-            connection.send(payload);
-        } catch (err) {
-            log('send failed', err);
-        }
-    }
-
-    function broadcast(payload) {
-        if (!MP.isHost) return;
-        MP.clients.forEach((connection) => safeSend(connection, payload));
-    }
-
-    function handleClientMessage(data, connection) {
-        if (!data || !data.type) return;
-
-        switch (data.type) {
-            case 'hello':
-                broadcastLobbyState();
-                if (isGameStarted()) scheduleHostSnapshot(50);
-                break;
-
-            case 'claim_request':
-                handleClaimRequest(connection.peer, data.gnomeId);
-                break;
-
-            case 'click_request':
-                handleRemoteClickRequest(connection.peer, data.descriptor);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    function handleHostMessage(data) {
-        if (!data || !data.type) return;
-
-        switch (data.type) {
-            case 'server_full':
-                setStatus('Status: Room is full.');
-                break;
-
-            case 'welcome':
-                if (data.hostPeerId) MP.hostPeerId = data.hostPeerId;
-                if (data.roomId) MP.roomId = data.roomId;
-                if (data.gnomeOwners) {
-                    MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
-                    syncSetupSelectionsFromClaims();
-                } else {
-                    if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
-                    if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
-                    refreshSetupUi();
-                }
-                syncMultiplayerPanelVisibility();
-                refreshUi();
-                break;
-
-            case 'lobby_state':
-                applyLobbyState(data);
-                break;
-
-            case 'start_signal':
-                triggerStartFromHost();
-                break;
-
-            case 'replay_click':
-                replayRemoteClick(data.descriptor);
-                break;
-
-            case 'state_snapshot':
-                applyHostSnapshot(data);
-                break;
-
-            case 'status':
-                if (data.message) setStatus(`Status: ${data.message}`);
-                if (data.alert && data.message) alert(data.message);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    function applyLobbyState(data) {
-        if (data.gnomeOwners) {
-            MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
-            syncSetupSelectionsFromClaims();
-        } else {
-            if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
-            if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
-            refreshSetupUi();
-        }
-        syncMultiplayerPanelVisibility();
-        refreshUi();
-    }
-
-    function broadcastLobbyState() {
-        if (!MP.isHost || MP.isOffline) return;
-        syncSetupSelectionsFromClaims();
-        const payload = {
-            type: 'lobby_state',
-            gnomeOwners: clonePlainObject(MP.gnomeOwners),
-            setupSelectedGnomes: cloneArray(window.setupSelectedGnomes),
-            setupPlayerCount: window.setupPlayerCount
-        };
-        broadcast(payload);
-        refreshUi();
-    }
-
-    function handleClaimRequest(playerId, rawGnomeId) {
-        const gnomeId = normalizeGnomeId(rawGnomeId);
-        if (gnomeId === null) return;
-
-        const changed = setClaimForPlayer(playerId, gnomeId);
-        if (!changed) {
-            safeSend(findClientConnection(playerId), {
-                type: 'status',
-                message: 'That gnome is already taken.',
-                alert: true
-            });
-            safeSend(findClientConnection(playerId), {
-                type: 'lobby_state',
-                gnomeOwners: clonePlainObject(MP.gnomeOwners),
-                setupSelectedGnomes: cloneArray(window.setupSelectedGnomes),
-                setupPlayerCount: window.setupPlayerCount
-            });
-            return;
-        }
-
-        broadcastLobbyState();
-        refreshUi();
-    }
-
-    function findClientConnection(playerId) {
-        return MP.clients.find(c => c.peer === playerId) || null;
-    }
-
-    function setClaimForPlayer(playerId, gnomeId) {
-        const key = String(gnomeId);
-        const currentOwner = MP.gnomeOwners[key];
-        const existingClaimKey = findClaimedGnomeForPlayer(playerId);
-
-        if (currentOwner && currentOwner !== playerId) {
-            return false;
-        }
-
-        if (existingClaimKey === key) {
-            delete MP.gnomeOwners[key];
-            syncSetupSelectionsFromClaims();
-            return true;
-        }
-
-        if (MP.oneGnomePerPlayer && existingClaimKey !== null) {
-            delete MP.gnomeOwners[existingClaimKey];
-        }
-
-        MP.gnomeOwners[key] = playerId;
-        syncSetupSelectionsFromClaims();
-        return true;
-    }
-
-    function releaseClaimsForPlayer(playerId) {
-        let changed = false;
-        Object.keys(MP.gnomeOwners).forEach((gnomeId) => {
-            if (MP.gnomeOwners[gnomeId] === playerId) {
-                delete MP.gnomeOwners[gnomeId];
-                changed = true;
-            }
-        });
-        if (changed) syncSetupSelectionsFromClaims();
-        return changed;
-    }
-
-    function findClaimedGnomeForPlayer(playerId) {
-        const found = Object.keys(MP.gnomeOwners).find((gnomeId) => MP.gnomeOwners[gnomeId] === playerId);
-        return typeof found === 'undefined' ? null : found;
-    }
-
-    function getMyClaimedGnomeIds() {
-        return Object.keys(MP.gnomeOwners)
-            .filter((gnomeId) => MP.gnomeOwners[gnomeId] === MP.myPlayerId)
-            .map((gnomeId) => Number(gnomeId));
-    }
-
-    function getClaimSelectionList() {
-        return Object.keys(MP.gnomeOwners)
-            .map((gnomeId) => Number(gnomeId))
-            .filter((gnomeId) => Number.isFinite(gnomeId))
-            .sort((a, b) => a - b);
-    }
-
-    function getCurrentSetupSelectionList() {
-        return cloneArray(window.setupSelectedGnomes)
-            .map((gnomeId) => Number(gnomeId))
-            .filter((gnomeId) => Number.isFinite(gnomeId))
-            .sort((a, b) => a - b);
-    }
-
-    function getBaseToggleSetupGnome() {
-        if (typeof window.orig_toggleSetupGnome === 'function') return window.orig_toggleSetupGnome;
-        if (!MP.hooksInstalled.toggleSetupGnome && typeof window.toggleSetupGnome === 'function') return window.toggleSetupGnome;
-        return null;
-    }
-
-    function listsEqual(a, b) {
-        if (a === b) return true;
-        if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i += 1) {
-            if (a[i] !== b[i]) return false;
-        }
-        return true;
-    }
-
-    function uniqueSortedGnomeIds(selected) {
-        return Array.from(new Set(
-            cloneArray(selected)
-                .map((gnomeId) => Number(gnomeId))
-                .filter((gnomeId) => Number.isFinite(gnomeId))
-        )).sort((a, b) => a - b);
-    }
-
-    function applyDesiredSetupSelection(selected) {
-        const desired = uniqueSortedGnomeIds(selected);
-        const baseToggle = getBaseToggleSetupGnome();
-
-        // The setup cards keep their own PLAYING/BENCH truth beyond the public arrays.
-        // Reconcile through the original game toggle so the native menu state changes too,
-        // then mirror the final roster onto the exported setup arrays as a safety net.
-        if (!isGameStarted() && baseToggle && !MP.applyingSetupClaims) {
-            MP.applyingSetupClaims = true;
-            const prevSuppress = MP.suppressNetwork;
-            MP.suppressNetwork = true;
-
-            try {
-                let current = uniqueSortedGnomeIds(window.setupSelectedGnomes);
-                current.filter((gnomeId) => !desired.includes(gnomeId)).forEach((gnomeId) => {
-                    baseToggle.call(window, gnomeId);
-                });
-
-                current = uniqueSortedGnomeIds(window.setupSelectedGnomes);
-                desired.filter((gnomeId) => !current.includes(gnomeId)).forEach((gnomeId) => {
-                    baseToggle.call(window, gnomeId);
-                });
-            } catch (e) {
-                log('applyDesiredSetupSelection failed', e);
-            } finally {
-                MP.suppressNetwork = prevSuppress;
-                MP.applyingSetupClaims = false;
-            }
-        }
-
-        if (!listsEqual(uniqueSortedGnomeIds(window.setupSelectedGnomes), desired)) {
-            window.setupSelectedGnomes = desired.slice();
-        }
-        window.setupPlayerCount = desired.length;
-        updateSetupClaimStyles();
-    }
-
-    function syncSetupSelectionsFromClaims() {
-        applyDesiredSetupSelection(getClaimSelectionList());
-        refreshSetupUi();
-    }
-
-    function ensureSetupClaimStyleTag() {
-        if (document.getElementById('mp-setup-claim-style')) return;
-        const style = document.createElement('style');
-        style.id = 'mp-setup-claim-style';
-        style.textContent = `
-            #screen-setup .mp-claimed-gnome {
-                outline: 4px solid #f2c06b !important;
-                outline-offset: 2px !important;
-                box-shadow: 0 0 0 4px rgba(0,0,0,0.28) !important;
-                position: relative !important;
-            }
-            #screen-setup .mp-claimed-gnome.mp-claimed-by-me {
-                outline-color: #63d47a !important;
-            }
-            #screen-setup .mp-claimed-gnome.mp-claimed-by-other {
-                outline-color: #f2c06b !important;
-                filter: saturate(0.92);
-            }
-            #screen-setup .mp-claimed-gnome::after {
-                content: attr(data-mp-owner-label);
-                position: absolute;
-                top: 6px;
-                right: 6px;
-                font: 700 11px/1 sans-serif;
-                padding: 4px 6px;
-                border-radius: 999px;
-                background: rgba(0,0,0,0.85);
-                color: #fff;
-                z-index: 2;
-                pointer-events: none;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    function inferGnomeIdxFromElement(el) {
-        if (!(el instanceof Element)) return null;
-
-        const attrCandidates = [
-            el.getAttribute('data-gnome-idx'),
-            el.getAttribute('data-gnome-id'),
-            el.getAttribute('data-idx'),
-            el.getAttribute('data-id'),
-            el.getAttribute('onclick')
-        ].filter(Boolean);
-
-        for (const raw of attrCandidates) {
-            const match = String(raw).match(/toggleSetupGnome\s*\(\s*(\d+)\s*\)|^(\d+)$/);
-            if (match) return Number(match[1] || match[2]);
-        }
-
-        return null;
-    }
-
-    function findSetupGnomeElements() {
-        const root = document.getElementById('screen-setup') || document.body;
-        const map = new Map();
-
-        const explicit = Array.from(root.querySelectorAll('[onclick*="toggleSetupGnome"], [data-gnome-idx], [data-gnome-id], [data-idx]'));
-        explicit.forEach((el) => {
-            const idx = inferGnomeIdxFromElement(el);
-            if (idx === null) return;
-            if (!map.has(idx)) map.set(idx, []);
-            map.get(idx).push(el);
-        });
-
-        // Fallback: if the setup cards are not annotated, use the first few visible setup click targets.
-        if (map.size === 0) {
-            const fallback = Array.from(root.querySelectorAll('button, [role="button"], .gnome-card, .setup-gnome, .setup-option, .character-card, .card'))
-                .filter((el) => el.id !== 'start-game-btn' && isProbablyVisible(el))
-                .slice(0, 4);
-            fallback.forEach((el, idx) => map.set(idx, [el]));
-        }
-
-        return map;
-    }
-
-    function updateSetupClaimStyles() {
-        if (isGameStarted()) return;
-        ensureSetupClaimStyleTag();
-
-        const elementsByIdx = findSetupGnomeElements();
-        const selected = new Set(getClaimSelectionList());
-
-        Array.from((document.getElementById('screen-setup') || document).querySelectorAll('.mp-claimed-gnome')).forEach((el) => {
-            el.classList.remove('mp-claimed-gnome', 'mp-claimed-by-me', 'mp-claimed-by-other');
-            el.removeAttribute('data-mp-owner-label');
-        });
-
-        elementsByIdx.forEach((els, idx) => {
-            const owner = MP.gnomeOwners[String(idx)] || null;
-            const claimed = selected.has(Number(idx));
-            els.forEach((el) => {
-                if (!claimed || !owner) return;
-                el.classList.add('mp-claimed-gnome');
-                el.classList.add(owner === MP.myPlayerId ? 'mp-claimed-by-me' : 'mp-claimed-by-other');
-                el.setAttribute('data-mp-owner-label', owner === MP.myPlayerId ? 'YOU' : (owner === MP.hostPeerId ? 'HOST' : 'TAKEN'));
-                el.title = owner === MP.myPlayerId ? 'Claimed by you' : 'Claimed by another player';
-            });
-        });
-    }
-
-    function syncMultiplayerPanelVisibility() {
-        const panel = document.getElementById('mp-lobby');
-        if (!panel) return;
-        const shouldHide = isGameStarted() || !isSetupScreenVisible();
-        panel.style.display = shouldHide ? 'none' : '';
-    }
-
-    function clearDefaultSetupSelectionForOnlineLobby() {
-        if (isGameStarted()) return;
-        if (Object.keys(MP.gnomeOwners).length > 0) return;
-        applyDesiredSetupSelection([]);
-        refreshSetupUi();
-        window.setTimeout(() => {
-            if (Object.keys(MP.gnomeOwners).length > 0 || isGameStarted()) return;
-            applyDesiredSetupSelection([]);
-            refreshSetupUi();
-        }, 0);
-    }
-
-    function refreshSetupUi() {
-        if (typeof window.renderGnomeNameInputs === 'function') {
-            try { window.renderGnomeNameInputs(); } catch (e) { log('renderGnomeNameInputs failed', e); }
-        }
-
-        if (!isGameStarted()) {
-            if (typeof window.renderAllNoBoard === 'function') {
-                try { window.renderAllNoBoard(); } catch (e) { log('renderAllNoBoard failed', e); }
-            } else if (typeof window.renderAll === 'function') {
-                try { window.renderAll(); } catch (e) { log('renderAll failed', e); }
-            }
-        }
-
-        updateSetupClaimStyles();
-        syncMultiplayerPanelVisibility();
-        refreshUi();
-    }
-
-    function isGameStarted() {
-        return !!(window.G && window.G.grid && Array.isArray(window.G.grid) && window.G.grid.length > 0);
-    }
-
-    function startHostSnapshotLoop() {
-        if (MP.syncIntervalId) return;
-        MP.syncIntervalId = window.setInterval(() => {
-            if (MP.isHost && !MP.isOffline && (MP.clients.length > 0)) {
-                broadcastHostSnapshot();
-            }
-        }, 1500);
-    }
-
-    function scheduleHostSnapshot(delay) {
-        if (!MP.isHost || MP.isOffline) return;
-        window.setTimeout(() => {
-            if (MP.isHost && !MP.isOffline) broadcastHostSnapshot();
-        }, typeof delay === 'number' ? delay : 80);
-    }
-
-    function broadcastHostSnapshot() {
-        if (!MP.isHost || MP.isOffline) return;
-
-        const payload = {
-            type: 'state_snapshot',
-            seq: ++MP.snapshotSeq,
-            G: prepStateForNetwork(window.G),
-            setupSelectedGnomes: cloneArray(window.setupSelectedGnomes),
-            setupPlayerCount: window.setupPlayerCount,
-            gnomeOwners: clonePlainObject(MP.gnomeOwners),
-            gameStarted: isGameStarted()
-        };
-
-        broadcast(payload);
-        refreshUi();
-    }
-
-    function applyHostSnapshot(data) {
-        const wasStarted = isGameStarted();
-
-        if (typeof data.G !== 'undefined') {
-            window.G = restoreStateFromNetwork(data.G);
-        }
-        if (data.gnomeOwners) {
-            MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
-        }
-        if (!data.gnomeOwners) {
-            if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
-            if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
-        }
-
-        const nowStarted = !!data.gameStarted || isGameStarted();
-
-        MP.suppressNetwork = true;
-        try {
-            if (!wasStarted && nowStarted) wakeGameUiAfterStart();
-            if (nowStarted) {
-                if (typeof window.renderAll === 'function') window.renderAll();
-            } else if (data.gnomeOwners) {
-                syncSetupSelectionsFromClaims();
-            } else {
-                refreshSetupUi();
-            }
-        } catch (err) {
-            log('apply snapshot failed', err);
-        } finally {
-            MP.suppressNetwork = false;
-        }
-
-        syncMultiplayerPanelVisibility();
-        refreshUi();
-    }
-
-    function wakeGameUiAfterStart() {
-        const setupScreen = document.getElementById('screen-setup');
-        if (setupScreen) setupScreen.classList.remove('show');
-        if (typeof window.applyThemeArchitectureShells === 'function') {
-            try { window.applyThemeArchitectureShells(); } catch (e) { log('applyThemeArchitectureShells failed', e); }
-        }
-        if (typeof window.mountUnifiedTurnDock === 'function') {
-            try { window.mountUnifiedTurnDock(); } catch (e) { log('mountUnifiedTurnDock failed', e); }
-        }
-        syncMultiplayerPanelVisibility();
-    }
-
-    function triggerStartFromHost() {
-        if (isGameStarted()) return;
-        const btn = document.getElementById('start-game-btn');
-        if (!btn) return;
-
-        MP.suppressStartClick = true;
-        MP.suppressNetwork = true;
-        try {
-            btn.click();
-        } catch (err) {
-            log('remote start failed', err);
-        } finally {
-            window.setTimeout(() => {
-                MP.suppressStartClick = false;
-                MP.suppressNetwork = false;
-            }, 0);
-        }
-    }
-
-    function installGlobalHooks() {
-        if (!MP.hooksInstalled.clickCapture) {
-            document.addEventListener('click', handleDocumentClickCapture, true);
-            MP.hooksInstalled.clickCapture = true;
-        }
-    }
-
-    function startHookPoller() {
-        if (MP.hooksInstalled.poller) return;
-        MP.pollerId = window.setInterval(installDelayedHooks, 400);
-        MP.hooksInstalled.poller = true;
-        installDelayedHooks();
-    }
-
-    function installDelayedHooks() {
-        wrapRendererIfReady('renderAll');
-        wrapRendererIfReady('renderAllNoBoard');
-        wrapToggleSetupIfReady();
-        hookStartButtonIfReady();
-    }
-
-    function wrapRendererIfReady(name) {
-        if (MP.hooksInstalled[name]) return;
-        if (typeof window[name] !== 'function') return;
-
-        const original = window[name];
-        if (!window[`orig_${name}`]) window[`orig_${name}`] = original;
-
-        window[name] = function wrappedRenderer(...args) {
-            const result = original.apply(this, args);
-            if (MP.isHost && !MP.isOffline && !MP.suppressNetwork) {
-                scheduleHostSnapshot(100);
-            }
-            updateSetupClaimStyles();
-            syncMultiplayerPanelVisibility();
-            refreshUi();
-            return result;
-        };
-
-        MP.hooksInstalled[name] = true;
-    }
-
-    function wrapToggleSetupIfReady() {
-        if (MP.hooksInstalled.toggleSetupGnome) return;
-        if (typeof window.toggleSetupGnome !== 'function') return;
-
-        const original = window.toggleSetupGnome;
-        window.orig_toggleSetupGnome = window.orig_toggleSetupGnome || original;
-
-        window.toggleSetupGnome = function wrappedToggleSetupGnome(idx, ...rest) {
-            const gnomeId = normalizeGnomeId(idx);
-            if (gnomeId === null) return;
-
-            if (MP.suppressNetwork || MP.isOffline || (!MP.isHost && !MP.isClient)) {
-                return original.apply(this, [idx, ...rest]);
-            }
-
-            if (MP.isHost) {
-                const changed = setClaimForPlayer(MP.myPlayerId, gnomeId);
-                if (!changed) {
-                    alert('Another player has already claimed this gnome!');
-                    return;
-                }
-                syncSetupSelectionsFromClaims();
-                broadcastLobbyState();
-                return;
-            }
-
-            if (MP.isClient) {
-                const owner = MP.gnomeOwners[String(gnomeId)];
-                if (owner && owner !== MP.myPlayerId) {
-                    alert('Another player has already claimed this gnome!');
-                    return;
-                }
-                sendToHost({ type: 'claim_request', gnomeId });
-                return;
-            }
-        };
-
-        MP.hooksInstalled.toggleSetupGnome = true;
-
-        if (!isGameStarted() && (MP.isHost || MP.isClient)) {
-            syncSetupSelectionsFromClaims();
-        }
-    }
-
-    function hookStartButtonIfReady() {
-        if (MP.hooksInstalled.startButton) return;
-        const btn = document.getElementById('start-game-btn');
-        if (!btn) return;
-
-        btn.addEventListener('click', handleStartButtonClick, true);
-        MP.hooksInstalled.startButton = true;
-    }
-
-    function handleStartButtonClick(event) {
-        if (MP.suppressStartClick || MP.suppressNetwork || MP.isOffline) return;
-        if (!MP.isHost && !MP.isClient) return;
-
-        if (MP.isClient) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            alert('Only the host can start the online game.');
-            return;
-        }
-
-        syncSetupSelectionsFromClaims();
-        syncMultiplayerPanelVisibility();
-
-        window.setTimeout(() => {
-            wakeGameUiAfterStart();
-            broadcast({ type: 'start_signal' });
-            scheduleHostSnapshot(80);
-            scheduleHostSnapshot(700);
-        }, 0);
-    }
-
-    function sendToHost(payload) {
-        if (!MP.isClient || !MP.conn) return;
-        safeSend(MP.conn, payload);
-    }
-
-    function handleDocumentClickCapture(event) {
-        if (MP.suppressNetwork || MP.isOffline) return;
-        if (!MP.isHost && !MP.isClient) return;
-        if (!(event.target instanceof Element)) return;
-        if (event.target.closest('#mp-lobby')) return;
-
-        const actionEl = getReplicableElement(event.target);
-        if (!actionEl) return;
-        if (actionEl.id === 'start-game-btn') return;
-        if (isSetupScreenVisible()) return;
-
-        if (!localPlayerMayAct()) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            maybeShowTurnAlert();
-            return;
-        }
-
-        const descriptor = buildElementDescriptor(actionEl);
-        if (!descriptor) return;
-
-        if (MP.isClient) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            sendToHost({ type: 'click_request', descriptor });
-            return;
-        }
-
-        if (MP.isHost) {
-            window.setTimeout(() => {
-                if (!MP.isHost || MP.suppressNetwork || MP.isOffline) return;
-                broadcast({ type: 'replay_click', descriptor, seq: ++MP.lastReplaySeq });
-                scheduleHostSnapshot(80);
-                scheduleHostSnapshot(650);
-            }, 0);
-        }
-    }
-
-    function getReplicableElement(target) {
-        if (!(target instanceof Element)) return null;
-
-        const selector = [
-            '.action-btn',
-            '.cell',
-            '.card-ok',
-            '[data-command]',
-            'button',
-            '[role="button"]'
-        ].join(',');
-
-        const el = target.closest(selector);
-        if (!el) return null;
-        if (el.closest('#mp-lobby')) return null;
-        if (el.matches('input, textarea, select')) return null;
-        return el;
-    }
-
-    function localPlayerMayAct() {
-        const controller = getCurrentControllerId();
-        if (!controller) return true;
-        return controller === MP.myPlayerId;
-    }
-
-    function getCurrentControllerId() {
-        if (MP.isOffline) return null;
-        if (isSetupScreenVisible()) return null;
-        if (isWeaverScreenVisible()) return MP.hostPeerId;
-        if (!window.G || !window.G.gnomes || !Array.isArray(window.G.gnomes)) return MP.hostPeerId;
-
-        const currentIdx = typeof window.G.currentGnomeIdx === 'number' ? window.G.currentGnomeIdx : -1;
-        const hasCurrentGnome = currentIdx >= 0 && window.G.gnomes[currentIdx];
-        const blockingPromptVisible = !!document.querySelector('.card-ok');
-
-        if ((window.G.phase === 'gnome' || blockingPromptVisible) && hasCurrentGnome) {
-            let owner = null;
-            const current = window.G.gnomes[currentIdx];
-
-            // First try the live gnome id directly.
-            if (current && typeof current.id !== 'undefined') {
-                owner = MP.gnomeOwners[String(current.id)] || null;
-            }
-
-            // Fallback: in this game the turn order appears to track the selected lobby roster order
-            // more reliably than the runtime gnome id, especially once the roster has been rebuilt.
-            if (!owner) {
-                const setupOrder = getCurrentSetupSelectionList();
-                const fallbackGnomeId = setupOrder[currentIdx];
-                if (typeof fallbackGnomeId !== 'undefined') owner = MP.gnomeOwners[String(fallbackGnomeId)] || null;
-            }
-
-            if (!owner) {
-                const claimOrder = getClaimSelectionList();
-                const fallbackGnomeId = claimOrder[currentIdx];
-                if (typeof fallbackGnomeId !== 'undefined') owner = MP.gnomeOwners[String(fallbackGnomeId)] || null;
-            }
-
-            return owner || MP.hostPeerId;
-        }
-
-        return MP.hostPeerId;
-    }
-
-    function maybeShowTurnAlert() {
-        const now = Date.now();
-        if (now - MP.lastDeniedAlertAt < 1200) return;
-        MP.lastDeniedAlertAt = now;
-        alert('It is not your turn!');
-    }
-
-    function handleRemoteClickRequest(playerId, descriptor) {
-        if (!MP.isHost) return;
-        if (!descriptor) return;
-        if (getCurrentControllerId() !== playerId) {
-            safeSend(findClientConnection(playerId), {
-                type: 'status',
-                message: 'It is not your turn!',
-                alert: true
-            });
-            scheduleHostSnapshot(80);
-            return;
-        }
-
-        const ok = replayRemoteClick(descriptor);
-        if (!ok) {
-            scheduleHostSnapshot(80);
-            return;
-        }
-
-        broadcast({ type: 'replay_click', descriptor, seq: ++MP.lastReplaySeq });
-        scheduleHostSnapshot(80);
-        scheduleHostSnapshot(650);
-    }
-
-    function replayRemoteClick(descriptor) {
-        const el = resolveDescriptorToElement(descriptor);
-        if (!el) {
-            log('could not resolve click target', descriptor);
-            return false;
-        }
-
-        MP.suppressNetwork = true;
-        try {
-            const ev = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-            });
-            el.dispatchEvent(ev);
-        } catch (err) {
-            log('replay failed', err);
-            return false;
-        } finally {
-            window.setTimeout(() => {
-                MP.suppressNetwork = false;
-            }, 0);
-        }
-
-        return true;
-    }
-
-    function buildElementDescriptor(el) {
-        if (!(el instanceof Element)) return null;
-        return {
-            id: el.id || null,
-            dataCommand: el.getAttribute('data-command') || null,
-            tag: el.tagName,
-            text: normalizeText(el.textContent || ''),
-            classes: Array.from(el.classList || []).slice(0, 8),
-            path: buildDomPath(el)
-        };
-    }
-
-    function resolveDescriptorToElement(descriptor) {
-        if (!descriptor) return null;
-
-        if (descriptor.id) {
-            const byId = document.getElementById(descriptor.id);
-            if (byId) return byId;
-        }
-
-        if (descriptor.dataCommand) {
-            const selector = `[data-command="${escapeAttr(descriptor.dataCommand)}"]`;
-            const byCommand = document.querySelector(selector);
-            if (byCommand) return byCommand;
-        }
-
-        if (Array.isArray(descriptor.path)) {
-            const byPath = resolveDomPath(descriptor.path);
-            if (byPath) return byPath;
-        }
-
-        if (descriptor.tag) {
-            const candidates = Array.from(document.querySelectorAll(descriptor.tag)).filter(isProbablyVisible);
-            const wantedText = normalizeText(descriptor.text || '');
-            const match = candidates.find((node) => {
-                const textMatches = wantedText ? normalizeText(node.textContent || '') === wantedText : true;
-                const classMatches = Array.isArray(descriptor.classes) && descriptor.classes.length
-                    ? descriptor.classes.every((cls) => node.classList.contains(cls))
-                    : true;
-                return textMatches && classMatches;
-            });
-            if (match) return match;
-        }
-
-        return null;
-    }
-
-    function buildDomPath(el) {
-        const path = [];
-        let node = el;
-        while (node && node !== document.body) {
-            const parent = node.parentElement;
-            if (!parent) break;
-            const index = Array.prototype.indexOf.call(parent.children, node);
-            path.unshift(index);
-            node = parent;
-        }
-        return path;
-    }
-
-    function resolveDomPath(path) {
-        let node = document.body;
-        for (const index of path) {
-            if (!node || !node.children || !node.children[index]) return null;
-            node = node.children[index];
-        }
-        return node;
-    }
-
-    function isProbablyVisible(node) {
+    if (descriptor.tag) {
+      const candidates = Array.from(document.querySelectorAll(descriptor.tag)).filter(node => {
         if (!(node instanceof Element)) return false;
-        if (node.closest('#mp-lobby')) return false;
         const style = window.getComputedStyle(node);
         return style.display !== 'none' && style.visibility !== 'hidden';
+      });
+      const wantedText = normalizeText(descriptor.text || '');
+      return candidates.find(node => {
+        const classesOk = Array.isArray(descriptor.classes) && descriptor.classes.length
+          ? descriptor.classes.every(cls => node.classList.contains(cls))
+          : true;
+        const textOk = wantedText ? normalizeText(node.textContent || '') === wantedText : true;
+        return classesOk && textOk;
+      }) || null;
     }
 
-    function isSetupScreenVisible() {
-        const setup = document.getElementById('screen-setup');
-        if (!setup) return !isGameStarted();
-        return setup.classList.contains('show') && !isGameStarted();
+    return null;
+  }
+
+  function replayRemoteClick(descriptor) {
+    const target = resolveDescriptor(descriptor);
+    if (!target) {
+      log('replay target not found', descriptor);
+      return false;
     }
 
-    function isWeaverScreenVisible() {
-        const weaver = document.getElementById('screen-weaver');
-        return !!(weaver && weaver.classList.contains('show'));
+    MP.replayingClick = true;
+    try {
+      const event = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      target.dispatchEvent(event);
+      return true;
+    } catch (err) {
+      log('replay click failed', err);
+      return false;
+    } finally {
+      window.setTimeout(() => { MP.replayingClick = false; }, 0);
+    }
+  }
+
+  function handleRemoteClickRequest(playerId, descriptor) {
+    if (!MP.isHost) return;
+    if (getCurrentControllerId() !== playerId) {
+      safeSend(MP.clients.get(playerId), { type: 'status', message: 'It is not your turn!', alert: true });
+      scheduleHostSnapshot(80);
+      return;
     }
 
-    function normalizeGnomeId(value) {
-        const num = Number(value);
-        return Number.isFinite(num) ? num : null;
+    const ok = replayRemoteClick(descriptor);
+    if (!ok) {
+      scheduleHostSnapshot(80);
+      return;
     }
 
-    function normalizeText(text) {
-        return String(text || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    broadcast({ type: 'replay_click', descriptor, seq: ++MP.lastReplaySeq });
+    scheduleHostSnapshot(80);
+    scheduleHostSnapshot(550);
+  }
+
+  function handleClickCapture(event) {
+    if (!hasSession() || MP.syncingSnapshot || MP.replayingClick) return;
+    if (isSetupVisible()) return;
+    if (!(event.target instanceof Element)) return;
+
+    const actionable = getReplicableElement(event.target);
+    if (!actionable) return;
+    if (actionable.id === 'start-game-btn') return;
+
+    if (!localPlayerMayAct()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      maybeTurnAlert();
+      return;
     }
 
-    function escapeAttr(text) {
-        if (window.CSS && typeof window.CSS.escape === 'function') {
-            return window.CSS.escape(String(text));
+    const descriptor = buildDescriptor(actionable);
+    if (!descriptor) return;
+
+    if (MP.isClient) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      safeSend(MP.hostConn, { type: 'click_request', descriptor });
+      return;
+    }
+
+    if (MP.isHost) {
+      window.setTimeout(() => {
+        if (!MP.isHost || MP.replayingClick || MP.syncingSnapshot) return;
+        broadcast({ type: 'replay_click', descriptor, seq: ++MP.lastReplaySeq });
+        scheduleHostSnapshot(80);
+        scheduleHostSnapshot(550);
+      }, 0);
+    }
+  }
+
+  function wrapGameFunctions() {
+    if (!MP.wrapped.startGame && typeof window.startGame === 'function') {
+      MP.originals.startGame = window.startGame;
+      window.startGame = function wrappedStartGame(...args) {
+        if (MP.suppressStartWrap || window.setupMode !== 'online' || !hasSession()) {
+          return MP.originals.startGame.apply(this, args);
         }
-        return String(text).replace(/(["\\])/g, '\\$1');
-    }
 
-    function cloneArray(value) {
-        return Array.isArray(value) ? value.slice() : [];
-    }
-
-    function clonePlainObject(value) {
-        if (!value || typeof value !== 'object') return {};
-        return Object.assign({}, value);
-    }
-
-    function prepStateForNetwork(state) {
-        return deepSerialize(state);
-    }
-
-    function restoreStateFromNetwork(state) {
-        return deepDeserialize(state);
-    }
-
-    function deepSerialize(value, seen) {
-        if (!seen) seen = new WeakMap();
-        if (value === null || typeof value === 'undefined') return value;
-        if (typeof value === 'function') return undefined;
-        if (typeof Element !== 'undefined' && value instanceof Element) return undefined;
-        if (typeof Node !== 'undefined' && value instanceof Node) return undefined;
-        if (typeof value !== 'object') return value;
-        if (seen.has(value)) return seen.get(value);
-
-        if (value instanceof Set) {
-            const out = { __mpType: 'Set', values: [] };
-            seen.set(value, out);
-            out.values = Array.from(value).map((item) => deepSerialize(item, seen));
-            return out;
+        if (!MP.isHost) {
+          alert('Only the host can start the online game.');
+          return;
         }
 
-        if (value instanceof Map) {
-            const out = { __mpType: 'Map', entries: [] };
-            seen.set(value, out);
-            out.entries = Array.from(value.entries()).map(([k, v]) => [deepSerialize(k, seen), deepSerialize(v, seen)]);
-            return out;
+        if (!canHostStart()) {
+          if (!minimumPlayersMet()) alert('You need 2 connected players to start online play.');
+          else alert('Each connected player must claim exactly 1 gnome.');
+          return;
         }
 
-        if (Array.isArray(value)) {
-            const out = [];
-            seen.set(value, out);
-            value.forEach((item) => out.push(deepSerialize(item, seen)));
-            return out;
-        }
+        syncSetupSelectionsFromClaims({ render: false });
+        MP.rosterOwners = getSelectedProfiles().map(profileIdx => MP.gnomeOwners[String(profileIdx)] || MP.hostPeerId);
+        const result = MP.originals.startGame.apply(this, args);
 
-        const out = {};
-        seen.set(value, out);
-        Object.keys(value).forEach((key) => {
-            const serialized = deepSerialize(value[key], seen);
-            if (typeof serialized !== 'undefined') out[key] = serialized;
+        broadcast({
+          type: 'start_signal',
+          selectedProfiles: getSelectedProfiles(),
+          rosterOwners: MP.rosterOwners.slice()
         });
-        return out;
+        scheduleHostSnapshot(80);
+        scheduleHostSnapshot(550);
+        return result;
+      };
+      MP.wrapped.startGame = true;
     }
 
-    function deepDeserialize(value, seen) {
-        if (!seen) seen = new WeakMap();
-        if (value === null || typeof value !== 'object') return value;
-        if (seen.has(value)) return seen.get(value);
-
-        if (value.__mpType === 'Set') {
-            const out = new Set();
-            seen.set(value, out);
-            (value.values || []).forEach((item) => out.add(deepDeserialize(item, seen)));
-            return out;
+    if (!MP.wrapped.resetGame && typeof window.resetGame === 'function') {
+      MP.originals.resetGame = window.resetGame;
+      window.resetGame = function wrappedResetGame(...args) {
+        const result = MP.originals.resetGame.apply(this, args);
+        if (hasSession()) {
+          syncSetupSelectionsFromClaims({ render: false });
+          if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('room');
         }
-
-        if (value.__mpType === 'Map') {
-            const out = new Map();
-            seen.set(value, out);
-            (value.entries || []).forEach((entry) => {
-                if (Array.isArray(entry) && entry.length === 2) {
-                    out.set(deepDeserialize(entry[0], seen), deepDeserialize(entry[1], seen));
-                }
-            });
-            return out;
-        }
-
-        if (Array.isArray(value)) {
-            const out = [];
-            seen.set(value, out);
-            value.forEach((item) => out.push(deepDeserialize(item, seen)));
-            return out;
-        }
-
-        const out = {};
-        seen.set(value, out);
-        Object.keys(value).forEach((key) => {
-            out[key] = deepDeserialize(value[key], seen);
-        });
-        return out;
+        refreshUi();
+        return result;
+      };
+      MP.wrapped.resetGame = true;
     }
 
+    if (!MP.wrapped.renderAll && typeof window.renderAll === 'function') {
+      MP.originals.renderAll = window.renderAll;
+      window.renderAll = function wrappedRenderAll(...args) {
+        const result = MP.originals.renderAll.apply(this, args);
+        if (!MP.syncingSnapshot && MP.isHost && isGameStarted()) {
+          scheduleHostSnapshot(90);
+        }
+        return result;
+      };
+      MP.wrapped.renderAll = true;
+    }
+
+    if (!MP.wrapped.renderAllNoBoard && typeof window.renderAllNoBoard === 'function') {
+      MP.originals.renderAllNoBoard = window.renderAllNoBoard;
+      window.renderAllNoBoard = function wrappedRenderAllNoBoard(...args) {
+        const result = MP.originals.renderAllNoBoard.apply(this, args);
+        if (!MP.syncingSnapshot && MP.isHost && isGameStarted()) {
+          scheduleHostSnapshot(90);
+        }
+        return result;
+      };
+      MP.wrapped.renderAllNoBoard = true;
+    }
+  }
+
+  function bindUi() {
+    const hostBtn = el('setup-host-btn');
+    const showJoinBtn = el('setup-show-join-btn');
+    const joinBtn = el('setup-join-btn');
+    const joinBackBtn = el('setup-join-back-btn');
+    const leaveBtn = el('setup-online-leave-btn');
+    const joinInput = el('setup-join-code-input');
+
+    if (hostBtn && !hostBtn.dataset.mpBound) {
+      hostBtn.dataset.mpBound = '1';
+      hostBtn.addEventListener('click', () => hostGame());
+    }
+
+    if (showJoinBtn && !showJoinBtn.dataset.mpBound) {
+      showJoinBtn.dataset.mpBound = '1';
+      showJoinBtn.addEventListener('click', () => {
+        if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('join');
+      });
+    }
+
+    if (joinBtn && !joinBtn.dataset.mpBound) {
+      joinBtn.dataset.mpBound = '1';
+      joinBtn.addEventListener('click', () => joinGame(joinInput ? joinInput.value : ''));
+    }
+
+    if (joinBackBtn && !joinBackBtn.dataset.mpBound) {
+      joinBackBtn.dataset.mpBound = '1';
+      joinBackBtn.addEventListener('click', () => {
+        if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('choice');
+      });
+    }
+
+    if (leaveBtn && !leaveBtn.dataset.mpBound) {
+      leaveBtn.dataset.mpBound = '1';
+      leaveBtn.addEventListener('click', () => {
+        disconnectSession({ keepOnlineMode: true });
+        if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('choice');
+      });
+    }
+
+    if (joinInput && !joinInput.dataset.mpBound) {
+      joinInput.dataset.mpBound = '1';
+      joinInput.addEventListener('input', () => {
+        joinInput.value = joinInput.value.replace(/\D+/g, '').slice(0, 4);
+      });
+      joinInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') joinGame(joinInput.value);
+      });
+    }
+  }
+
+  ready(() => {
+    bindUi();
+    wrapGameFunctions();
+    document.addEventListener('click', handleClickCapture, true);
     loadPeerJs();
+    refreshUi();
+  });
+
+  window.__gnomeMPApi = {
+    prepareOnlineMode,
+    leaveMenuToLanding,
+    afterGameReset,
+    hasSession,
+    requestClaim,
+    getOnlineUiState,
+    getSetupCardMeta
+  };
 })();
