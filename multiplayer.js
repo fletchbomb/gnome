@@ -5,7 +5,7 @@
     'use strict';
 
     const MP = {
-        version: '4.1.0',
+        version: '4.2.0',
         isHost: false,
         isClient: false,
         isOffline: false,
@@ -83,6 +83,7 @@
         installGlobalHooks();
         startHookPoller();
         startHostSnapshotLoop();
+        syncMultiplayerPanelVisibility();
         refreshUi();
     }
 
@@ -242,6 +243,7 @@
             if (roomEl) roomEl.textContent = id;
             setStatus('Status: Hosting (waiting for players...)');
             disableLobbyEntryUi();
+            clearDefaultSetupSelectionForOnlineLobby();
             syncSetupSelectionsFromClaims();
             refreshUi();
             installPeerErrorHandler(peer);
@@ -297,6 +299,7 @@
                 MP.isHost = false;
                 disableLobbyEntryUi();
                 setStatus('Status: Connected!');
+                clearDefaultSetupSelectionForOnlineLobby();
                 syncSetupSelectionsFromClaims();
                 refreshUi();
                 safeSend(conn, { type: 'hello' });
@@ -406,6 +409,7 @@
                     if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
                     refreshSetupUi();
                 }
+                syncMultiplayerPanelVisibility();
                 refreshUi();
                 break;
 
@@ -444,6 +448,7 @@
             if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
             refreshSetupUi();
         }
+        syncMultiplayerPanelVisibility();
         refreshUi();
     }
 
@@ -564,46 +569,149 @@
         return true;
     }
 
+    function uniqueSortedGnomeIds(selected) {
+        return Array.from(new Set(
+            cloneArray(selected)
+                .map((gnomeId) => Number(gnomeId))
+                .filter((gnomeId) => Number.isFinite(gnomeId))
+        )).sort((a, b) => a - b);
+    }
+
     function applyDesiredSetupSelection(selected) {
-        const desired = cloneArray(selected)
-            .map((gnomeId) => Number(gnomeId))
-            .filter((gnomeId) => Number.isFinite(gnomeId))
-            .sort((a, b) => a - b);
+        const desired = uniqueSortedGnomeIds(selected);
 
-        const baseToggle = getBaseToggleSetupGnome();
-
-        if (!isGameStarted() && baseToggle && !MP.applyingSetupClaims) {
-            MP.applyingSetupClaims = true;
-            const prevSuppress = MP.suppressNetwork;
-            MP.suppressNetwork = true;
-
-            try {
-                let current = getCurrentSetupSelectionList();
-                current.filter((gnomeId) => !desired.includes(gnomeId)).forEach((gnomeId) => {
-                    baseToggle.call(window, gnomeId);
-                });
-
-                current = getCurrentSetupSelectionList();
-                desired.filter((gnomeId) => !current.includes(gnomeId)).forEach((gnomeId) => {
-                    baseToggle.call(window, gnomeId);
-                });
-            } catch (e) {
-                log('applyDesiredSetupSelection failed', e);
-            } finally {
-                MP.suppressNetwork = prevSuppress;
-                MP.applyingSetupClaims = false;
-            }
-        }
-
-        if (!listsEqual(getCurrentSetupSelectionList(), desired)) {
-            window.setupSelectedGnomes = desired.slice();
-        }
+        // In multiplayer, treat claims as authoritative and write the roster directly.
+        // The base setup toggle has its own local-game assumptions (including Bill being preselected),
+        // which is what caused the lobby roster to drift away from the claim map.
+        window.setupSelectedGnomes = desired.slice();
         window.setupPlayerCount = desired.length;
+        updateSetupClaimStyles();
     }
 
     function syncSetupSelectionsFromClaims() {
         applyDesiredSetupSelection(getClaimSelectionList());
         refreshSetupUi();
+    }
+
+    function ensureSetupClaimStyleTag() {
+        if (document.getElementById('mp-setup-claim-style')) return;
+        const style = document.createElement('style');
+        style.id = 'mp-setup-claim-style';
+        style.textContent = `
+            #screen-setup .mp-claimed-gnome {
+                outline: 4px solid #f2c06b !important;
+                outline-offset: 2px !important;
+                box-shadow: 0 0 0 4px rgba(0,0,0,0.28) !important;
+                position: relative !important;
+            }
+            #screen-setup .mp-claimed-gnome.mp-claimed-by-me {
+                outline-color: #63d47a !important;
+            }
+            #screen-setup .mp-claimed-gnome.mp-claimed-by-other {
+                outline-color: #f2c06b !important;
+                filter: saturate(0.92);
+            }
+            #screen-setup .mp-claimed-gnome::after {
+                content: attr(data-mp-owner-label);
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                font: 700 11px/1 sans-serif;
+                padding: 4px 6px;
+                border-radius: 999px;
+                background: rgba(0,0,0,0.85);
+                color: #fff;
+                z-index: 2;
+                pointer-events: none;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function inferGnomeIdxFromElement(el) {
+        if (!(el instanceof Element)) return null;
+
+        const attrCandidates = [
+            el.getAttribute('data-gnome-idx'),
+            el.getAttribute('data-gnome-id'),
+            el.getAttribute('data-idx'),
+            el.getAttribute('data-id'),
+            el.getAttribute('onclick')
+        ].filter(Boolean);
+
+        for (const raw of attrCandidates) {
+            const match = String(raw).match(/toggleSetupGnome\s*\(\s*(\d+)\s*\)|^(\d+)$/);
+            if (match) return Number(match[1] || match[2]);
+        }
+
+        return null;
+    }
+
+    function findSetupGnomeElements() {
+        const root = document.getElementById('screen-setup') || document.body;
+        const map = new Map();
+
+        const explicit = Array.from(root.querySelectorAll('[onclick*="toggleSetupGnome"], [data-gnome-idx], [data-gnome-id], [data-idx]'));
+        explicit.forEach((el) => {
+            const idx = inferGnomeIdxFromElement(el);
+            if (idx === null) return;
+            if (!map.has(idx)) map.set(idx, []);
+            map.get(idx).push(el);
+        });
+
+        // Fallback: if the setup cards are not annotated, use the first few visible setup click targets.
+        if (map.size === 0) {
+            const fallback = Array.from(root.querySelectorAll('button, [role="button"], .gnome-card, .setup-gnome, .setup-option, .character-card, .card'))
+                .filter((el) => el.id !== 'start-game-btn' && isProbablyVisible(el))
+                .slice(0, 4);
+            fallback.forEach((el, idx) => map.set(idx, [el]));
+        }
+
+        return map;
+    }
+
+    function updateSetupClaimStyles() {
+        if (isGameStarted()) return;
+        ensureSetupClaimStyleTag();
+
+        const elementsByIdx = findSetupGnomeElements();
+        const selected = new Set(getClaimSelectionList());
+
+        Array.from((document.getElementById('screen-setup') || document).querySelectorAll('.mp-claimed-gnome')).forEach((el) => {
+            el.classList.remove('mp-claimed-gnome', 'mp-claimed-by-me', 'mp-claimed-by-other');
+            el.removeAttribute('data-mp-owner-label');
+        });
+
+        elementsByIdx.forEach((els, idx) => {
+            const owner = MP.gnomeOwners[String(idx)] || null;
+            const claimed = selected.has(Number(idx));
+            els.forEach((el) => {
+                if (!claimed || !owner) return;
+                el.classList.add('mp-claimed-gnome');
+                el.classList.add(owner === MP.myPlayerId ? 'mp-claimed-by-me' : 'mp-claimed-by-other');
+                el.setAttribute('data-mp-owner-label', owner === MP.myPlayerId ? 'YOU' : (owner === MP.hostPeerId ? 'HOST' : 'TAKEN'));
+                el.title = owner === MP.myPlayerId ? 'Claimed by you' : 'Claimed by another player';
+            });
+        });
+    }
+
+    function syncMultiplayerPanelVisibility() {
+        const panel = document.getElementById('mp-lobby');
+        if (!panel) return;
+        panel.style.display = isGameStarted() ? 'none' : '';
+    }
+
+    function clearDefaultSetupSelectionForOnlineLobby() {
+        if (isGameStarted()) return;
+        if (Object.keys(MP.gnomeOwners).length > 0) return;
+        window.setupSelectedGnomes = [];
+        window.setupPlayerCount = 0;
+        window.setTimeout(() => {
+            if (Object.keys(MP.gnomeOwners).length > 0) return;
+            window.setupSelectedGnomes = [];
+            window.setupPlayerCount = 0;
+            updateSetupClaimStyles();
+        }, 0);
     }
 
     function refreshSetupUi() {
@@ -619,6 +727,8 @@
             }
         }
 
+        updateSetupClaimStyles();
+        syncMultiplayerPanelVisibility();
         refreshUi();
     }
 
@@ -691,6 +801,7 @@
             MP.suppressNetwork = false;
         }
 
+        syncMultiplayerPanelVisibility();
         refreshUi();
     }
 
@@ -703,6 +814,7 @@
         if (typeof window.mountUnifiedTurnDock === 'function') {
             try { window.mountUnifiedTurnDock(); } catch (e) { log('mountUnifiedTurnDock failed', e); }
         }
+        syncMultiplayerPanelVisibility();
     }
 
     function triggerStartFromHost() {
@@ -757,6 +869,8 @@
             if (MP.isHost && !MP.isOffline && !MP.suppressNetwork) {
                 scheduleHostSnapshot(100);
             }
+            updateSetupClaimStyles();
+            syncMultiplayerPanelVisibility();
             refreshUi();
             return result;
         };
@@ -829,6 +943,7 @@
         }
 
         syncSetupSelectionsFromClaims();
+        syncMultiplayerPanelVisibility();
 
         window.setTimeout(() => {
             wakeGameUiAfterStart();
@@ -912,12 +1027,33 @@
         if (isWeaverScreenVisible()) return MP.hostPeerId;
         if (!window.G || !window.G.gnomes || !Array.isArray(window.G.gnomes)) return MP.hostPeerId;
 
-        const hasCurrentGnome = typeof window.G.currentGnomeIdx === 'number' && window.G.gnomes[window.G.currentGnomeIdx];
+        const currentIdx = typeof window.G.currentGnomeIdx === 'number' ? window.G.currentGnomeIdx : -1;
+        const hasCurrentGnome = currentIdx >= 0 && window.G.gnomes[currentIdx];
         const blockingPromptVisible = !!document.querySelector('.card-ok');
 
         if ((window.G.phase === 'gnome' || blockingPromptVisible) && hasCurrentGnome) {
-            const current = window.G.gnomes[window.G.currentGnomeIdx];
-            const owner = current && typeof current.id !== 'undefined' ? MP.gnomeOwners[String(current.id)] : null;
+            let owner = null;
+            const current = window.G.gnomes[currentIdx];
+
+            // First try the live gnome id directly.
+            if (current && typeof current.id !== 'undefined') {
+                owner = MP.gnomeOwners[String(current.id)] || null;
+            }
+
+            // Fallback: in this game the turn order appears to track the selected lobby roster order
+            // more reliably than the runtime gnome id, especially once the roster has been rebuilt.
+            if (!owner) {
+                const setupOrder = getCurrentSetupSelectionList();
+                const fallbackGnomeId = setupOrder[currentIdx];
+                if (typeof fallbackGnomeId !== 'undefined') owner = MP.gnomeOwners[String(fallbackGnomeId)] || null;
+            }
+
+            if (!owner) {
+                const claimOrder = getClaimSelectionList();
+                const fallbackGnomeId = claimOrder[currentIdx];
+                if (typeof fallbackGnomeId !== 'undefined') owner = MP.gnomeOwners[String(fallbackGnomeId)] || null;
+            }
+
             return owner || MP.hostPeerId;
         }
 
