@@ -5,7 +5,7 @@
     'use strict';
 
     const MP = {
-        version: '4.2.0',
+        version: '4.2.1',
         isHost: false,
         isClient: false,
         isOffline: false,
@@ -579,11 +579,37 @@
 
     function applyDesiredSetupSelection(selected) {
         const desired = uniqueSortedGnomeIds(selected);
+        const baseToggle = getBaseToggleSetupGnome();
 
-        // In multiplayer, treat claims as authoritative and write the roster directly.
-        // The base setup toggle has its own local-game assumptions (including Bill being preselected),
-        // which is what caused the lobby roster to drift away from the claim map.
-        window.setupSelectedGnomes = desired.slice();
+        // The setup cards keep their own PLAYING/BENCH truth beyond the public arrays.
+        // Reconcile through the original game toggle so the native menu state changes too,
+        // then mirror the final roster onto the exported setup arrays as a safety net.
+        if (!isGameStarted() && baseToggle && !MP.applyingSetupClaims) {
+            MP.applyingSetupClaims = true;
+            const prevSuppress = MP.suppressNetwork;
+            MP.suppressNetwork = true;
+
+            try {
+                let current = uniqueSortedGnomeIds(window.setupSelectedGnomes);
+                current.filter((gnomeId) => !desired.includes(gnomeId)).forEach((gnomeId) => {
+                    baseToggle.call(window, gnomeId);
+                });
+
+                current = uniqueSortedGnomeIds(window.setupSelectedGnomes);
+                desired.filter((gnomeId) => !current.includes(gnomeId)).forEach((gnomeId) => {
+                    baseToggle.call(window, gnomeId);
+                });
+            } catch (e) {
+                log('applyDesiredSetupSelection failed', e);
+            } finally {
+                MP.suppressNetwork = prevSuppress;
+                MP.applyingSetupClaims = false;
+            }
+        }
+
+        if (!listsEqual(uniqueSortedGnomeIds(window.setupSelectedGnomes), desired)) {
+            window.setupSelectedGnomes = desired.slice();
+        }
         window.setupPlayerCount = desired.length;
         updateSetupClaimStyles();
     }
@@ -698,19 +724,19 @@
     function syncMultiplayerPanelVisibility() {
         const panel = document.getElementById('mp-lobby');
         if (!panel) return;
-        panel.style.display = isGameStarted() ? 'none' : '';
+        const shouldHide = isGameStarted() || !isSetupScreenVisible();
+        panel.style.display = shouldHide ? 'none' : '';
     }
 
     function clearDefaultSetupSelectionForOnlineLobby() {
         if (isGameStarted()) return;
         if (Object.keys(MP.gnomeOwners).length > 0) return;
-        window.setupSelectedGnomes = [];
-        window.setupPlayerCount = 0;
+        applyDesiredSetupSelection([]);
+        refreshSetupUi();
         window.setTimeout(() => {
-            if (Object.keys(MP.gnomeOwners).length > 0) return;
-            window.setupSelectedGnomes = [];
-            window.setupPlayerCount = 0;
-            updateSetupClaimStyles();
+            if (Object.keys(MP.gnomeOwners).length > 0 || isGameStarted()) return;
+            applyDesiredSetupSelection([]);
+            refreshSetupUi();
         }, 0);
     }
 
