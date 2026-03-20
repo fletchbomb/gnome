@@ -1,4 +1,4 @@
-// multiplayer.js - Online Sync Mod for Gnome Invasion (v2 with PINs & Local Play)
+// multiplayer.js - Online Sync Mod for Gnome Invasion (v3 with Set Serialization & Connection Fixes)
 
 // 1. Dynamically load PeerJS for networking
 const script = document.createElement('script');
@@ -101,16 +101,19 @@ function attemptHost() {
     });
 
     peer.on('connection', connection => {
-        clients.push(connection);
-        document.getElementById('mp-status').innerText = `Status: Hosting (${clients.length} connected)`;
-        connection.on('data', handleClientData);
-        
-        connection.on('close', () => {
-            clients = clients.filter(c => c !== connection);
+        // We MUST wait for the connection to fully open before pushing it to our active list!
+        connection.on('open', () => {
+            clients.push(connection);
             document.getElementById('mp-status').innerText = `Status: Hosting (${clients.length} connected)`;
-        });
+            connection.on('data', handleClientData);
+            
+            connection.on('close', () => {
+                clients = clients.filter(c => c !== connection);
+                document.getElementById('mp-status').innerText = `Status: Hosting (${clients.length} connected)`;
+            });
 
-        broadcastState(); // Send current lobby state to new player
+            broadcastState(); // Send current lobby state to new player
+        });
     });
 
     peer.on('error', err => {
@@ -123,12 +126,35 @@ function attemptHost() {
     });
 }
 
+// --- STATE SERIALIZATION HELPERS ---
+// JSON strips 'Set' objects into {}. We need to safely convert them to arrays to send, and back to Sets to receive.
+function prepStateForNetwork(state) {
+    if (!state) return state;
+    const copy = Object.assign({}, state);
+    if (copy.newlySpawnedCells instanceof Set) copy.newlySpawnedCells = Array.from(copy.newlySpawnedCells);
+    if (copy.newPatrolTypes instanceof Set) copy.newPatrolTypes = Array.from(copy.newPatrolTypes);
+    if (copy.stickyAnimated instanceof Set) copy.stickyAnimated = Array.from(copy.stickyAnimated);
+    if (copy.crackedRooms instanceof Set) copy.crackedRooms = Array.from(copy.crackedRooms);
+    return copy;
+}
+
+function restoreStateFromNetwork(dataState) {
+    if (!dataState) return dataState;
+    if (Array.isArray(dataState.newlySpawnedCells)) dataState.newlySpawnedCells = new Set(dataState.newlySpawnedCells);
+    if (Array.isArray(dataState.newPatrolTypes)) dataState.newPatrolTypes = new Set(dataState.newPatrolTypes);
+    if (Array.isArray(dataState.stickyAnimated)) dataState.stickyAnimated = new Set(dataState.stickyAnimated);
+    if (Array.isArray(dataState.crackedRooms)) dataState.crackedRooms = new Set(dataState.crackedRooms);
+    return dataState;
+}
+// -----------------------------------
+
+
 // 3. State Synchronization Logic
 function broadcastState() {
     if (!isHost || isOffline) return;
     const payload = {
         type: 'state',
-        G: window.G,
+        G: prepStateForNetwork(window.G),
         setupSelectedGnomes: window.setupSelectedGnomes,
         setupPlayerCount: window.setupPlayerCount
     };
@@ -137,12 +163,22 @@ function broadcastState() {
 
 function handleClientData(data) {
     if (data.type === 'clientStateUpdate') {
-        window.G = data.G;
+        const wasStarted = window.G && window.G.grid && window.G.grid.length > 0;
+        
+        window.G = restoreStateFromNetwork(data.G);
         window.setupSelectedGnomes = data.setupSelectedGnomes;
         window.setupPlayerCount = data.setupPlayerCount;
         
-        if (window.G && window.G.grid && window.G.grid.length > 0) {
+        const isStarted = window.G && window.G.grid && window.G.grid.length > 0;
+
+        // If the game just started via a client command, prep the UI
+        if (!wasStarted && isStarted) {
             document.getElementById('screen-setup').classList.remove('show');
+            if (typeof window.applyThemeArchitectureShells === 'function') window.applyThemeArchitectureShells();
+            if (typeof window.mountUnifiedTurnDock === 'function') window.mountUnifiedTurnDock();
+        }
+
+        if (isStarted) {
             window.orig_renderAll();
         } else {
             if (window.renderGnomeNameInputs) window.renderGnomeNameInputs();
@@ -153,12 +189,23 @@ function handleClientData(data) {
 
 function handleHostData(data) {
     if (data.type === 'state') {
-        window.G = data.G;
+        const wasStarted = window.G && window.G.grid && window.G.grid.length > 0;
+        
+        window.G = restoreStateFromNetwork(data.G);
         window.setupSelectedGnomes = data.setupSelectedGnomes;
         window.setupPlayerCount = data.setupPlayerCount;
 
-        if (window.G && window.G.grid && window.G.grid.length > 0) {
+        const isStarted = window.G && window.G.grid && window.G.grid.length > 0;
+
+        // If the game just started via the host, wake up the client UI
+        if (!wasStarted && isStarted) {
             document.getElementById('screen-setup').classList.remove('show');
+            document.getElementById('mp-lobby').style.display = 'none'; // Hide MP menu on start
+            if (typeof window.applyThemeArchitectureShells === 'function') window.applyThemeArchitectureShells();
+            if (typeof window.mountUnifiedTurnDock === 'function') window.mountUnifiedTurnDock();
+        }
+
+        if (isStarted) {
             window.orig_renderAll();
         } else {
             if (window.renderGnomeNameInputs) window.renderGnomeNameInputs();
@@ -174,7 +221,7 @@ function hijackSyncFunctions() {
             window.orig_renderAll.apply(this, args);
             if (isOffline) return;
             if (isHost) broadcastState();
-            else if (isClient) conn.send({ type: 'clientStateUpdate', G: window.G, setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
+            else if (isClient) conn.send({ type: 'clientStateUpdate', G: prepStateForNetwork(window.G), setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
         }
     }
 
@@ -184,7 +231,7 @@ function hijackSyncFunctions() {
             window.orig_renderAllNoBoard.apply(this, args);
             if (isOffline) return;
             if (isHost) broadcastState();
-            else if (isClient) conn.send({ type: 'clientStateUpdate', G: window.G, setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
+            else if (isClient) conn.send({ type: 'clientStateUpdate', G: prepStateForNetwork(window.G), setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
         }
     }
 
@@ -208,10 +255,17 @@ function hijackSyncFunctions() {
             
             if (isOffline) return;
             if (isHost) broadcastState();
-            else if (isClient) conn.send({ type: 'clientStateUpdate', G: window.G, setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
+            else if (isClient) conn.send({ type: 'clientStateUpdate', G: prepStateForNetwork(window.G), setupSelectedGnomes: window.setupSelectedGnomes, setupPlayerCount: window.setupPlayerCount });
         }
     }
     
+    // Hide Lobby menu when host clicks start game directly
+    document.getElementById('start-game-btn')?.addEventListener('click', () => {
+        if (!isOffline && (isHost || isClient)) {
+            document.getElementById('mp-lobby').style.display = 'none';
+        }
+    });
+
     // 5. Turn Enforcement Logic
     document.addEventListener('click', (e) => {
         if (isOffline) return; // Completely bypass networking rules
