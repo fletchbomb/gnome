@@ -2861,6 +2861,16 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
     width:calc(100vw - 24px);
   }
 }
+
+/* no-flicker patch: keep gameplay identical, suppress repeated dock entrance animations */
+.gnome-card.active,
+.gnome-card.active .gnome-portrait-chip,
+.gnome-card.active .gnome-card-body,
+.gnome-card-actions,
+.gnome-card-actions .action-btn {
+  animation: none !important;
+}
+
 </style>
 
 
