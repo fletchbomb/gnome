@@ -5,7 +5,7 @@
     'use strict';
 
     const MP = {
-        version: '4.0.0',
+        version: '4.1.0',
         isHost: false,
         isClient: false,
         isOffline: false,
@@ -34,7 +34,8 @@
         oneGnomePerPlayer: true,
         snapshotSeq: 0,
         lastReplaySeq: 0,
-        debug: false
+        debug: false,
+        applyingSetupClaims: false
     };
 
     window.__gnomeMP = MP;
@@ -241,6 +242,7 @@
             if (roomEl) roomEl.textContent = id;
             setStatus('Status: Hosting (waiting for players...)');
             disableLobbyEntryUi();
+            syncSetupSelectionsFromClaims();
             refreshUi();
             installPeerErrorHandler(peer);
         });
@@ -295,6 +297,7 @@
                 MP.isHost = false;
                 disableLobbyEntryUi();
                 setStatus('Status: Connected!');
+                syncSetupSelectionsFromClaims();
                 refreshUi();
                 safeSend(conn, { type: 'hello' });
             });
@@ -395,10 +398,14 @@
             case 'welcome':
                 if (data.hostPeerId) MP.hostPeerId = data.hostPeerId;
                 if (data.roomId) MP.roomId = data.roomId;
-                if (data.gnomeOwners) MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
-                if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
-                if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
-                refreshSetupUi();
+                if (data.gnomeOwners) {
+                    MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
+                    syncSetupSelectionsFromClaims();
+                } else {
+                    if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
+                    if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
+                    refreshSetupUi();
+                }
                 refreshUi();
                 break;
 
@@ -429,10 +436,14 @@
     }
 
     function applyLobbyState(data) {
-        if (data.gnomeOwners) MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
-        if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
-        if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
-        refreshSetupUi();
+        if (data.gnomeOwners) {
+            MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
+            syncSetupSelectionsFromClaims();
+        } else {
+            if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
+            if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
+            refreshSetupUi();
+        }
         refreshUi();
     }
 
@@ -524,14 +535,74 @@
             .map((gnomeId) => Number(gnomeId));
     }
 
-    function syncSetupSelectionsFromClaims() {
-        const selected = Object.keys(MP.gnomeOwners)
+    function getClaimSelectionList() {
+        return Object.keys(MP.gnomeOwners)
+            .map((gnomeId) => Number(gnomeId))
+            .filter((gnomeId) => Number.isFinite(gnomeId))
+            .sort((a, b) => a - b);
+    }
+
+    function getCurrentSetupSelectionList() {
+        return cloneArray(window.setupSelectedGnomes)
+            .map((gnomeId) => Number(gnomeId))
+            .filter((gnomeId) => Number.isFinite(gnomeId))
+            .sort((a, b) => a - b);
+    }
+
+    function getBaseToggleSetupGnome() {
+        if (typeof window.orig_toggleSetupGnome === 'function') return window.orig_toggleSetupGnome;
+        if (!MP.hooksInstalled.toggleSetupGnome && typeof window.toggleSetupGnome === 'function') return window.toggleSetupGnome;
+        return null;
+    }
+
+    function listsEqual(a, b) {
+        if (a === b) return true;
+        if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i += 1) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
+
+    function applyDesiredSetupSelection(selected) {
+        const desired = cloneArray(selected)
             .map((gnomeId) => Number(gnomeId))
             .filter((gnomeId) => Number.isFinite(gnomeId))
             .sort((a, b) => a - b);
 
-        window.setupSelectedGnomes = selected;
-        window.setupPlayerCount = selected.length;
+        const baseToggle = getBaseToggleSetupGnome();
+
+        if (!isGameStarted() && baseToggle && !MP.applyingSetupClaims) {
+            MP.applyingSetupClaims = true;
+            const prevSuppress = MP.suppressNetwork;
+            MP.suppressNetwork = true;
+
+            try {
+                let current = getCurrentSetupSelectionList();
+                current.filter((gnomeId) => !desired.includes(gnomeId)).forEach((gnomeId) => {
+                    baseToggle.call(window, gnomeId);
+                });
+
+                current = getCurrentSetupSelectionList();
+                desired.filter((gnomeId) => !current.includes(gnomeId)).forEach((gnomeId) => {
+                    baseToggle.call(window, gnomeId);
+                });
+            } catch (e) {
+                log('applyDesiredSetupSelection failed', e);
+            } finally {
+                MP.suppressNetwork = prevSuppress;
+                MP.applyingSetupClaims = false;
+            }
+        }
+
+        if (!listsEqual(getCurrentSetupSelectionList(), desired)) {
+            window.setupSelectedGnomes = desired.slice();
+        }
+        window.setupPlayerCount = desired.length;
+    }
+
+    function syncSetupSelectionsFromClaims() {
+        applyDesiredSetupSelection(getClaimSelectionList());
         refreshSetupUi();
     }
 
@@ -594,9 +665,13 @@
         if (typeof data.G !== 'undefined') {
             window.G = restoreStateFromNetwork(data.G);
         }
-        if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
-        if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
-        if (data.gnomeOwners) MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
+        if (data.gnomeOwners) {
+            MP.gnomeOwners = clonePlainObject(data.gnomeOwners);
+        }
+        if (!data.gnomeOwners) {
+            if (Array.isArray(data.setupSelectedGnomes)) window.setupSelectedGnomes = data.setupSelectedGnomes.slice();
+            if (typeof data.setupPlayerCount !== 'undefined') window.setupPlayerCount = data.setupPlayerCount;
+        }
 
         const nowStarted = !!data.gameStarted || isGameStarted();
 
@@ -605,6 +680,8 @@
             if (!wasStarted && nowStarted) wakeGameUiAfterStart();
             if (nowStarted) {
                 if (typeof window.renderAll === 'function') window.renderAll();
+            } else if (data.gnomeOwners) {
+                syncSetupSelectionsFromClaims();
             } else {
                 refreshSetupUi();
             }
@@ -708,6 +785,7 @@
                     alert('Another player has already claimed this gnome!');
                     return;
                 }
+                syncSetupSelectionsFromClaims();
                 broadcastLobbyState();
                 return;
             }
@@ -724,6 +802,10 @@
         };
 
         MP.hooksInstalled.toggleSetupGnome = true;
+
+        if (!isGameStarted() && (MP.isHost || MP.isClient)) {
+            syncSetupSelectionsFromClaims();
+        }
     }
 
     function hookStartButtonIfReady() {
