@@ -3,7 +3,7 @@
   'use strict';
 
   const MP = {
-    version: '5.0.0',
+    version: '5.2.0',
     debug: false,
     peerLibLoading: false,
     peerLibReady: false,
@@ -168,28 +168,11 @@
 
   function getOnlineUiState() {
     const connected = activeConnections();
-    let statusText = MP.statusText || '';
-    if (hasSession()) {
-      if (MP.isHost) {
-        if (!minimumPlayersMet()) statusText = 'Waiting for 2 players to connect';
-        else if (!everyoneHasExactlyOneClaim()) statusText = 'Waiting for each player to pick a gnome';
-        else statusText = 'Ready to start';
-      } else if (MP.isClient) {
-        const meLabel = getPlayerLabel(MP.myPlayerId);
-        statusText = everyoneHasExactlyOneClaim() ? 'Waiting for host to start' : `Connected as ${meLabel}`;
-      }
-    }
+    const readyToStart = minimumPlayersMet() && everyoneHasExactlyOneClaim();
+    let statusText = '';
 
-    const players = [];
-    for (let i = 0; i < 4; i += 1) {
-      const playerId = MP.playerOrder[i] || null;
-      players.push({
-        slot: i + 1,
-        label: `Player ${i + 1}`,
-        connected: !!playerId,
-        isSelf: playerId === MP.myPlayerId,
-        claimProfile: playerId ? getClaimedProfileForPlayer(playerId) : null
-      });
+    if (!hasSession()) {
+      statusText = MP.statusText || '';
     }
 
     return {
@@ -198,29 +181,9 @@
       isClient: MP.isClient,
       roomId: MP.roomId,
       connectedCount: connected.length,
-      players,
-      startReady: canHostStart(),
+      startReady: readyToStart,
       statusText
     };
-  }
-
-  function renderPlayerPills(players) {
-    const container = el('setup-online-players');
-    if (!container) return;
-    container.innerHTML = players.map(player => {
-      const claimName = Number.isInteger(player.claimProfile) && Array.isArray(window.GNOME_NAMES_DEFAULT)
-        ? window.GNOME_NAMES_DEFAULT[player.claimProfile]
-        : '';
-      const suffix = player.connected
-        ? (claimName ? `· ${claimName}` : '· Connected')
-        : '· Waiting';
-      const classes = [
-        'setup-player-pill',
-        player.connected ? 'is-connected' : '',
-        player.isSelf ? 'is-self' : ''
-      ].filter(Boolean).join(' ');
-      return `<span class="${classes}">${player.label} ${suffix}</span>`;
-    }).join('');
   }
 
   function refreshUi() {
@@ -228,11 +191,10 @@
 
     const rolePill = el('setup-online-role');
     const roomCode = el('setup-room-code');
-    const status = el('setup-online-status');
 
     if (rolePill) {
       if (state.sessionActive) {
-        if (state.isHost) rolePill.textContent = 'You are Host';
+        if (state.isHost) rolePill.textContent = 'You are host';
         else if (state.isClient) rolePill.textContent = `Connected as ${getPlayerLabel(MP.myPlayerId)}`;
         else rolePill.textContent = 'Online';
       } else {
@@ -241,9 +203,6 @@
     }
 
     if (roomCode) roomCode.textContent = state.roomId || '----';
-    if (status) status.textContent = state.statusText || '';
-    renderPlayerPills(state.players);
-
     if (typeof window.renderSetupUi === 'function') {
       window.renderSetupUi();
     }
@@ -330,7 +289,7 @@
     MP.gnomeOwners = {};
     MP.rosterOwners = [];
     MP.lastReplaySeq = 0;
-    MP.statusText = keepOnlineMode ? 'Choose Host Game or Join Game' : '';
+    MP.statusText = '';
     syncSetupSelectionsFromClaims({ render: false });
 
     if (!keepOnlineMode && typeof window.setSetupOnlineView === 'function') {
@@ -479,7 +438,7 @@
       });
       syncSetupSelectionsFromClaims({ render: false });
       broadcastLobbyState();
-      setStatus(MP.playerOrder.length >= 2 ? 'Waiting for each player to pick a gnome' : 'Waiting for 2 players to connect');
+      setStatus('');
     } else {
       disconnectSession({ keepOnlineMode: true });
       if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('choice');
@@ -523,7 +482,7 @@
 
     disconnectSession({ keepOnlineMode: true });
     if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('room');
-    setStatus('Generating room code...');
+    setStatus('');
 
     const attempt = () => {
       const roomId = String(Math.floor(1000 + Math.random() * 9000));
@@ -546,9 +505,10 @@
             return;
           }
           log('host peer error', err);
+          if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('choice');
           setStatus(err?.message || 'Host connection error');
         });
-        setStatus('Waiting for 2 players to connect');
+        setStatus('');
         refreshUi();
       });
 
@@ -557,6 +517,7 @@
           attempt();
           return;
         }
+        if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('choice');
         setStatus(err?.message || 'Could not host game');
       });
     };
@@ -578,7 +539,7 @@
     }
 
     disconnectSession({ keepOnlineMode: true });
-    setStatus('Connecting...');
+    setStatus('');
 
     const peer = new window.Peer();
     MP.peer = peer;
@@ -594,6 +555,7 @@
         MP.isClient = true;
         MP.isHost = false;
         if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('room');
+        setStatus('');
         refreshUi();
       });
 
@@ -601,12 +563,14 @@
       connection.on('close', () => handleConnectionClose(normalized));
       connection.on('error', err => {
         log('join connection error', err);
+        if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('join');
         setStatus(err?.message || 'Join failed');
       });
     });
 
     peer.on('error', err => {
       log('join peer error', err);
+      if (typeof window.setSetupOnlineView === 'function') window.setSetupOnlineView('join');
       setStatus(err?.message || 'Join failed');
     });
   }
@@ -718,7 +682,7 @@
         MP.isClient = true;
         MP.isHost = false;
         applyLobbyState(data);
-        setStatus('Connected');
+        setStatus('');
         break;
       case 'lobby_state':
         applyLobbyState(data);
