@@ -1270,7 +1270,7 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   .setup-logo,.setup-start-wrap,.setup-roster,.end-figure,.end-copy,.weaver-shell{position:relative;z-index:1;}
   #screen-setup{justify-content:flex-start;}
   .setup-logo{display:block;width:min(520px,72vw);max-width:520px;filter:drop-shadow(0 12px 28px rgba(0,0,0,.48));margin-top:6px;}
-  .setup-start-wrap{margin-top:6px;display:flex;justify-content:center;}
+  .setup-start-wrap{margin-top:0;display:flex;align-items:center;justify-content:center;gap:10px;}
   .start-btn{padding:12px 28px;background:var(--color-surface-start-button);border:1px solid rgba(140,102,38,.55);border-radius:14px;color:var(--wood-900);font-family:'Fredoka One';font-size:1.08rem;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s,background .15s,border-color .15s;box-shadow:0 10px 24px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,245,224,.18);} 
   .start-btn:hover{opacity:.98;transform:translateY(-1px);background:var(--color-surface-start-button-hover);border-color:rgba(242,192,107,.72);} 
   .start-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
@@ -2555,6 +2555,14 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 #setup-online-panel.is-hidden{
   display:none;
 }
+#setup-local-panel{
+  width:min(640px, 100%);
+  display:flex;
+  justify-content:center;
+}
+#setup-local-panel.is-hidden{
+  display:none;
+}
 .setup-online-view{
   display:none;
   width:100%;
@@ -2646,37 +2654,6 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
   font:800 .75rem/1 var(--font-body);
   color:var(--ui-text);
 }
-.setup-online-players{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:8px;
-  width:100%;
-  min-height:38px;
-}
-.setup-player-pill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  min-height:34px;
-  padding:7px 11px;
-  border-radius:999px;
-  background:rgba(255,245,224,.06);
-  border:1px solid rgba(214,166,82,.12);
-  font:800 .72rem/1 var(--font-body);
-  color:var(--ui-text-dim);
-}
-.setup-player-pill.is-connected{
-  color:var(--ui-text);
-  border-color:rgba(214,166,82,.22);
-  background:linear-gradient(180deg, rgba(111,76,52,.28), rgba(58,40,27,.44));
-}
-.setup-player-pill.is-self{
-  border-color:rgba(242,192,107,.54);
-  box-shadow:0 0 0 1px rgba(255,245,224,.06) inset, 0 0 18px rgba(242,192,107,.14);
-}
-.setup-online-status,
 #setup-status-line{
   min-height:1.3em;
   text-align:center;
@@ -2689,22 +2666,54 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 }
 #setup-start-wrap{
   display:none;
-  flex-direction:column;
+  flex-direction:row;
   align-items:center;
   justify-content:center;
-  gap:8px;
+  gap:10px;
+  min-height:46px;
+  margin:0;
 }
 #setup-start-wrap.is-visible{
   display:flex;
 }
 #setup-waiting-host{
   display:none;
-  font:800 .84rem/1.3 var(--font-body);
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:10px 16px;
+  border-radius:14px;
+  border:1px solid rgba(214,166,82,.16);
+  background:rgba(255,245,224,.05);
+  font:800 .84rem/1.2 var(--font-body);
   color:var(--ui-text);
   text-shadow:0 4px 12px rgba(0,0,0,.24);
+  white-space:nowrap;
 }
 #setup-waiting-host.is-visible{
-  display:block;
+  display:inline-flex;
+}
+.setup-inline-actions--room{
+  gap:10px;
+}
+.setup-inline-actions--room .setup-online-pill{
+  flex:0 0 auto;
+}
+.setup-inline-actions--room .setup-inline-end{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.setup-start-slot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+}
+.setup-start-slot:empty{
+  display:none;
 }
 #gnome-names.setup-roster{
   position:relative !important;
@@ -2718,7 +2727,7 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
   grid-template-columns:repeat(4, minmax(160px, 174px));
   justify-content:center;
   gap:11px;
-  align-items:end;
+  align-items:stretch;
   margin:28px auto 0;
   padding-bottom:8px;
   z-index:3;
@@ -2744,27 +2753,116 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
   from{opacity:0;transform:translateY(34px) scale(.96);}
   to{opacity:1;transform:translateY(0) scale(1);}
 }
+#gnome-names.setup-roster{
+  grid-auto-rows:1fr;
+}
 #gnome-names .setup-gnome-card{
   opacity:1 !important;
   filter:none !important;
   transform:translateY(0);
-  border:2px solid rgba(214,166,82,.18);
-  box-shadow:0 16px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,245,224,.06);
+  border:1px solid rgba(214,166,82,.10) !important;
+  box-shadow:0 12px 22px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,245,224,.04) !important;
   overflow:visible;
+  min-height:296px;
+  height:296px;
+  box-sizing:border-box;
+}
+#gnome-names .setup-gnome-card::after{
+  content:'';
+  position:absolute;
+  inset:-4px;
+  border-radius:22px;
+  border:4px solid transparent;
+  box-shadow:none;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+#gnome-names .setup-gnome-card .setup-portrait-frame{
+  transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+#gnome-names .setup-gnome-card .setup-portrait-frame img{
+  transition:transform .16s ease, filter .16s ease;
 }
 #gnome-names .setup-gnome-card:hover{
-  transform:translateY(-3px) scale(1.01);
-  border-color:rgba(242,192,107,.44);
-  box-shadow:0 22px 34px rgba(0,0,0,.32), 0 0 16px rgba(242,192,107,.12);
+  transform:translateY(-2px);
+  border-color:rgba(242,192,107,.16) !important;
+  box-shadow:0 15px 24px rgba(0,0,0,.22), 0 0 12px rgba(242,192,107,.08), inset 0 1px 0 rgba(255,245,224,.04) !important;
 }
-#gnome-names .setup-gnome-card.is-active{
-  transform:translateY(-6px) scale(1.01);
-  border-color:color-mix(in srgb, var(--gnome-accent) 78%, white);
-  box-shadow:0 22px 34px rgba(0,0,0,.32), 0 0 0 1px rgba(255,255,255,.08) inset, 0 0 0 3px color-mix(in srgb, var(--gnome-accent) 20%, transparent), 0 0 26px color-mix(in srgb, var(--gnome-accent) 30%, transparent);
+#gnome-names .setup-gnome-card:hover .setup-portrait-frame{
+  transform:translateY(-1px);
+  border-color:rgba(242,192,107,.22) !important;
 }
+#gnome-names .setup-gnome-card:hover .setup-portrait-frame img{
+  transform:scale(1.018);
+  filter:saturate(1.03);
+}
+#gnome-names .setup-gnome-card.is-active,
+#gnome-names .setup-gnome-card.is-claimed-self{
+  transform:translateY(-2px);
+  border-color:rgba(214,166,82,.14) !important;
+  box-shadow:0 16px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,245,224,.04) !important;
+}
+#gnome-names .setup-gnome-card.is-active::after,
+#gnome-names .setup-gnome-card.is-claimed-self::after{
+  opacity:1;
+  border-color:color-mix(in srgb, var(--gnome-accent) 74%, #8effc6 26%);
+  box-shadow:0 0 0 1px rgba(17,26,19,.34), 0 0 0 3px color-mix(in srgb, var(--gnome-accent) 18%, transparent), 0 0 26px color-mix(in srgb, var(--gnome-accent) 34%, transparent);
+}
+#gnome-names .setup-gnome-card.is-active .setup-portrait-frame,
+#gnome-names .setup-gnome-card.is-claimed-self .setup-portrait-frame{
+  border-color:color-mix(in srgb, var(--gnome-accent) 68%, rgba(255,255,255,.20)) !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05) inset;
+}
+#gnome-names .setup-gnome-card.is-active.is-claimed-other,
 #gnome-names .setup-gnome-card.is-claimed-other{
-  border-color:rgba(214,166,82,.34);
-  box-shadow:0 18px 30px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.05) inset;
+  border-color:rgba(242,192,107,.16) !important;
+  box-shadow:0 16px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,245,224,.04) !important;
+}
+#gnome-names .setup-gnome-card.is-active.is-claimed-other::after,
+#gnome-names .setup-gnome-card.is-claimed-other::after{
+  opacity:1;
+  border-color:#f2c06b;
+  box-shadow:0 0 0 1px rgba(52,37,17,.36), 0 0 0 3px rgba(242,192,107,.10), 0 0 24px rgba(242,192,107,.24);
+}
+#gnome-names .setup-gnome-card.is-active.is-claimed-other .setup-portrait-frame,
+#gnome-names .setup-gnome-card.is-claimed-other .setup-portrait-frame{
+  border-color:rgba(242,192,107,.48) !important;
+}
+.setup-selection-ribbon{
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:4;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:2px solid rgba(255,245,224,.22);
+  background:rgba(32,24,18,.92);
+  color:#fff5e0;
+  font:900 .62rem/1 var(--font-body);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  box-shadow:0 8px 16px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.05);
+  pointer-events:none;
+}
+.setup-selection-ribbon[hidden],
+.setup-selection-ribbon:empty{
+  display:none !important;
+}
+.setup-selection-ribbon.self,
+.setup-selection-ribbon.local{
+  border-color:color-mix(in srgb, var(--gnome-accent) 56%, rgba(255,245,224,.18));
+  background:linear-gradient(180deg, color-mix(in srgb, var(--gnome-accent) 32%, rgba(255,245,224,.06)), rgba(49,32,24,.96));
+  box-shadow:0 8px 16px rgba(0,0,0,.26), 0 0 18px color-mix(in srgb, var(--gnome-accent) 26%, transparent);
+}
+.setup-selection-ribbon.other{
+  border-color:rgba(242,192,107,.54);
+  background:linear-gradient(180deg, rgba(242,192,107,.20), rgba(64,42,21,.96));
+  color:#fff2d0;
 }
 .setup-card-topline{
   display:flex;
@@ -2793,6 +2891,20 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
   align-items:flex-end;
   gap:6px;
   flex:0 0 auto;
+}
+.setup-hat-block{
+  margin-top:auto;
+}
+.setup-hat-desc{
+  min-height:2.35em;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.setup-role-chip,
+.setup-owner-chip{
+  white-space:nowrap;
 }
 .setup-role-chip{
   display:inline-flex;
@@ -2838,7 +2950,7 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 }
 @media (max-width: 980px){
   #gnome-names.setup-roster{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(2, minmax(150px, 174px));
     width:min(760px, calc(100vw - 24px));
     gap:12px;
   }
@@ -2858,9 +2970,16 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
     width:100%;
   }
   #gnome-names.setup-roster{
-    width:calc(100vw - 24px);
+    grid-template-columns:repeat(2, minmax(136px, 160px));
+    width:min(340px, calc(100vw - 24px));
+    gap:10px;
+  }
+  #gnome-names .setup-gnome-card{
+    height:286px;
+    min-height:286px;
   }
 }
+
 
 /* no-flicker patch: keep gameplay identical, suppress repeated dock entrance animations */
 .gnome-card.active,
@@ -2876,7 +2995,7 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 
 </head>
 <body>
-<!-- GPT build: v168 -->
+<!-- GPT build: v169 -->
 <div id="screen-setup" class="game-screen screen-setup show">
   <div class="screen-backdrop"></div>
   <div class="screen-ui screen-setup-ui">
@@ -2907,15 +3026,21 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
         </div>
 
         <div id="setup-online-room-view" class="setup-online-view">
-          <div class="setup-online-meta">
+          <div class="setup-online-meta setup-inline-actions--room">
             <div class="setup-online-pill" id="setup-online-role">Not connected</div>
             <div class="setup-online-pill" id="setup-online-room-pill">Room <strong id="setup-room-code">----</strong></div>
+            <div class="setup-inline-end">
+              <div id="setup-online-start-slot" class="setup-start-slot"></div>
+              <button id="setup-online-leave-btn" class="setup-small-btn setup-muted-btn" type="button">Back</button>
+            </div>
           </div>
-          <div id="setup-online-players" class="setup-online-players"></div>
-          <div id="setup-online-status" class="setup-online-status"></div>
-          <div class="setup-inline-actions">
-            <button id="setup-online-leave-btn" class="setup-small-btn setup-muted-btn" type="button">Back</button>
-          </div>
+        </div>
+      </div>
+
+      <div id="setup-local-panel" class="setup-local-panel is-hidden">
+        <div class="setup-inline-actions">
+          <div id="setup-local-start-slot" class="setup-start-slot"></div>
+          <button class="setup-small-btn setup-muted-btn" type="button" data-command="resetSetupMenu">Back</button>
         </div>
       </div>
 
@@ -5609,47 +5734,70 @@ function renderSetupOnlineSubviews() {
 function renderGnomeNameInputs() {
   const container = el('gnome-names');
   if (!container) return;
+
+  if (container.children.length !== 4 || !container.dataset.cardsBuilt) {
+    const startingHatByProfile = [1,2,9,6];
+    container.innerHTML = Array.from({length:4},(_,i)=> {
+      const hatDef = getHatDef(startingHatByProfile[i]);
+      return `
+        <button class="setup-gnome-card" style="--setup-card-index:${i}; --gnome-accent:${GNOME_COLORS[i]};" type="button" data-command="toggleSetupGnome" data-command-arg="${i}" aria-pressed="false">
+          <span class="setup-selection-ribbon" hidden></span>
+          <div class="setup-portrait-frame"><img src="${GNOME_PORTRAIT_URLS[i]}" alt="${GNOME_NAMES_DEFAULT[i]} portrait"></div>
+          <div class="setup-card-topline">
+            <div class="setup-gnome-head">
+              <span class="setup-color-dot" style="background:${GNOME_COLORS[i]};"></span>
+              <span class="setup-name-wrap">
+                <span>${GNOME_NAMES_DEFAULT[i]}</span>
+              </span>
+            </div>
+            <div class="setup-card-chips">
+              <span class="setup-role-chip">Bench</span>
+            </div>
+          </div>
+          <div class="setup-hat-block">
+            <div class="setup-hat-name">${hatDef ? `${getIconHTML({ ...getHatIconProps(hatDef), alt: hatDef.name, className: 'ui-icon' })} ${hatDef.name}` : 'No Hat'}</div>
+            <div class="setup-hat-desc">${hatDef?.desc || ''}</div>
+          </div>
+        </button>`;
+    }).join('');
+    container.dataset.cardsBuilt = '1';
+  }
+
   const selected = new Set(setupSelectedGnomes);
   const onlineMeta = setupMode === 'online' && window.__gnomeMPApi && typeof window.__gnomeMPApi.getSetupCardMeta === 'function'
     ? window.__gnomeMPApi
     : null;
 
-  container.innerHTML = Array.from({length:4},(_,i)=> {
+  Array.from(container.querySelectorAll('.setup-gnome-card')).forEach((card, i) => {
     const active = selected.has(i);
-    const startingHatByProfile = [1,2,9,6];
-    const hatDef = getHatDef(startingHatByProfile[i]);
     const cardMeta = onlineMeta ? onlineMeta.getSetupCardMeta(i) : null;
-    const ownerChip = cardMeta?.ownerLabel
-      ? `<span class="setup-owner-chip ${cardMeta.ownerSelf ? 'self' : 'other'}">${cardMeta.ownerLabel}</span>`
-      : '';
-    const cardClasses = [
-      'setup-gnome-card',
-      active ? 'is-active' : '',
-      cardMeta?.claimed && !cardMeta?.ownerSelf ? 'is-claimed-other' : ''
-    ].filter(Boolean).join(' ');
+    const selfClaimed = cardMeta?.claimed ? !!cardMeta.ownerSelf : (setupMode === 'local' && active);
+    const otherClaimed = !!(cardMeta?.claimed && !cardMeta.ownerSelf);
+    const ribbonText = cardMeta?.ownerLabel || (active && setupMode === 'local' ? 'Selected' : '');
+    const ribbonClass = cardMeta?.claimed
+      ? (cardMeta.ownerSelf ? 'self' : 'other')
+      : (active ? 'local' : '');
 
-    return `
-      <button class="${cardClasses}" style="--setup-card-index:${i}; --gnome-accent:${GNOME_COLORS[i]};" type="button" data-command="toggleSetupGnome" data-command-arg="${i}">
-        <div class="setup-portrait-frame"><img src="${GNOME_PORTRAIT_URLS[i]}" alt="${GNOME_NAMES_DEFAULT[i]} portrait"></div>
-        <div class="setup-card-topline">
-          <div class="setup-gnome-head">
-            <span class="setup-color-dot" style="background:${GNOME_COLORS[i]};"></span>
-            <span class="setup-name-wrap">
-              <span>${GNOME_NAMES_DEFAULT[i]}</span>
-              <span class="setup-hat-desc">${hatDef?.desc || ''}</span>
-            </span>
-          </div>
-          <div class="setup-card-chips">
-            <span class="setup-role-chip ${active ? 'ready' : ''}">${active ? 'Playing' : 'Bench'}</span>
-            ${ownerChip}
-          </div>
-        </div>
-        <div class="setup-hat-block">
-          <div class="setup-hat-name">${hatDef ? `${getIconHTML({ ...getHatIconProps(hatDef), alt: hatDef.name, className: 'ui-icon' })} ${hatDef.name}` : 'No Hat'}</div>
-          <div class="setup-hat-desc">${hatDef?.desc || ''}</div>
-        </div>
-      </button>`;
-  }).join('');
+    card.style.setProperty('--setup-card-index', i);
+    card.style.setProperty('--gnome-accent', GNOME_COLORS[i]);
+    card.classList.toggle('is-active', active);
+    card.classList.toggle('is-claimed-self', selfClaimed);
+    card.classList.toggle('is-claimed-other', otherClaimed);
+    card.setAttribute('aria-pressed', active ? 'true' : 'false');
+
+    const ribbon = card.querySelector('.setup-selection-ribbon');
+    if (ribbon) {
+      ribbon.hidden = !ribbonText;
+      ribbon.textContent = ribbonText;
+      ribbon.className = `setup-selection-ribbon ${ribbonClass}`.trim();
+    }
+
+    const roleChip = card.querySelector('.setup-role-chip');
+    if (roleChip) {
+      roleChip.textContent = active ? 'Playing' : 'Bench';
+      roleChip.classList.toggle('ready', active);
+    }
+  });
 }
 
 function renderSetupUi() {
@@ -5658,17 +5806,22 @@ function renderSetupUi() {
 
   const modeButtons = el('setup-mode-buttons');
   const onlinePanel = el('setup-online-panel');
+  const localPanel = el('setup-local-panel');
   const roster = el('gnome-names');
   const startWrap = el('setup-start-wrap');
   const startBtn = el('start-game-btn');
   const waitingHost = el('setup-waiting-host');
   const statusLine = el('setup-status-line');
+  const localStartSlot = el('setup-local-start-slot');
+  const onlineStartSlot = el('setup-online-start-slot');
 
   if (modeButtons) modeButtons.classList.toggle('is-hidden', !!setupMode);
   if (onlinePanel) onlinePanel.classList.toggle('is-hidden', setupMode !== 'online');
+  if (localPanel) localPanel.classList.toggle('is-hidden', setupMode !== 'local');
+  const showRoster = setupMode === 'local' || (setupMode === 'online' && setupOnlineView === 'room');
   if (roster) {
-    roster.classList.toggle('is-hidden', !setupMode);
-    roster.classList.toggle('is-visible', !!setupMode);
+    roster.classList.toggle('is-hidden', !showRoster);
+    roster.classList.toggle('is-visible', !!showRoster);
   }
 
   let statusText = '';
@@ -5680,14 +5833,21 @@ function renderSetupUi() {
   } else if (setupMode === 'online') {
     const online = getSetupOnlineMeta();
     if (online) {
-      statusText = online.statusText || '';
+      const showInlineStatus = !!(online.statusText && (setupOnlineView !== 'room' || !online.sessionActive));
+      statusText = showInlineStatus ? (online.statusText || '') : '';
       showStartButton = !!(online.sessionActive && online.isHost && online.startReady);
       showWaitingForHost = !!(online.sessionActive && online.isClient && online.startReady);
     }
   }
 
   if (statusLine) statusLine.textContent = statusText;
-  if (startWrap) startWrap.classList.toggle('is-visible', showStartButton || showWaitingForHost);
+  if (startWrap) {
+    const desiredParent = setupMode === 'local'
+      ? localStartSlot
+      : (setupMode === 'online' && setupOnlineView === 'room' ? onlineStartSlot : null);
+    if (desiredParent && startWrap.parentElement !== desiredParent) desiredParent.appendChild(startWrap);
+    startWrap.classList.toggle('is-visible', !!desiredParent && (showStartButton || showWaitingForHost));
+  }
   if (startBtn) {
     startBtn.style.display = showStartButton ? '' : 'none';
     startBtn.disabled = !showStartButton;
