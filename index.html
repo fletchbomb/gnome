@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-game-version="v254">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v223</title>
+  <title>Gnome Invasion v254</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -430,101 +430,93 @@ url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/backgroundtil
   .ui-icon-host{display:inline-flex;align-items:center;justify-content:center;}
 
 
-  /* ── GNOME FLIP (hidden state) ───────────────────────────────────────── */
-  .gnome-token {
-    display: inline-block;
-    position: relative;
-    width: 2.16em; height: 2.16em;
-    cursor: pointer;
-    vertical-align: middle;
-    perspective: 200px;
-    -webkit-perspective: 200px;
-  }
-  .gnome-token.token-pop,.patrol-coin.token-pop{animation:tokenPopIn .16s cubic-bezier(.22,.8,.2,1) both;}
-  .gnome-token.active-turn::before{content:'';position:absolute;left:50%;top:50%;width:2.25em;height:2.25em;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle, rgba(242,192,107,.34) 0%, rgba(214,166,82,.22) 42%, rgba(214,166,82,0) 72%);filter:blur(1px);animation:activeTurnHalo 2.2s ease-in-out infinite;}
-  @keyframes tokenPopIn{0%{opacity:0;transform:scale(.86);}100%{opacity:1;transform:scale(1);}}
-  @keyframes activeTurnHalo{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.96);}50%{opacity:.92;transform:translate(-50%,-50%) scale(1.08);}}
-  .gnome-token-inner {
-    position: relative;
-    width: 100%; height: 100%;
-    transform-style: preserve-3d;
-    -webkit-transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(.4,0,.2,1);
-    -webkit-transition: -webkit-transform 0.5s cubic-bezier(.4,0,.2,1);
-  }
-  .gnome-token.is-hidden .gnome-token-inner {
-    transform: rotateY(180deg);
-    -webkit-transform: rotateY(180deg);
-  }
-  .gnome-token-front,
-  .gnome-token-back {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1;
-    font-size: 1em;
-  }
-  .gnome-token-back {
-    transform: rotateY(180deg);
-    -webkit-transform: rotateY(180deg);
-  }
-  /* Back face: just the 🫣 emoji, rendered monochrome and semi-transparent like etched into the coin */
-  .gnome-token-back .back-hide {
-    font-size: 0.88em;
-    filter: grayscale(1) brightness(0.55) opacity(0.6);
-    display: flex; align-items: center; justify-content: center;
-    width: 100%; height: 100%;
-  }
-
-  .gnome-token.sticky-gnome .gnome-token-front {
-    animation: stickyPulse 1.6s ease-in-out infinite;
-  }
-  @keyframes stickyPulse {
-    0%   { filter: drop-shadow(0 0 0px transparent); }
-    50%  { filter: drop-shadow(0 0 6px #a855f7) drop-shadow(0 0 3px #7c3aed); }
-    100% { filter: drop-shadow(0 0 0px transparent); }
-  }
-
-  /* Freeze board animations while card overlay is up */
-  #card-overlay.show ~ * .gnome-token.sticky-gnome .gnome-token-front,
-  body.card-showing .gnome-token.sticky-gnome .gnome-token-front {
-    animation-play-state: paused;
-  }
+  /* ── SHARED BOARD TOKEN SYSTEM (gnomes + patrols) ───────────────────── */
+  .actor-token,
+  .gnome-token,
   .patrol-coin {
     display: inline-flex;
-    align-items: center; justify-content: center;
+    align-items: center;
+    justify-content: center;
     position: relative;
-    width: 2.3em; height: 2.3em;
+    width: 2.3em;
+    height: 2.3em;
     cursor: pointer;
     vertical-align: middle;
+    --token-fill: #caa24f;
   }
+  .actor-token.token-active,
+  .gnome-token.token-active,
+  .patrol-coin.token-active { z-index: 12; }
+  .gnome-token.token-pop,.patrol-coin.token-pop{animation:tokenPopIn .16s cubic-bezier(.22,.8,.2,1) both;}
+  @keyframes tokenPopIn{0%{opacity:0;transform:scale(.86);}100%{opacity:1;transform:scale(1);}}
+  @keyframes tokenStatusPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+  .actor-token::before,
+  .gnome-token::before,
   .patrol-coin::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: radial-gradient(circle at 38% 32%, #ef4444 0%, #b91c1c 55%, #7f1d1d 100%);
+    background: radial-gradient(
+      circle at 38% 32%,
+      color-mix(in srgb, var(--token-fill) 42%, white) 0%,
+      var(--token-fill) 56%,
+      color-mix(in srgb, var(--token-fill) 48%, black) 100%
+    );
     box-shadow:
       0 2px 5px rgba(0,0,0,.55),
-      inset 0 1px 2px rgba(255,255,255,.18),
+      inset 0 1px 2px rgba(255,255,255,.22),
       inset 0 -2px 4px rgba(0,0,0,.3);
+    z-index: 0;
   }
+  .actor-art,
+  .gnome-coin-art,
   .patrol-coin-emoji {
     position: relative;
     z-index: 1;
     font-size: 1.05em;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,.6));
     line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.6));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
   }
+  .gnome-token .actor-art,
+  .gnome-token .gnome-coin-art {
+    font-size: 1.08em;
+  }
+  .actor-token.token-ko::before,
+  .gnome-token.token-ko::before,
+  .patrol-coin.token-ko::before {
+    opacity: .26;
+  }
+  .actor-token.token-ko .actor-art,
+  .gnome-token.token-ko .gnome-coin-art,
+  .patrol-coin.token-ko .patrol-coin-emoji {
+    opacity: .34;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.28));
+  }
+  .token-status-ring {
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 3px solid var(--status-ring-color, transparent);
+    pointer-events: none;
+    z-index: 3;
+    animation: tokenStatusPulse 2s ease-in-out infinite;
+  }
+  .token-status-ring.status-active { --status-ring-color: #ffffff; }
+  .token-status-ring.status-sticky { --status-ring-color: #a855f7; }
+  .token-status-ring.status-hidden { --status-ring-color: #111111; }
   .patrol-facing-dot {
     position: absolute;
     width: 5px; height: 5px;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 0 3px #fff, 0 0 6px rgba(255,255,200,.8);
-    z-index: 2;
+    z-index: 4;
     pointer-events: none;
   }
   .patrol-facing-dot.N { top: 3px;    left: 50%; transform: translateX(-50%); }
@@ -647,6 +639,52 @@ url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/backgroundtil
   }
   body.panic-mode #sidebar { opacity: 0.25; pointer-events: none; }
   body.panic-mode #log-area { opacity: 0.25; }
+  body.interrupt-mode #sidebar { opacity: 0.25; pointer-events: none; }
+  body.interrupt-mode #log-area { opacity: 0.25; }
+  body.interrupt-purple #panic-overlay { border-color:#a978ff; box-shadow:0 0 0 9999px rgba(26,10,48,.16),0 0 0 3px rgba(169,120,255,.32) inset; animation: panicBorderPulse 1s ease-in-out infinite; }
+  body.interrupt-purple #panic-banner { background:linear-gradient(180deg, rgba(112,58,178,.98), rgba(73,35,126,.98)); border-color:rgba(216,190,255,.7); box-shadow:0 14px 26px rgba(34,12,56,.38), 0 0 18px rgba(169,120,255,.24); }
+  body.interrupt-purple #panic-banner::before { background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0)); }
+
+  #event-overlay {
+    position: fixed; inset: 10px; border: 5px solid #a855f7; border-radius: 20px;
+    box-shadow: 0 0 0 9999px rgba(88,28,135,.16), 0 0 30px rgba(168,85,247,.35);
+    pointer-events: none; display: none; z-index: 2500; animation: eventBorderPulse 1s ease-in-out infinite;
+  }
+  #event-overlay.show { display: block; }
+  @keyframes eventBorderPulse {
+    0%, 100% { box-shadow: 0 0 0 9999px rgba(88,28,135,.16), 0 0 20px rgba(168,85,247,.28); }
+    50% { box-shadow: 0 0 0 9999px rgba(88,28,135,.22), 0 0 34px rgba(192,132,252,.48); }
+  }
+  #event-banner {
+    position: fixed; left: 50%; top: 16px; transform: translateX(-50%);
+    z-index: 2600; display: none; padding: 10px 18px; border-radius: 999px;
+    background: linear-gradient(135deg, #581c87, #7c3aed); color: #fff; font-weight: 800;
+    box-shadow: 0 12px 32px rgba(88,28,135,.35); letter-spacing: .02em;
+    animation: eventBannerPulse 1s ease-in-out infinite;
+  }
+  #event-banner.show { display: block; }
+  @keyframes eventBannerPulse {
+    0%,100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.03); }
+  }
+  body.event-mode #sidebar { opacity: 0.25; pointer-events: none; }
+  body.event-mode #log-area { opacity: 0.25; }
+  body.event-mode #board .cell.room.event-target-patrol {
+    box-shadow: var(--board-room-shadow-heavy), 0 0 10px #c084fc88, 0 0 24px 10px rgba(88,28,135,.28);
+  }
+  .patrol-coin.event-patrol-selectable {
+    cursor: pointer;
+    animation: eventPatrolPulse .9s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(192,132,252,.85));
+  }
+  @keyframes eventPatrolPulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  body.event-mode #board .cell.empty.can-reveal {
+    border-color: #c084fc;
+    box-shadow: inset 0 0 0 2px rgba(192,132,252,.7), 0 0 14px rgba(168,85,247,.35);
+  }
   /* Animated patrol meeple */
   .patrol-meeple-anim{position:fixed;z-index:600;font-size:1.6rem;pointer-events:none;transition:left 3s ease-in-out, top 3s ease-in-out;}
 
@@ -1164,6 +1202,7 @@ url("https://raw.githubusercontent.com/fletchbomb/gnome/main/files/backgroundtil
   .gnome-status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:.58rem;height:.58rem;padding:0 .06rem;border-radius:999px;background:rgba(58,42,31,.96);border:1px solid rgba(255,235,204,.16);font-size:.42rem;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.45);} 
   .gnome-status-badge.hidden{color:#d6dde8;}
   .gnome-status-badge.sticky{color:#f59e0b;}
+  .patrol-ref-pill.sticky{color:#d9b3ff;border-color:rgba(168,85,247,.38);background:rgba(76,29,149,.22);}
   .gnome-status-badge.distract{color:#c084fc;}
   .gnome-name-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;line-height:1.05;}
   .gnome-card-body{max-height:240px;opacity:1;overflow:hidden;transition:max-height .22s ease, opacity .2s ease, margin-top .2s ease;margin-top:6px;}
@@ -1373,11 +1412,9 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   .legend{font-size:.65rem;color:var(--muted);margin-top:4px;}
 
 
-/* gnome tokens enlarged, patrol tokens 50% larger than before */
-.gnome-token{
-    transform:scale(1.44);
-}
-.patrol-coin,.patrol-coin-emoji{
+/* board tokens share the patrol-sized footprint */
+.gnome-token,
+.patrol-coin{
     transform:scale(1.08);
 }
 
@@ -1390,17 +1427,6 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .room-corner .event-patrol, .room-corner .event-trouble {
     filter:grayscale(1) brightness(0);
     opacity:.45;
-}
-
-/* active gnome glow */
-.gnome-token.active{
-    box-shadow:0 0 10px rgba(255,255,255,.9),
-               0 0 20px rgba(255,255,255,.6);
-    animation:activePulse 2s ease-in-out infinite;
-}
-@keyframes activePulse{
-    0%,100%{box-shadow:0 0 8px rgba(255,255,255,.6)}
-    50%{box-shadow:0 0 18px rgba(255,255,255,1)}
 }
 
 /* end turn pulse when ready */
@@ -1419,8 +1445,6 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 
 
 .room-token-lane > *{margin-left:-2px;margin-right:-2px;}
-.gnome-token.active-turn .gnome-token-front{animation:activeTurnGlow 2.6s ease-in-out infinite;}
-@keyframes activeTurnGlow{0%,100%{filter:drop-shadow(0 0 1px rgba(242,192,107,.18));}50%{filter:drop-shadow(0 0 4px rgba(242,192,107,.95)) drop-shadow(0 0 8px rgba(214,166,82,.65));}}
 .action-btn.end-turn.ready{background:#b40000 !important;border-color:#ff4d4d !important;color:#fff !important;animation:endTurnPulse 1.6s ease-in-out infinite;opacity:1;filter:none;}
 .action-btn.free-move-ready{background:#5a1018 !important;border-color:#ff5a6a !important;color:#fff !important;animation:freeMovePulse 1.4s ease-in-out infinite;box-shadow:0 0 0 1px rgba(255,90,106,.25),0 0 16px rgba(255,90,106,.35);}
 @keyframes freeMovePulse{0%,100%{transform:translateY(0);box-shadow:0 0 0 1px rgba(255,90,106,.18),0 0 10px rgba(255,90,106,.24);}50%{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,90,106,.32),0 0 18px rgba(255,90,106,.48);}}
@@ -1463,19 +1487,17 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   align-items: stretch;
 }
 
-/* Fix 2: Gnome tokens blurry on Safari because scale(1.44) + preserve-3d
-   triggers sub-pixel rendering. Force pixel-aligned compositing. */
-.is-safari .gnome-token {
-  transform: scale(1.44) translateZ(0);
-  -webkit-transform: scale(1.44) translateZ(0);
+/* Fix 2: Board tokens can look soft on Safari after scaling. Force
+   pixel-aligned compositing on the shared token system. */
+.is-safari .gnome-token,
+.is-safari .patrol-coin {
+  transform: scale(1.08) translateZ(0);
+  -webkit-transform: scale(1.08) translateZ(0);
   image-rendering: -webkit-optimize-contrast;
   -webkit-font-smoothing: antialiased;
 }
-.is-safari .gnome-token-inner {
-  -webkit-transform-style: preserve-3d;
-}
-.is-safari .gnome-token-front,
-.is-safari .gnome-token-back {
+.is-safari .gnome-token::before,
+.is-safari .patrol-coin::before {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -3166,6 +3188,7 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
           </div>
           <hr class="action-divider">
           <button class="action-btn end-turn" id="btn-win-house" data-command="winHouse" style="display:none;">🏁 Escape</button>
+          <button class="action-btn" id="btn-remove-sticky" data-command="removeSticky" style="display:none;">🫟 Remove Sticky</button>
           <button class="action-btn end-turn" id="btn-end" data-command="endGnomeTurn">⏭ End Turn</button>
           
         </div>
@@ -3337,6 +3360,8 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 <div id="patrol-banner"></div>
 <div id="panic-overlay"></div>
 <div id="panic-banner"></div>
+<div id="event-overlay"></div>
+<div id="event-banner"></div>
 <div id="game-tooltip"></div>
   <script>
 
@@ -4223,6 +4248,7 @@ function clearDistractState({ reason = '', log = false } = {}) {
   const g = G.gnomes?.[actorIdx];
   if (g) g.distractActive = false;
   G.distractState = null;
+  if (G.patrolTargetOverride?.source === 'distract') clearPatrolTargetOverride();
   if (log && reason && g) addLog(`🎵 ${g.name} loses Distract${reason}`, 'system');
   return true;
 }
@@ -4244,6 +4270,7 @@ function activateDistract(gnome, actorIdx) {
   if (existing) existing.distractActive = false;
   gnome.distractActive = true;
   G.distractState = { actorIdx, expiresOnActorTurnStart: actorIdx };
+  setPatrolTargetOverride({ scope:'global', mode:'distract', source:'distract' });
   addLog(`🎵 ${gnome.name} distracts all patrols until their next turn.`, 'good');
 }
 function beginGnomeTurn(actorIdx) {
@@ -4252,8 +4279,9 @@ function beginGnomeTurn(actorIdx) {
   const g = G.gnomes[actorIdx];
   if (!g) return;
   if (G.distractState?.expiresOnActorTurnStart === actorIdx) clearDistractState({ reason: ' at the start of their turn.', log: true });
-  clearStickyStateAtTurnStart(g);
   g.freeMoveUsedThisTurn = false;
+  g.eventDrawnThisTurn = false;
+  g.looseSatchelThisTurn = false;
   updateActionsForHat();
   addLog(`--- ${g.name}'s turn ---`,'system');
 }
@@ -4266,15 +4294,82 @@ function getPatrolDefaultTarget(patrol) {
   if (patrol.type === 'kid') return getGnomeMostSocks();
   return null;
 }
-function getPatrolTarget(patrol, { allowDistract = true } = {}) {
-  if (allowDistract) {
-    const distractTarget = getPatrolDistractTarget();
-    if (distractTarget) return distractTarget;
+function createPatrolRoomTargetInfo(row, col, source = 'room', extra = {}) {
+  if (!Number.isInteger(row) || !Number.isInteger(col)) return null;
+  return { kind: 'room', row, col, label: getRoomName(row, col), source, ...extra };
+}
+function createPatrolGnomeTargetInfo(gnome, source = 'gnome', extra = {}) {
+  if (!gnome) return null;
+  return {
+    kind: 'gnome',
+    row: gnome.row,
+    col: gnome.col,
+    label: gnome.name,
+    gnomeId: gnome.id,
+    gnomeName: gnome.name,
+    source,
+    ...extra,
+  };
+}
+function getPatrolNextPerimeterTarget(patrol) {
+  const connected = getConnectedRooms(patrol.row, patrol.col);
+  if (!connected.length) return createPatrolRoomTargetInfo(patrol.row, patrol.col, 'stalled');
+  const step = computeRoombaStep(patrol, connected);
+  if (!step) return createPatrolRoomTargetInfo(patrol.row, patrol.col, 'stalled');
+  return createPatrolRoomTargetInfo(step.toR, step.toC, 'perimeter', { nextDir: step.newLastDir || patrol.lastDir || null });
+}
+function getPatrolIdleTargetInfo(patrol, source = 'idle') {
+  const [row, col] = getPatrolIdleDestination(patrol);
+  return createPatrolRoomTargetInfo(row, col, source);
+}
+function getPatrolRouteTargetInfo(patrol) {
+  const dest = patrol.returningToRoom ? findPatrolSpawnPos('dad') : [G.CENTER, G.CENTER];
+  if (!dest) return null;
+  return createPatrolRoomTargetInfo(dest[0], dest[1], 'route', { returningToRoom: !!patrol.returningToRoom });
+}
+function getPatrolLiveTargetInfo(patrol) {
+  if (!patrol) return null;
+  const overrideTarget = getPatrolOverrideTarget(patrol);
+  if (overrideTarget) return createPatrolRoomTargetInfo(overrideTarget.row, overrideTarget.col, 'override');
+  if (patrol.type === 'roomba') return getPatrolNextPerimeterTarget(patrol);
+  if (patrol.type === 'dog') {
+    const target = getNearestGnome(patrol, false);
+    return target ? createPatrolGnomeTargetInfo(target, 'gnome') : getPatrolIdleTargetInfo(patrol, 'idle');
   }
+  if (patrol.type === 'kid') {
+    const target = getGnomeMostSocks();
+    return target ? createPatrolGnomeTargetInfo(target, 'gnome') : getPatrolIdleTargetInfo(patrol, 'idle');
+  }
+  if (patrol.type === 'dad') return getPatrolRouteTargetInfo(patrol);
+  return null;
+}
+function getPatrolLiveTargetLabel(patrol) {
+  return getPatrolLiveTargetInfo(patrol)?.label || '';
+}
+function getPatrolCarriedSockCount(patrol) {
+  const count = Number(patrol?.carriedSocks);
+  return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+}
+function canPatrolCarrySocks(patrol) {
+  return patrol?.type === 'roomba' || patrol?.type === 'dad';
+}
+function getPatrolTooltipText(patrol) {
+  const ref = PATROL_REF_DATA[patrol?.type];
+  const base = ref ? `${ref.name} patrol` : `${capitalize(patrol?.type || 'patrol')} patrol`;
+  const lines = [base];
+  const target = getPatrolLiveTargetLabel(patrol);
+  if (target) lines.push(`TARGET: ${target}`);
+  const carriedSocks = getPatrolCarriedSockCount(patrol);
+  if (carriedSocks > 0) lines.push(`HELD: ${carriedSocks} 🧦`);
+  return lines.join('\n');
+}
+function getPatrolTarget(patrol) {
+  const overrideTarget = getPatrolOverrideTarget(patrol);
+  if (overrideTarget) return overrideTarget;
   return getPatrolDefaultTarget(patrol);
 }
 function getPatrolBehaviorTarget(patrol) {
-  return getPatrolTarget(patrol, { allowDistract: true });
+  return getPatrolTarget(patrol);
 }
 function triggerHatAction() {
   const g = G.gnomes[G.currentGnomeIdx];
@@ -4519,6 +4614,7 @@ const UI_COMMANDS = Object.freeze({
   toggleLogCollapsed: () => toggleLogCollapsed(),
   selectAction: (_node, value) => executeGameAction(value),
   pickupInCurrentRoom: () => executeGameAction('pickup'),
+  removeSticky: () => executeGameAction('removeSticky'),
   doKick: () => executeGameAction('kick'),
   cancelKick: () => cancelPendingBoardAction('kick'),
   doHide: () => executeGameAction('hide'),
@@ -4543,6 +4639,9 @@ const UI_COMMANDS = Object.freeze({
 
 
 function getActiveBoardInteractionId() {
+  if (G.eventMode?.kind === 'thirdEye') return 'thirdEyeReveal';
+  if (G.eventMode?.kind === 'mindControlSelectPatrol') return 'mindControlPick';
+  if (G.eventMode?.kind === 'mindControlSelectDest') return 'mindControlDest';
   if (G.kickMode) return 'kickTarget';
   if (G.ventMode) return 'ventTarget';
   if (G.dynamiteMode) return 'dynamiteBlast';
@@ -4585,6 +4684,20 @@ function resolveActiveBoardRoomAction(r, c, tile) {
   switch (actionId) {
     case 'move':
       return handleMoveLikeRoomSelection(actionId, r, c, tile);
+    case 'mindControlPick': {
+      const patrolsHere = G.patrols.filter(p => p.row === r && p.col === c);
+      if (!patrolsHere.length) return false;
+      if (patrolsHere.length === 1) {
+        selectMindControlPatrol(patrolsHere[0]);
+        renderAll();
+        return true;
+      }
+      chooseOneModal('Mind Control', 'Choose a Patrol to control.', patrolsHere.map((p, idx) => ({
+        label: `${patrolEmoji(p.type)} ${capitalize(p.type)}`,
+        action: () => { selectMindControlPatrol(patrolsHere[idx]); renderAll(); },
+      })));
+      return true;
+    }
     case 'kickTarget': {
       const isTarget = G.kickMode?.destinations?.some(([dr, dc]) => dr === r && dc === c);
       if (!isTarget) return false;
@@ -4600,6 +4713,15 @@ function resolveActiveBoardRoomAction(r, c, tile) {
     }
     case 'shroomRotateTarget':
       return executeGameAction('shroomRotateTarget', { r, c });
+    case 'mindControlDest': {
+      const isTarget = G.eventMode?.kind === 'mindControlSelectDest' && G.eventMode.destinations?.some(([dr, dc]) => dr === r && dc === c);
+      if (!isTarget) return false;
+      const patrol = G.patrols.find(p => p.type === G.eventMode?.patrolType && p.row === G.eventMode?.patrolRow && p.col === G.eventMode?.patrolCol)
+        || G.patrols.find(p => p.type === G.eventMode?.patrolType);
+      if (!patrol) { clearEventMode(); addLog('🧠 Mind Control: selected Patrol is no longer in play.', 'bad'); return true; }
+      completeMindControlMove(patrol, r, c);
+      return true;
+    }
     default:
       return false;
   }
@@ -4608,6 +4730,13 @@ function resolveActiveBoardRoomAction(r, c, tile) {
 function resolveActiveRevealAction(r, c, fromDir, options = {}) {
   const actionId = getActiveBoardInteractionId();
   const implicit = !!options.implicit;
+  if (actionId === 'thirdEyeReveal') {
+    const opt = (G.eventMode?.options || []).find(opt => opt.targetR === r && opt.targetC === c && opt.fromDir === fromDir);
+    if (!opt) return false;
+    const actorGnomeIdx = G.eventMode?.actorGnomeIdx;
+    clearEventMode({ render:false });
+    return revealRoomViaEffect(r, c, fromDir, { actorGnomeIdx });
+  }
   if (actionId !== 'move' && !implicit) return false;
   return executeGameAction('revealRoom', { r, c, fromDir, implicit });
 }
@@ -4633,6 +4762,7 @@ const UI_TEXT = Object.freeze({
     move: '🚶 Move',
     moveHere: '🚶 Move Here',
     pickup: '🤏 Pick Up',
+    removeSticky: '🫟 Remove Sticky',
     kick: '👟 Kick',
     hide: '🫣 Hide',
     vent: '♨️ Vent',
@@ -4646,7 +4776,7 @@ const UI_TEXT = Object.freeze({
     rotateAgainOrConfirm: '🍄 Rotate Again or Confirm',
   }),
   status: Object.freeze({
-    sticky: '🫟 Sticky — Can\'t move this turn.',
+    sticky: '🫟 Sticky — Spend 1 action to remove before moving.',
     creaky: '📢 Creaky — 💢 +1 when entering with Socks',
   }),
   reveal: getRevealCursorText,
@@ -4779,6 +4909,17 @@ const GAME_ACTIONS = Object.freeze({
       return { ok: true };
     },
     apply: () => pickupInCurrentRoom(),
+  },
+  removeSticky: {
+    createIntent: () => ({ actionId: 'removeSticky', actorIdx: G.currentGnomeIdx }),
+    validate: intent => {
+      const ctx = createActionContext(intent);
+      const baseError = validateGnomeTurnActionContext(ctx);
+      if (baseError) return baseError;
+      if (!ctx.gnome?.stickyBlocked) return 'Not sticky.';
+      return { ok: true };
+    },
+    apply: () => removeStickyForActiveGnome(),
   },
   kick: {
     createIntent: () => ({ actionId: 'kick', actorIdx: G.currentGnomeIdx }),
@@ -4928,6 +5069,10 @@ function isGameplayInputLocked(actionId = '') {
 }
 
 function executeGameAction(actionId, payload = undefined) {
+  if (isInterruptActive() && !['moveToRoom'].includes(actionId)) {
+    addLog('Resolve the Event first.', 'bad');
+    return false;
+  }
   if (isGameplayInputLocked(actionId)) return false;
   const intent = createGameActionIntent(actionId, payload);
   if (!intent) {
@@ -4979,39 +5124,38 @@ function renderSections(sectionNames) {
   });
 }
 
-const TROUBLE_CARDS = [
-  {id:1,name:'Loose Satchel',  emoji:'💼', desc:'All Gnomes drop all Satchel items to the floor.'},
-  {id:2,name:'Dress Code',    emoji:'👔', desc:'Silly Hat benefits are cancelled for everyone until the round ends.'},
-  {id:3,name:'Hustle',         emoji:'🏃', desc:'Lowest ranked Patrol moves 1 step immediately.'},
-  {id:4,name:'Lights On',      emoji:'💡', desc:'Gnomes cannot hide this turn.'},
-  {id:5,name:'Panic!',         emoji:'😱', desc:'All Gnomes must move one room immediately. This does not cost an action.'},
-  {id:6,name:'Stiff Breeze',   emoji:'🌬️', desc:'All Gnomes drop their equipped hats.'},
-  {id:7,name:'Moths',          emoji:'🦋', desc:'Destroy 1 Socks from each Gnome\'s Satchel.'},
-  {id:8,name:'Investigation',  emoji:'🔍', desc:'All Patrols move one room toward the Laundry Room.'},
-  {id:9,name:'Lucky Break',    emoji:'🍀', desc:'Nothing happens. Phew!'},
-];
 
 const EVENT_CARDS = [
-  // Good events
-  {id:1, name:'Vent',             emoji:'♨️', type:'good',    effect:'vent',         desc:'A Vent is added to this room. Move to any other Vent room.'},
-  {id:2, name:'Goodies',          emoji:'🎁', type:'good',    effect:'goodie',       desc:'A Goodie token is added to this room.'},
-  {id:3, name:'Laundry Chute',    emoji:'🕳️', type:'good',    effect:'chute',        desc:'A Laundry Chute is added to this room. 🧺 Deposit here.'},
-  {id:4, name:'The Weaver',       emoji:'🧌', type:'good',    effect:'weaver',       desc:'🧌 Weaver appears here. Trade Socks for Goodies or Silly Hats.'},
-  {id:5, name:'Stray Sock',       emoji:'🧦', type:'good',    effect:'Socks',        desc:'A stray Socks appears in this room.'},
-    {id:7, name:'Explosion',        emoji:'💥', type:'good',    effect:'explosion',    desc:'All 4 walls of this room become Doors!'},
-  {id:8, name:'Laundry Day',      emoji:'👕', type:'good',    effect:'laundry_day',  desc:'Socks are added to all Bedrooms currently in play.'},
-  {id:9, name:'Lights Off',       emoji:'🌑', type:'good',    effect:'lights_off',   desc:'All Gnomes are hidden this turn.'},
-  {id:10,name:'Cookie Waft',      emoji:'🍪', type:'trouble', effect:'cookie_waft',  desc:'All Patrols warp to the Kitchen. If Kitchen is not in play, +1 Trouble instead.'},
-  // Trouble events
-  {id:11,name:'Creaky Floor',     emoji:'📢', type:'trouble', effect:'creaky',       desc:'📢 Add Creaky to this room. +1 💢 if already Creaky.'},
-  {id:12,name:'Sticky Floor',     emoji:'🫟', type:'trouble', effect:'sticky',       desc:'🫟 Add Sticky to this room. +1 💢 if already Sticky.'},
-  {id:13,name:'Laundry Avalanche',emoji:'🌊', type:'trouble', effect:'avalanche',    desc:'+1 Trouble. 2 Socks are added to this room.'},
-  {id:14,name:'Alarm Clock',      emoji:'⏰', type:'trouble', effect:'alarm',        desc:'Nearest Patrol moves 2 rooms toward this room. If no Patrols, +1 Trouble.'},
-  // Patrol events
-  {id:15,name:'Roomba Appears',   emoji:'🤖', type:'patrol',  effect:'spawn_roomba', desc:'A Roomba spawns near this room. Already in play? +1 Trouble instead.'},
-  {id:16,name:'Dog Appears',      emoji:'🐶', type:'patrol',  effect:'spawn_dog',    desc:'The Dog spawns near this room. Already in play? +1 Trouble instead.'},
-  {id:17,name:'Kid Appears',      emoji:'👦', type:'patrol',  effect:'spawn_kid',    desc:'The Kid spawns near this room. Already in play? +2 Trouble instead.'},
-  {id:18,name:'Dad Appears',      emoji:'👨', type:'patrol',  effect:'spawn_dad',    desc:'Dad spawns near this room. Already in play? +2 Trouble instead.'},
+  {id:1,  name:'Vent',             emoji:'♨️', type:'good',    effect:'vent',          desc:'Add ♨️ Vent to this room.'},
+  {id:2,  name:'Boon',             emoji:'🎁', type:'good',    effect:'goodie',        desc:'Add 🎁 Goodie to this room.'},
+  {id:3,  name:'Laundry Chute',    emoji:'🕳️', type:'good',    effect:'chute',         desc:'Add 🕳️ Chute to this room.'},
+  {id:4,  name:'The Weaver',       emoji:'🧌', type:'good',    effect:'weaver',        desc:'Add 🧌 The Weaver to this room.'},
+  {id:5,  name:'Stray Sock',       emoji:'🧦', type:'good',    effect:'Socks',         desc:'Add 🧦 Sock to this room.'},
+  {id:7,  name:'Explosion',        emoji:'💥', type:'good',    effect:'explosion',     desc:'All 4 walls of this room are now Doors.'},
+  {id:8,  name:'Laundry Day',      emoji:'👕', type:'good',    effect:'laundry_day',   desc:'Add 🧦 Socks to all Bedrooms.'},
+  {id:9,  name:'Lights Off',       emoji:'🌑', type:'good',    effect:'lights_off',    desc:'All Gnomes are hidden this turn.'},
+  {id:10, name:'Third Eye',        emoji:'👁️', type:'good',    effect:'third_eye',     desc:'Reveal the next room tile and connect it to any available door.'},
+  {id:12, name:'Mind Control',     emoji:'🧠', type:'good',    effect:'mind_control',  desc:'Move a Patrol one room.'},
+  {id:13, name:'Freeze Time',      emoji:'❄️', type:'good',    effect:'freeze_time',   desc:'Patrols do not move this turn. This overrides any Patrol targeting changes.'},
+  {id:14, name:'Stinky Sink',      emoji:'🤢', type:'trouble', effect:'stinky_sink',   desc:'All Patrols move towards the Kitchen this round. If Kitchen is not discovered, +1 💢 Trouble.'},
+  {id:15, name:'Creaky Floor',     emoji:'📢', type:'trouble', effect:'creaky',        desc:'Add 📢 Creaky to this room. If already Creaky, +1 💢 Trouble.'},
+  {id:16, name:'Sticky Floor',     emoji:'🫟', type:'trouble', effect:'sticky',        desc:'Add 🫟 Sticky to this room. If already Sticky, +1 💢 Trouble.'},
+  {id:17, name:'Laundry Avalanche',emoji:'🌊', type:'trouble', effect:'avalanche',     desc:'Add 2 🧦 Socks to this room. +1 💢 Trouble.'},
+  {id:18, name:'Alarm Clock',      emoji:'⏰', type:'trouble', effect:'alarm',         desc:'Highest ranking 🚨 Patrol targets this room on their turn and gains +1 Move. If no Patrols are in play, +1 💢 Trouble.'},
+  {id:19, name:'Roomba',           emoji:'🤖', type:'patrol',  effect:'spawn_roomba',  desc:'Spawn 🤖 Supply Closet near this room. Already in play? +1 💢 Trouble.'},
+  {id:20, name:'Dog',              emoji:'🐶', type:'patrol',  effect:'spawn_dog',     desc:'Spawn 🐶 Garage near this room. Already in play? +1 💢 Trouble.'},
+  {id:21, name:'Hustle',           emoji:'🏃', type:'trouble', effect:'hustle',        desc:'Highest ranking Patrol gains +1 Move on their turn.'},
+  {id:22, name:'Lights On',        emoji:'💡', type:'trouble', effect:'lights_on',     desc:'Gnomes cannot hide this turn.'},
+  {id:23, name:'Loose Satchel',    emoji:'💼', type:'trouble', effect:'loose_satchel', desc:'Drop an item every time you Move this turn.'},
+  {id:24, name:'Panic!',           emoji:'😱', type:'trouble', effect:'panic',         desc:'All Gnomes must move one room immediately. This does not count as an Action.'},
+  {id:25, name:'Disturbance',      emoji:'📣', type:'trouble', effect:'disturbance',   desc:'Hat abilities are disabled this turn.'},
+  {id:26, name:'Moths',            emoji:'🦋', type:'trouble', effect:'moths',         desc:'Destroy 1 Sock from each Satchel.'},
+  {id:27, name:'Investigation',    emoji:'🔍', type:'trouble', effect:'investigation', desc:'All Patrols move towards Laundry Room on their turn. If no Patrols are in play, +1 💢 Trouble.'},
+  {id:28, name:'Moth Eggs',        emoji:'🥚', type:'trouble', effect:'moth_eggs',     desc:'Moth Eggs are planted in this Room. Causes Moths Event to spawn at the start of every round. Kick Moth Eggs to destroy.'},
+];
+
+const V3_EVENT_CARDS_PENDING = [
+  // Bend Reality removed per current rules direction.
 ];
 
 // ─────────────────────────────────────────────
@@ -5019,20 +5163,23 @@ const EVENT_CARDS = [
 // ─────────────────────────────────────────────
 var G = {};
 
+const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v254';
+
 const GAME_BUILD = Object.freeze({
-  version: 'v189',
   boardCellSize: 162,
   boardGap: 4,
 });
 
 function applyBuildMetadata() {
-  document.title = `Gnome Invasion ${GAME_BUILD.version}`;
+  document.title = `Gnome Invasion ${GAME_VERSION}`;
   const root = document.documentElement;
   root.style.setProperty('--board-cell-size', `${GAME_BUILD.boardCellSize}px`);
   root.style.setProperty('--board-gap', `${GAME_BUILD.boardGap}px`);
+  const troubleMaxEl = document.getElementById('trouble-max');
+  if (troubleMaxEl) troubleMaxEl.textContent = `/${getMaxTrouble()}`;
 }
 
-const EVENT_QTY = {1:1,2:2,3:1,4:1,5:4,6:2,7:2,8:2,9:2,10:1,11:2,12:1,13:2,14:2,15:1,16:1,17:1,18:1};
+const EVENT_QTY = {1:2,2:2,3:1,4:1,5:6,7:2,8:2,9:2,10:2,12:3,13:2,14:1,15:2,16:1,17:2,18:2,19:1,20:1,21:1,22:1,23:1,24:1,25:1,26:1,27:2,28:1};
 const GRID_SIZE = 15;
 const GRID_CENTER = 7;
 const BASE_ROOM_DECK_TEMPLATE = [
@@ -5049,7 +5196,6 @@ const BASE_ROOM_DECK_TEMPLATE = [
   12,          // 1× Bathroom
   13,          // 1× Linen Closet
 ];
-const TROUBLE_DECK_TEMPLATE = [1, 2,2,2, 3, 4,4,4, 5, 6, 7, 8,8,8, 9,9,9,9,9];
 const STARTING_HAT_POOL_TEMPLATE = [2,3,4,5,6,7,8,9,2,6,9,4];
 const BETWEEN_HOUSE_HAT_POOL_TEMPLATE = [2,3,4,5,6,9];
 const BETWEEN_HOUSE_GOODIE_POOL_TEMPLATE = [1,2,3,4,5,6,1,2,3,4,5,6];
@@ -5062,8 +5208,468 @@ function shuffledCopy(items) {
   return shuffle([...items]);
 }
 
+const GAME_RULES = Object.freeze({
+  escalation: Object.freeze({
+    maxTrouble: 20,
+  }),
+  events: Object.freeze({
+    cards: Object.freeze([...EVENT_CARDS]),
+    qtyById: Object.freeze({ ...EVENT_QTY }),
+    triggerRules: Object.freeze({
+      firstRevealPerRound: true,
+      firstDepositPerRound: true,
+      patrolCatch: false,
+      eventRoom: true,
+    }),
+  }),
+  patrols: Object.freeze({
+    order: Object.freeze(['roomba','dog','kid','dad']),
+    stepsByType: Object.freeze({ roomba:1, dog:1, kid:1, dad:2 }),
+  }),
+  weaver: Object.freeze({
+    offerCountByType: Object.freeze({ goodie:4, hat:4 }),
+    offerCostByType: Object.freeze({ goodie:1, hat:5 }),
+    startingHatPool: Object.freeze([...STARTING_HAT_POOL_TEMPLATE]),
+    betweenHouseHatPool: Object.freeze([...BETWEEN_HOUSE_HAT_POOL_TEMPLATE]),
+    betweenHouseGoodiePool: Object.freeze([...BETWEEN_HOUSE_GOODIE_POOL_TEMPLATE]),
+  }),
+  hats: Object.freeze({
+    defs: Object.freeze([...HATS_DEFS]),
+    defById: Object.freeze({ ...HAT_DEF_BY_ID }),
+  }),
+});
+
+function getGameRules() { return GAME_RULES; }
+function getMaxTrouble() { return getGameRules().escalation.maxTrouble; }
+function getEventCards() { return getGameRules().events.cards; }
+function getEventQty(cardId) { return getGameRules().events.qtyById[cardId] || 1; }
+function getEventTriggerRules() { return getGameRules().events.triggerRules || {}; }
+function isEventTriggerEnabled(key) { return !!getEventTriggerRules()[key]; }
+function getEventCardById(id) { return getEventCards().find(card => card?.id === id) || null; }
+function getEventCardByEffect(effectName) { return getEventCards().find(card => card?.effect === effectName) || null; }
+function getPatrolOrder() { return getGameRules().patrols.order; }
+function getPatrolStepCount(type) { return getGameRules().patrols.stepsByType[type] || 1; }
+function getHatDefs() { return getGameRules().hats.defs; }
+function getHatDefById(id) { return getGameRules().hats.defById[id] || null; }
+function getStartingHatPoolTemplate() { return getGameRules().weaver.startingHatPool; }
+function getBetweenHouseHatPoolTemplate() { return getGameRules().weaver.betweenHouseHatPool; }
+function getBetweenHouseGoodiePoolTemplate() { return getGameRules().weaver.betweenHouseGoodiePool; }
+function getWeaverOfferCount(type) { return getGameRules().weaver.offerCountByType[type] || 4; }
+
+
+function getHighestRankPatrolInPlay() {
+  if (!Array.isArray(G?.patrols) || !G.patrols.length) return null;
+  const order = getPatrolOrder();
+  const sorted = [...G.patrols].sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type));
+  return sorted[sorted.length - 1] || null;
+}
+
+function getRoomCoordsById(roomId) {
+  for (let r = 0; r < G.GRID; r++) for (let c = 0; c < G.GRID; c++) if (G.grid[r]?.[c]?.roomId === roomId) return [r, c];
+  return null;
+}
+
+function clearPatrolTargetOverride() {
+  if (!G) return;
+  G.patrolTargetOverride = null;
+  updateAllPatrolNextDirs();
+}
+
+function setPatrolTargetOverride(override = null) {
+  if (!G) return null;
+  if (!override) {
+    clearPatrolTargetOverride();
+    return null;
+  }
+  G.patrolTargetSeq = (G.patrolTargetSeq || 0) + 1;
+  G.patrolTargetOverride = { ...override, seq: G.patrolTargetSeq };
+  updateAllPatrolNextDirs();
+  return G.patrolTargetOverride;
+}
+
+function getActivePatrolTargetOverride() {
+  const override = G?.patrolTargetOverride || null;
+  if (!override) return null;
+  if (override.mode === 'distract') {
+    const target = getPatrolDistractTarget();
+    if (!target) {
+      G.patrolTargetOverride = null;
+      return null;
+    }
+  }
+  return override;
+}
+
+function getPatrolOverrideTarget(patrol) {
+  const override = getActivePatrolTargetOverride();
+  if (!override) return null;
+  if (override.scope === 'specific' && override.patrolType !== patrol.type) return null;
+  if (override.mode === 'distract') return getPatrolDistractTarget();
+  if (override.mode === 'room') return { row: override.targetR, col: override.targetC };
+  if (override.mode === 'roomId') {
+    const coords = getRoomCoordsById(override.roomId);
+    return coords ? { row: coords[0], col: coords[1] } : null;
+  }
+  return null;
+}
+
+function queuePatrolMoveBonus(targetType, extraMoves, source = 'effect') {
+  if (!G || !Number.isFinite(extraMoves) || extraMoves === 0) return;
+  G.patrolMoveBonuses = Array.isArray(G.patrolMoveBonuses) ? G.patrolMoveBonuses : [];
+  G.patrolMoveBonuses.push({ targetType: targetType || null, extraMoves, source });
+  updateAllPatrolNextDirs();
+}
+
+function getQueuedPatrolBonusMoves(patrol) {
+  const bonuses = Array.isArray(G?.patrolMoveBonuses) ? G.patrolMoveBonuses : [];
+  return bonuses.filter(b => !b?.targetType || b.targetType === patrol.type).reduce((sum, b) => sum + (Number(b.extraMoves) || 0), 0);
+}
+
+function consumeQueuedPatrolBonusMoves(patrol) {
+  const bonuses = Array.isArray(G?.patrolMoveBonuses) ? G.patrolMoveBonuses : [];
+  let total = 0;
+  G.patrolMoveBonuses = bonuses.filter(b => {
+    const applies = !b?.targetType || b.targetType === patrol.type;
+    if (applies) total += (Number(b.extraMoves) || 0);
+    return !applies;
+  });
+  return total;
+}
+
+function isPatrolMovementLocked() {
+  return !!G?.patrolMovementLock;
+}
+
+function applyFreezeTimeEventEffect() {
+  G.patrolMovementLock = { mode: 'freeze', source: 'freeze_time' };
+  refreshPatrolIntentState(true);
+  addLog('❄️ Freeze Time! Patrols do not move this turn. This overrides any Patrol targeting changes.', 'good');
+}
+
+function withForcedChoiceModal(title, body, buttons) {
+  G.modalLocked = true;
+  showModal(title, body, buttons.map(btn => ({
+    ...btn,
+    action: () => {
+      G.modalLocked = false;
+      closeModal();
+      btn.action();
+    }
+  })));
+}
+
+function chooseOneModal(title, body, options) {
+  if (!options.length) return false;
+  withForcedChoiceModal(title, body, options.map(opt => ({ label: opt.label, cls: opt.cls || 'confirm', action: opt.action })));
+  return true;
+}
+
+function getAvailableThirdEyeDoors() {
+  const options = [];
+  for (let r = 0; r < G.GRID; r++) {
+    for (let c = 0; c < G.GRID; c++) {
+      if (!G.grid[r]?.[c]) continue;
+      getRevealableFrom(r, c).forEach(([nr, nc, dir]) => {
+        options.push({ sourceR: r, sourceC: c, targetR: nr, targetC: nc, fromDir: dir, label: `${getRoomName(r, c)} — ${dir} door` });
+      });
+    }
+  }
+  return options;
+}
+
+function revealRoomViaEffect(r, c, fromDir, opts = {}) {
+  const roomId = drawConnectingRoom(fromDir);
+  if (!roomId) { addLog('No compatible room available!', 'bad'); return false; }
+  const tile = createRoomTile(roomId, r, c);
+  G.grid[r][c] = tile;
+  const mandatoryEntry = fromDir ? OPPOSITE[fromDir] : null;
+  let bestRot = tile.rotationOffset || 0;
+  let bestScore = -Infinity;
+  for (let rot = 0; rot < 4; rot++) {
+    const dirs = getBaseDoorDirs(tile, rot);
+    if (mandatoryEntry && !dirs.includes(mandatoryEntry) && !roomCanProvideDoor(tile.roomId, mandatoryEntry)) continue;
+    let score = 0;
+    if (mandatoryEntry && dirs.includes(mandatoryEntry)) score += 100;
+    for (const [dir, [dr, dc]] of Object.entries(DIR_DELTA)) {
+      const nr = r + dr, nc = c + dc;
+      const nb = G.grid[nr]?.[nc];
+      if (!nb) continue;
+      const opp = OPPOSITE[dir];
+      if (dirs.includes(dir) && tileHasDoor(nb, opp, { includeForced: true })) score += 10;
+      if (getForcedDoorDirs(nb).includes(opp)) score += 25;
+    }
+    if (score > bestScore) { bestScore = score; bestRot = rot; }
+  }
+  tile.rotationOffset = bestRot;
+  normalizeTileDoorState(tile);
+  if (mandatoryEntry && !tileHasDoor(tile, mandatoryEntry)) addManualDoor(tile, mandatoryEntry);
+  for (const [dir, [dr, dc]] of Object.entries(DIR_DELTA)) {
+    const nr = r + dr, nc = c + dc;
+    const nb = G.grid[nr]?.[nc];
+    if (!nb) continue;
+    const opp = OPPOSITE[dir];
+    if (getForcedDoorDirs(nb).includes(opp)) connectTilesWithDoor(tile, nb, dir);
+    else if (tileHasDoor(tile, dir) && tileHasDoor(nb, opp)) connectTilesWithDoor(tile, nb, dir);
+  }
+  reconcileDoorConnections();
+  G.tilesRevealed++;
+  SEQ.push({t:'effect', fn:() => GAME_EVENTS.emit('tile.created', { r, c, roomId })});
+  addLog(`👁️ Third Eye reveals: ${ROOM_DEFS[roomId].name}!`, 'good');
+  const extra = G.tilesRevealed - getFreeTiles() - 1;
+  if (extra > 0) { addLog(`🏠 Extra tile → +1 Trouble`, 'bad'); addTrouble(1); }
+  const actorGnomeIdx = Number.isInteger(opts.actorGnomeIdx) ? opts.actorGnomeIdx : G.currentGnomeIdx;
+  if (isHouseFullyEnclosed()) {
+    addLog(`💥 Fully enclosed house! ${ROOM_DEFS[tile.roomId].name} instantly triggers an automatic Explosion Event.`, 'good');
+    GAME_EVENTS.emit('dynamite.blast');
+    applyEvent({ effect: 'explosion' }, r, c);
+  }
+  renderAll();
+  return true;
+}
+
+function applyThirdEyeEventEffect(actorGnomeIdx = null) {
+  if (!G.roomDeck.length) { addLog('👁️ Third Eye: no room tiles left to reveal.', 'bad'); return; }
+  const options = getAvailableThirdEyeDoors();
+  if (!options.length) { addLog('👁️ Third Eye: there are no available doors to reveal from.', 'bad'); return; }
+  addLog('👁️ Third Eye: click an available room location to reveal the next room tile.', 'system');
+  setEventMode({ kind:'thirdEye', actorGnomeIdx, options });
+}
+
+function completeMindControlMove(patrol, destR, destC) {
+  const fromR = patrol.row, fromC = patrol.col;
+  patrol.row = destR;
+  patrol.col = destC;
+  for (const [dir, [dr, dc]] of Object.entries(DIR_DELTA)) {
+    if (fromR + dr === destR && fromC + dc === destC) { patrol.lastDir = dir; break; }
+  }
+  addLog(`🧠 Mind Control moves ${capitalize(patrol.type)} to ${getRoomName(destR, destC)}.`, 'good');
+  clearEventMode({ render:false });
+  checkPatrolCatch(patrol);
+  refreshPatrolIntentState(true);
+}
+
+function applyMindControlEventEffect() {
+  if (!G.patrols.length) { addLog('🧠 Mind Control: no Patrols are in play.', 'bad'); return; }
+  addLog('🧠 Mind Control: click a Patrol, then click an adjacent room.', 'system');
+  setEventMode({ kind:'mindControlSelectPatrol' });
+}
+
+function applyStinkySinkEventEffect() {
+  const kitchen = getRoomCoordsById(6);
+  if (!kitchen) { addTrouble(1); addLog('🤢 Stinky Sink: Kitchen is not discovered, +1 Trouble.', 'bad'); return; }
+  setPatrolTargetOverride({ scope:'global', mode:'roomId', roomId:6, source:'stinky_sink' });
+  addLog('🤢 Stinky Sink! Patrols target the Kitchen this round.', 'patrol');
+  refreshPatrolIntentState(true);
+}
+
+function applyMothEggsEventEffect(tile, r, c) {
+  if (tile.mothEggs) {
+    addLog(`🥚 Moth Eggs are already in ${getRoomName(r, c)}.`, 'system');
+    return;
+  }
+  tile.mothEggs = true;
+  addLog(`🥚 Moth Eggs are planted in ${getRoomName(r, c)}. Kick them to destroy them.`, 'bad');
+  renderAll();
+}
+
+function triggerMothEggsRoundStart() {
+  const mothsCard = getEventCardByEffect('moths');
+  if (!mothsCard) return false;
+  const eggRooms = [];
+  for (let r = 0; r < G.GRID; r++) for (let c = 0; c < G.GRID; c++) if (G.grid[r]?.[c]?.mothEggs) eggRooms.push([r, c]);
+  if (!eggRooms.length) return false;
+  eggRooms.forEach(([r, c]) => {
+    addLog(`🥚 Moth Eggs hatch in ${getRoomName(r, c)}!`, 'bad');
+    SEQ.push(...buildEventSequence(mothsCard, r, c, { logPrefix:'🥚 Moth Eggs', logClass:'event' }));
+  });
+  return true;
+}
+
+function isBlockingEventModeActive() {
+  return !!(G?.eventMode && (G.eventMode.kind === 'mindControlSelectPatrol' || G.eventMode.kind === 'mindControlSelectDest' || G.eventMode.kind === 'thirdEye'));
+}
+
+function isPanicInterruptActive() {
+  return !!(G?.eventMode && G.eventMode.kind === 'panic');
+}
+
+function isEventInterruptActive() {
+  return isBlockingEventModeActive();
+}
+
+function isInterruptActive() {
+  return !!(isPanicInterruptActive() || isEventInterruptActive());
+}
+
+function getInterruptTheme() {
+  if (isPanicInterruptActive()) return 'red';
+  if (isEventInterruptActive()) return 'purple';
+  return null;
+}
+
+function getEventModeBannerText(mode = G?.eventMode) {
+  if (!mode) return '';
+  if (mode.kind === 'mindControlSelectPatrol') return '🧠 MIND CONTROL! Click a Patrol';
+  if (mode.kind === 'mindControlSelectDest') return '🧠 MIND CONTROL! Click an Adjacent Room';
+  if (mode.kind === 'thirdEye') return '👁️ THIRD EYE! Click an Available Room Location';
+  return 'Resolve Event';
+}
+
+function getInterruptBannerText() {
+  if (isPanicInterruptActive()) {
+    const gnome = G.gnomes?.[G.currentGnomeIdx];
+    const remaining = G.panicState?.panicQueue?.length || 0;
+    return `😱 PANIC! ${gnome?.name || ''} — move one room${remaining ? ` (${remaining} remaining)` : ''}`;
+  }
+  if (isBlockingEventModeActive()) return getEventModeBannerText(G.eventMode);
+  return '';
+}
+
+function syncInterruptUi() {
+  const panicOverlay = document.getElementById('panic-overlay');
+  const panicBanner = document.getElementById('panic-banner');
+  const eventOverlay = document.getElementById('event-overlay');
+  const eventBanner = document.getElementById('event-banner');
+  const active = isInterruptActive();
+  const isPanic = isPanicInterruptActive();
+  const isEventInterrupt = isEventInterruptActive();
+  const theme = getInterruptTheme();
+
+  document.body.classList.toggle('interrupt-mode', active);
+  document.body.classList.toggle('panic-mode', isPanic);
+  document.body.classList.toggle('event-mode', isEventInterrupt);
+  document.body.classList.toggle('interrupt-purple', active && theme === 'purple');
+  document.body.classList.toggle('interrupt-red', active && theme === 'red');
+
+  if (panicOverlay) panicOverlay.classList.toggle('show', isPanic);
+  if (panicBanner) {
+    panicBanner.classList.toggle('show', isPanic);
+    panicBanner.textContent = isPanic ? getInterruptBannerText() : '';
+  }
+  if (eventOverlay) eventOverlay.classList.toggle('show', isEventInterrupt);
+  if (eventBanner) {
+    eventBanner.classList.toggle('show', isEventInterrupt);
+    eventBanner.textContent = isEventInterrupt ? getInterruptBannerText() : '';
+  }
+}
+
+function clearInterruptMode({ render = true } = {}) {
+  if (!G) return;
+  G.eventMode = null;
+  syncInterruptUi();
+  if (render) renderAll();
+}
+
+function setInterruptMode(mode, { render = true } = {}) {
+  if (!G) return;
+  if (mode && (mode.kind === 'mindControlSelectPatrol' || mode.kind === 'mindControlSelectDest' || mode.kind === 'thirdEye' || mode.kind === 'panic')) {
+    G.selectedAction = null;
+    G.kickMode = null;
+    G.ventMode = false;
+    G.dynamiteMode = null;
+    G.shroomMode = false;
+  }
+  G.eventMode = mode;
+  syncInterruptUi();
+  if (render) renderAll();
+}
+
+function clearEventMode(opts = {}) {
+  return clearInterruptMode(opts);
+}
+
+function setEventMode(mode, opts = {}) {
+  return setInterruptMode(mode, opts);
+}
+
 function buildEventDeck() {
-  return shuffle(createCountedDeck(EVENT_CARDS, card => EVENT_QTY[card.id] || 1));
+  return shuffle(createCountedDeck(getEventCards(), card => getEventQty(card.id)));
+}
+
+function resetRoundEventTriggerFlags() {
+  if (!G) return;
+  G.roundFirstRevealEventUsed = false;
+  G.roundFirstDepositEventUsed = false;
+  G.roundEventRoomEntryKeys = new Set();
+}
+
+function triggerEventRoomEntryForGnome(gnomeIdx, r, c) {
+  if (!isEventTriggerEnabled('eventRoom') || !G || G.gameEnded) return false;
+  const tile = G.grid?.[r]?.[c];
+  if (!tile?.event) return false;
+  if (!G.roundEventRoomEntryKeys) G.roundEventRoomEntryKeys = new Set();
+  const key = `${r},${c}`;
+  if (G.roundEventRoomEntryKeys.has(key)) return false;
+  G.roundEventRoomEntryKeys.add(key);
+  return tryTriggerEventForGnome(gnomeIdx, r, c, {
+    reason:'first entry into an Event room this round',
+    reasonPrefix:'⁉️',
+    reasonClass:'event',
+    logPrefix:'⁉️ Event Room',
+    logClass:'event'
+  });
+}
+
+function tryTriggerEventForGnome(gnomeIdx, r, c, opts = {}) {
+  if (!G || G.gameEnded || !G.grid?.[r]?.[c]) return false;
+  const gnome = G.gnomes?.[gnomeIdx];
+  if (!gnome) return false;
+  const reason = opts.reason || 'Event trigger';
+  addLog(`${opts.reasonPrefix || '🎲'} ${gnome.name} triggered an Event: ${reason}.`, opts.reasonClass || 'event');
+  if (gnome.eventDrawnThisTurn) {
+    addLog(`ℹ️ No Event Card drawn because ${gnome.name} already drew one this turn.`, 'system');
+    return false;
+  }
+  const triggered = triggerEvent(r, c, { ...opts, actorGnomeIdx: gnomeIdx });
+  if (triggered) gnome.eventDrawnThisTurn = true;
+  return triggered;
+}
+
+function triggerRoundEventOnce(kind, gnomeIdx, r, c, opts = {}) {
+  if (!G || G.gameEnded) return false;
+  const key = kind === 'reveal'
+    ? 'roundFirstRevealEventUsed'
+    : kind === 'deposit'
+      ? 'roundFirstDepositEventUsed'
+      : null;
+  if (!key || G[key]) return false;
+  if (!G.grid?.[r]?.[c]) return false;
+  G[key] = true;
+  return tryTriggerEventForGnome(gnomeIdx, r, c, opts);
+}
+
+function triggerFirstRevealRoundEvent(gnomeIdx, r, c) {
+  if (!isEventTriggerEnabled('firstRevealPerRound')) return false;
+  return triggerRoundEventOnce('reveal', gnomeIdx, r, c, {
+    reason:'first room revealed this round',
+    reasonPrefix:'🗺️',
+    reasonClass:'event',
+    logPrefix:'🗺️ First Reveal',
+    logClass:'event'
+  });
+}
+
+function triggerFirstDepositRoundEvent(gnomeIdx, r, c) {
+  if (!isEventTriggerEnabled('firstDepositPerRound')) return false;
+  return triggerRoundEventOnce('deposit', gnomeIdx, r, c, {
+    reason:'first sock deposit this round',
+    reasonPrefix:'🧦',
+    reasonClass:'event',
+    logPrefix:'🧦 First Deposit',
+    logClass:'event'
+  });
+}
+
+function triggerPatrolCatchEvent(gnomeIdx, r, c) {
+  if (!isEventTriggerEnabled('patrolCatch') || !G?.grid?.[r]?.[c] || G.gameEnded) return false;
+  return tryTriggerEventForGnome(gnomeIdx, r, c, {
+    reason:'patrol catch',
+    reasonPrefix:'🚨',
+    reasonClass:'event',
+    logPrefix:'🚨 Patrol Catch',
+    logClass:'event',
+    insert:'afterCurrent'
+  });
 }
 
 function buildGoodiePool(repeats = 1, ids = GOODIES_DEFS.map(def => def.id)) {
@@ -5073,17 +5679,20 @@ function buildGoodiePool(repeats = 1, ids = GOODIES_DEFS.map(def => def.id)) {
 function createCoreState({ house = 1, roomDeck, goodiePool, hatPool, gnomes = [] } = {}) {
   return {
     grid: createEmptyGrid(), GRID: GRID_SIZE, CENTER: GRID_CENTER,
-    roomDeck, goodiePool, eventDeck: buildEventDeck(), troubleDeck: shuffledCopy(TROUBLE_DECK_TEMPLATE), hatPool,
+    roomDeck, goodiePool, eventDeck: buildEventDeck(), hatPool,
     gnomes,
     hamper:{row:-1, col:-1, items:[]},  // Hamper disabled for now — set row/col to GRID_CENTER to re-enable
     trouble:0, SocksBanked:0, house,
     phase:'gnome', currentGnomeIdx:0, actionsLeft:2, actionCapacity:2,
     distractState:null, scryOrder:null, scryAnim:null, scryQueue:null, modalLocked:false, currentPatrolType:null,
     tilesRevealed:1,
+    roundFirstRevealEventUsed:false,
+    roundFirstDepositEventUsed:false,
+    roundEventRoomEntryKeys: new Set(),
     patrols:[],
     _pendingEndPatrolPhase:false,
     selectedAction:null,
-    messy:false, hustle:false, lightsOn:false, dressCodeActive:false,
+    messy:false, lightsOn:false, dressCodeActive:false, patrolTargetOverride:null, patrolTargetSeq:0, patrolMoveBonuses:[], patrolMovementLock:null,
     log:[],
     selectedCell:null,
     dynamiteMode:false,
@@ -5097,6 +5706,7 @@ function createCoreState({ house = 1, roomDeck, goodiePool, hatPool, gnomes = []
     houseGoalMet: false,
     stickyAnimated: new Set(),
     crackedRooms: new Set(),
+    eventMode:null,
     gameEnded:false,
   };
 }
@@ -5106,7 +5716,7 @@ function createBaseState(playerCount, names) {
     house: 1,
     roomDeck: shuffledCopy(BASE_ROOM_DECK_TEMPLATE),
     goodiePool: buildGoodiePool(4),
-    hatPool: shuffledCopy(STARTING_HAT_POOL_TEMPLATE),
+    hatPool: shuffledCopy(getStartingHatPoolTemplate()),
   });
 }
 
@@ -5121,7 +5731,7 @@ function hydrateInitialBoard(state, playerCount, names, selectedProfiles = null)
       id:i, name:names[i], color:GNOME_COLORS[srcIdx], emoji:GNOME_EMOJIS[srcIdx], portraitUrl: GNOME_PORTRAIT_URLS[srcIdx],
       row:state.CENTER, col:state.CENTER, hat:(startingHatByProfile[srcIdx] ?? null),
       satchel: Array(BASE_SATCHEL_SIZE + 1).fill(null),
-      ko:false, hidden:false, stickyExitMoves:0, freeMoveUsedThisTurn:false, distractActive:false,
+      ko:false, hidden:false, stickyExitMoves:0, freeMoveUsedThisTurn:false, eventDrawnThisTurn:false, looseSatchelThisTurn:false, distractActive:false,
     });
   }
   state.gnomes = gnomes;
@@ -5156,6 +5766,7 @@ function createRoomTile(roomId, row, col) {
     vent: def.vent||false,
     chute: def.chute||false,
     weaver: def.special==='start' || roomId === 1,
+    mothEggs: false,
     special: def.special||null,
     manualDoorDirs: [],
     pendingDoorDirs: [],
@@ -5246,7 +5857,7 @@ function getPatrolPortraitUrl(type) {
 }
 
 function getPatrolInitiativeOrder(type) {
-  return ['roomba','dog','kid','dad'].indexOf(type);
+  return getPatrolOrder().indexOf(type);
 }
 
 function setTurnPortraitContent(gnome) {
@@ -5356,10 +5967,12 @@ function getCardThemeClass(cardType, fallbackClass = '') {
 }
 
 function getRoomCellClassNames({ tile, key, currentGnome, selectedCell, moveTargets }) {
+  const patrolHighlight = G.eventMode?.kind === 'mindControlSelectPatrol' && G.patrols.some(p => p.row === tile.row && p.col === tile.col);
   return cx('cell', 'room', {
     laundry: tile.roomId === 1,
     'patrol-new': G.newlySpawnedCells.has(key),
     'move-target': moveTargets.has(key),
+    'event-target-patrol': patrolHighlight,
     'current-gnome': !!(currentGnome && currentGnome.row === tile.row && currentGnome.col === tile.col),
     'selected-room': !!(selectedCell && selectedCell[0] === tile.row && selectedCell[1] === tile.col),
   });
@@ -5550,7 +6163,7 @@ function createCreakyOverlay(crackKey) {
 function createRoomOccupantNodes({ gnomsHere, patrolsHere, koHere, r, c }) {
   const nodes = [];
   gnomsHere.forEach(og => nodes.push({ node: buildTokenNodeForGnome(og, r, c), key: og.id }));
-  patrolsHere.forEach(p => nodes.push({ node: buildTokenNodeForPatrol(p, r, c), key: 100 + ['roomba','dog','kid','dad'].indexOf(p.type) }));
+  patrolsHere.forEach(p => nodes.push({ node: buildTokenNodeForPatrol(p, r, c), key: 100 + getPatrolInitiativeOrder(p.type) }));
   koHere.forEach(og => nodes.push({ node: buildTokenNodeForKoGnome(og, r, c), key: 200 + og.id }));
   return nodes;
 }
@@ -5558,7 +6171,8 @@ function createRoomOccupantNodes({ gnomsHere, patrolsHere, koHere, r, c }) {
 function placeRoomOccupants(inner, occupants) {
   occupants.forEach(({ node, key }) => {
     const [left, top] = ROOM_TOKEN_SLOTS[key % ROOM_TOKEN_SLOTS.length];
-    setAbsolutePosition(node, left, top, 6);
+    const z = node.classList.contains('token-active') ? 12 : 6;
+    setAbsolutePosition(node, left, top, z);
     inner.appendChild(node);
   });
 }
@@ -6007,7 +6621,7 @@ function isBoardPanBlocked() {
 function isBoardPanEligibleTarget(target) {
   const boardArea = BOARD_PAN_STATE.boardArea || el('board-area');
   if (!boardArea || !target || !boardArea.contains(target) || isBoardPanBlocked()) return false;
-  if (target.closest('#patrol-tray, .door, .room-item, .slot.clickable, .item-popup, #modal, #modal-overlay, #card-overlay, button, a, input, select, textarea, label')) {
+  if (target.closest('#patrol-tray, .door, .room-item, .patrol-coin, .gnome-token, .slot.clickable, .item-popup, #modal, #modal-overlay, #card-overlay, button, a, input, select, textarea, label')) {
     return false;
   }
   const cell = target.closest('.cell');
@@ -6018,7 +6632,8 @@ function isBoardPanEligibleTarget(target) {
     cell.classList.contains('current-gnome') ||
     cell.classList.contains('shroom-target') ||
     cell.classList.contains('kick-dest') ||
-    cell.classList.contains('vent-dest')
+    cell.classList.contains('vent-dest') ||
+    cell.classList.contains('event-target-patrol')
   ) {
     return false;
   }
@@ -6173,55 +6788,89 @@ function attachGoodieTileBehavior(span, gid, clickHandler) {
   span.addEventListener('click', clickHandler);
 }
 
+function buildBoardActorToken({
+  rootClass,
+  title,
+  emoji,
+  sticky = false,
+  hidden = false,
+  active = false,
+  ko = false,
+  artClass = 'actor-art',
+  artStyle = '',
+  tokenStyle = '',
+  onClick = null,
+  direction = null,
+  dataset = null,
+}) {
+  const token = document.createElement('span');
+  token.className = cx(rootClass, 'actor-token', 'token-pop', { 'token-ko': !!ko, 'token-active': !!active });
+  token.title = title || '';
+  if (tokenStyle) token.style.cssText = tokenStyle;
+  if (dataset) {
+    Object.entries(dataset).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) token.dataset[key] = String(value);
+    });
+  }
+
+  const art = document.createElement('span');
+  art.className = artClass;
+  if (artStyle) art.style.cssText = artStyle;
+  art.textContent = emoji;
+  token.appendChild(art);
+
+  const ringStatus = ko ? null : (sticky ? 'sticky' : hidden ? 'hidden' : active ? 'active' : null);
+  if (ringStatus) {
+    const ring = document.createElement('span');
+    ring.className = `token-status-ring status-${ringStatus}`;
+    token.appendChild(ring);
+  }
+
+  if (direction) {
+    const dot = document.createElement('span');
+    dot.className = `patrol-facing-dot ${direction}`;
+    token.appendChild(dot);
+  }
+
+  if (typeof onClick === 'function') token.onclick = onClick;
+  return token;
+}
+
 function buildTokenNodeForGnome(og, r, c) {
-  const wrap = document.createElement('span');
-  wrap.className = cx('gnome-token', 'token-pop', THEME_CLASSES.component.tokenGnome);
-  wrap.title = og.hidden ? `${og.name} (hidden)` : og.name;
-  const wasHidden = og.hidden;
-  if (og.stickyBlocked) wrap.classList.add('sticky-gnome');
-  if (G.phase==='gnome' && og.id===G.currentGnomeIdx && !og.stickyBlocked) wrap.classList.add('active-turn');
-
-  const tokenInner = document.createElement('span');
-  tokenInner.className = 'gnome-token-inner';
-
-  const front = document.createElement('span');
-  front.className = 'gnome-token-front';
-  front.style.color = og.color;
-  front.textContent = og.emoji;
-
-  const back = document.createElement('span');
-  back.className = 'gnome-token-back';
-  const backHide = document.createElement('span');
-  backHide.className = 'back-hide';
-  backHide.textContent = '🫣';
-  back.appendChild(backHide);
-
-  tokenInner.appendChild(front);
-  tokenInner.appendChild(back);
-  wrap.appendChild(tokenInner);
-  wrap.onclick = (e) => {
-    e.stopPropagation();
-    if (G.phase === 'gnome' && og.id === G.currentGnomeIdx) return;
-    showOccupantPopup(wrap, og, 'gnome', r, c);
-  };
-  if (wasHidden) wrap.classList.add('is-hidden');
+  const wrap = buildBoardActorToken({
+    rootClass: cx('gnome-token', THEME_CLASSES.component.tokenGnome),
+    title: og.hidden ? `${og.name} (hidden)` : og.name,
+    emoji: og.emoji,
+    sticky: !!og.stickyBlocked,
+    hidden: !!og.hidden,
+    active: G.phase==='gnome' && og.id===G.currentGnomeIdx,
+    artClass: 'actor-art gnome-coin-art',
+    artStyle: 'color:#fff;',
+    tokenStyle: `--token-fill:${og.color};`,
+    onClick: (e) => {
+      e.stopPropagation();
+      if (G.phase === 'gnome' && og.id === G.currentGnomeIdx && !og.stickyBlocked) return;
+      showOccupantPopup(wrap, og, 'gnome', r, c);
+    },
+  });
   return wrap;
 }
 
 function buildTokenNodeForKoGnome(og, r, c) {
-  const node = createEmojiToken({
-    emoji: og.emoji,
+  return buildBoardActorToken({
+    rootClass: cx('gnome-token', THEME_CLASSES.component.tokenKo),
     title: `${og.name} (KO)`,
-    className: [THEME_CLASSES.component.tokenKo],
-    style: 'opacity:.4;cursor:pointer;',
+    emoji: og.emoji,
+    ko: true,
+    artClass: 'actor-art gnome-coin-art',
+    artStyle: 'color:#fff;',
+    tokenStyle: `--token-fill:${og.color}; opacity:.65; cursor:pointer;`,
     onClick: (e) => {
       e.stopPropagation();
       if (G.phase === 'gnome' && og.id === G.currentGnomeIdx) return;
       showOccupantPopup(e.currentTarget, og, 'gnome', r, c);
     },
   });
-  node.classList.add('token-pop');
-  return node;
 }
 
 function buildTokenNodeForHamper(r, c) {
@@ -6234,19 +6883,46 @@ function buildTokenNodeForHamper(r, c) {
   });
 }
 
-function buildTokenNodeForPatrol(p, r, c) {
-  const coin = createElement('span', { className: cx('patrol-coin', THEME_CLASSES.component.tokenPatrol) });
-  coin.title = `${capitalize(p.type)} patrol`;
-  coin.classList.add('token-pop');
-  const emo = createElement('span', { className: 'patrol-coin-emoji', text: patrolEmoji(p.type) });
-  coin.appendChild(emo);
-  if (p.nextDir) {
-    const dot = document.createElement('span');
-    dot.className = `patrol-facing-dot ${p.nextDir}`;
-    coin.appendChild(dot);
+function selectMindControlPatrol(p) {
+  if (!p) return false;
+  const destinations = getConnectedRooms(p.row, p.col);
+  if (!destinations.length) {
+    addLog(`🧠 Mind Control: ${capitalize(p.type)} has nowhere to move.`, 'bad');
+    return false;
   }
-  coin.onclick = (e) => { e.stopPropagation(); showOccupantPopup(coin, p, 'patrol', r, c); };
-  return coin;
+  G.selectedAction = null;
+  setEventMode({ kind:'mindControlSelectDest', patrolType:p.type, patrolRow:p.row, patrolCol:p.col, destinations });
+  addLog(`🧠 Mind Control: click an adjacent room for ${capitalize(p.type)}.`, 'system');
+  return true;
+}
+
+function buildTokenNodeForPatrol(p, r, c) {
+  const isMindControlPick = G.eventMode?.kind === 'mindControlSelectPatrol';
+  return buildBoardActorToken({
+    rootClass: cx('patrol-coin', THEME_CLASSES.component.tokenPatrol, { 'event-patrol-selectable': isMindControlPick }),
+    title: getPatrolTooltipText(p),
+    emoji: patrolEmoji(p.type),
+    sticky: !!p.stickyBlocked,
+    active: G.phase === 'patrol' && G.currentPatrolType === p.type,
+    artClass: 'actor-art patrol-coin-emoji',
+    tokenStyle: '--token-fill:#b91c1c;',
+    direction: p.nextDir || null,
+    dataset: {
+      patrolType: p.type,
+      patrolRow: r,
+      patrolCol: c,
+    },
+    onClick: (e) => {
+      if (G.eventMode?.kind === 'mindControlSelectPatrol') {
+        e.stopPropagation();
+        selectMindControlPatrol(p);
+        renderAll();
+        return;
+      }
+      e.stopPropagation();
+      showOccupantPopup(e.currentTarget, p, 'patrol', r, c);
+    },
+  });
 }
 
 function distributeRoomOccupants({ gnomsHere, koHere, hamperHere, patrolsHere, r, c }) {
@@ -6271,16 +6947,22 @@ function renderBoard() {
 
   const frag = document.createDocumentFragment();
   const gnome = G.gnomes[G.currentGnomeIdx];
-  const isPanic = G.phase === 'panic';
+  const isPanic = isPanicInterruptActive();
+  const isMindControlDest = G.eventMode?.kind === 'mindControlSelectDest';
+  const isThirdEye = G.eventMode?.kind === 'thirdEye';
   const canMove = isPanic
     ? (gnome && !gnome.ko)
-    : ((G.selectedAction==='move') && gnome && canSpendMove(gnome));
-  const moveTargets = canMove
-    ? new Set(getConnectedRooms(gnome.row, gnome.col).map(([r,c]) => getCellKey(r, c)))
-    : new Set();
-  const revealable = !isPanic && G.selectedAction==='move' && gnome && !gnome.stickyBlocked
-    ? getRevealableFrom(gnome.row, gnome.col)
-    : [];
+    : ((!isMindControlDest && G.selectedAction==='move') && gnome && canSpendMove(gnome));
+  const moveTargets = isMindControlDest
+    ? new Set((G.eventMode?.destinations || []).map(([r,c]) => getCellKey(r, c)))
+    : (canMove
+      ? new Set(getConnectedRooms(gnome.row, gnome.col).map(([r,c]) => getCellKey(r, c)))
+      : new Set());
+  const revealable = isThirdEye
+    ? (G.eventMode?.options || []).map(opt => [opt.targetR, opt.targetC, opt.fromDir])
+    : (!isPanic && G.selectedAction==='move' && gnome && !gnome.stickyBlocked
+      ? getRevealableFrom(gnome.row, gnome.col)
+      : []);
   const revealSet = new Set(revealable.map(([r,c]) => getCellKey(r, c)));
   const currentRoomKeys = new Set();
 
@@ -6507,6 +7189,7 @@ function renderBoard() {
         const bottomRightIcons = [];
         if (tile.sticky) bottomRightIcons.push({ emoji:'🫟', title:UI_TEXT.status.sticky });
         if (tile.creaky) bottomRightIcons.push({ emoji:'📢', title:UI_TEXT.status.creaky });
+        if (tile.mothEggs) bottomRightIcons.push({ emoji:'🥚', title:'Kick to destroy Moth Eggs', onClick: (e) => { e.stopPropagation(); showQuirkPopup(e.currentTarget, 'mothEggs', r, c); } });
         if (bottomRightIcons.length) {
           const bottomRight = createCornerNode('br');
           bottomRightIcons.forEach(icon => bottomRight.appendChild(createIconNode(icon)));
@@ -6586,10 +7269,28 @@ function renderGnomePanels() {
   const actionsShell = document.getElementById('actions-shell');
   const sidebar = document.getElementById('sidebar');
   const gnomesShell = document.getElementById('gnomes-shell');
+  if (!container) return;
+
+  const mountActionsShellInSidebar = () => {
+    if (!actionsShell || !sidebar) return;
+    if (actionsShell.parentElement !== sidebar) {
+      if (gnomesShell) sidebar.insertBefore(actionsShell, gnomesShell);
+      else sidebar.appendChild(actionsShell);
+    }
+    actionsShell.classList.remove('gnome-card-actions');
+  };
+
+  // Keep the shared action shell mounted in the live document before the gnome
+  // cards are torn down. Interrupts keep phase='gnome', so relying on phase alone
+  // can strand the shell inside a card that gets removed during rerender.
+  mountActionsShellInSidebar();
   container.innerHTML = '';
 
+  let activeCard = null;
+  let activeGnome = null;
+
   G.gnomes.forEach((g, i) => {
-    const isActive = i === G.currentGnomeIdx && G.phase === 'gnome';
+    const isActive = i === G.currentGnomeIdx && G.phase === 'gnome' && !isInterruptActive();
     const hat = HAT_DEF_BY_ID[g.hat] || null;
     const size = getSatchelSize(g);
     const canAct = isActive && !g.ko;
@@ -6702,26 +7403,21 @@ function renderGnomePanels() {
     content.appendChild(body);
     main.appendChild(content);
     card.appendChild(main);
-
-    if (isActive && G.phase === 'gnome' && actionsShell) {
-      actionsShell.classList.add('gnome-card-actions');
-      actionsShell.style.setProperty('--active-gnome-color', g.color || 'var(--gold)');
-      layoutActionButtons();
-      card.appendChild(actionsShell);
-    }
-
     container.appendChild(card);
+
+    if (isActive && G.phase === 'gnome') {
+      activeCard = card;
+      activeGnome = g;
+    }
   });
 
-  if (actionsShell && actionsShell.parentElement == null && sidebar) {
-    if (gnomesShell) sidebar.insertBefore(actionsShell, gnomesShell);
-    else sidebar.appendChild(actionsShell);
-  } else if (actionsShell && actionsShell.parentElement && actionsShell.parentElement.id !== 'actions-shell' && G.phase !== 'gnome') {
-    if (sidebar && actionsShell.parentElement !== sidebar) {
-      if (gnomesShell) sidebar.insertBefore(actionsShell, gnomesShell);
-      else sidebar.appendChild(actionsShell);
-    }
-    actionsShell.classList.remove('gnome-card-actions');
+  if (actionsShell && activeCard && activeGnome) {
+    actionsShell.classList.add('gnome-card-actions');
+    actionsShell.style.setProperty('--active-gnome-color', activeGnome.color || 'var(--gold)');
+    layoutActionButtons();
+    activeCard.appendChild(actionsShell);
+  } else {
+    mountActionsShellInSidebar();
   }
 
   const info = document.getElementById('current-gnome-info');
@@ -6779,6 +7475,7 @@ function showInventoryItemPopup(anchor, gnome, gnomeIdx, itemType, slotIdx) {
         GAME_EVENTS.emit('item.dropped', { itemType: 'Socks', mode: 'deposit' });
         addLog(`${gnome.name} deposited 🧦! Total: ${G.SocksBanked}/${getHouseGoal()}`, 'good');
         checkGoalMet();
+        triggerFirstDepositRoundEvent(G.currentGnomeIdx, gnome.row, gnome.col);
       } else {
         tile.Socks++;
         GAME_EVENTS.emit('item.dropped', { itemType: 'Socks', mode: 'floor' });
@@ -7053,13 +7750,20 @@ function showOccupantPopup(anchor, obj, type, r, c) {
 
   if (type==='gnome') {
     const og=obj;
-    if (G.phase === 'gnome' && og.id === G.currentGnomeIdx) return;
-    const dests=getConnectedRooms(r,c);
-    if (inRoom && og!==gnome && dests.length && G.actionsLeft>0) {
-      addPopupBtn(popup,`👟 Kick ${og.name}`,()=>{closeItemPopup();G.kickMode={target:{label:`${og.emoji} ${og.name}`,emoji:og.emoji,type:'gnome',ref:og},destinations:dests};addLog(UI_TEXT.kickChooseRoom(og.name),'system');renderAll();});
+    const isCurrentGnome = G.phase === 'gnome' && og.id === G.currentGnomeIdx;
+    if (isCurrentGnome) {
+      if (og.stickyBlocked) {
+        addPopupBtn(popup, UI_TEXT.action.removeSticky, ()=>{ closeItemPopup(); removeStickyForActiveGnome(); }, !(G.actionsLeft > 0));
+      }
+      addPopupBtn(popup,`📍 ${og.name} — ${getRoomName(og.row,og.col)}`,()=>closeItemPopup());
+    } else {
+      const dests=getConnectedRooms(r,c);
+      if (inRoom && og!==gnome && dests.length && G.actionsLeft>0) {
+        addPopupBtn(popup,`👟 Kick ${og.name}`,()=>{closeItemPopup();G.kickMode={target:{label:`${og.emoji} ${og.name}`,emoji:og.emoji,type:'gnome',ref:og},destinations:dests};addLog(UI_TEXT.kickChooseRoom(og.name),'system');renderAll();});
+      }
+      if (inRoom && og.ko) addPopupBtn(popup,`🐭 Revive (need Mouse Heart)`,()=>{closeItemPopup();addLog('Use a Mouse Heart goodie to revive.','bad');});
+      addPopupBtn(popup,`📍 ${og.name} — ${getRoomName(og.row,og.col)}`,()=>closeItemPopup());
     }
-    if (inRoom && og.ko) addPopupBtn(popup,`🐭 Revive (need Mouse Heart)`,()=>{closeItemPopup();addLog('Use a Mouse Heart goodie to revive.','bad');});
-    addPopupBtn(popup,`📍 ${og.name} — ${getRoomName(og.row,og.col)}`,()=>closeItemPopup());
   } else if (type==='hamper') {
     if (inRoom) {
       const dests=getConnectedRooms(r,c);
@@ -7104,6 +7808,10 @@ function showQuirkPopup(anchor, quirkType, r, c) {
     const hasSocks = inRoom && gnome.satchel.some(s => s?.type === 'Socks');
     if (hasSocks) addPopupBtn(popup, UI_TEXT.action.deposit,()=>{closeItemPopup();depositSocks();});
     else addPopupBtn(popup, UI_TEXT.action.deposit,()=>closeItemPopup(), true);
+  } else if (quirkType==='mothEggs') {
+    const canKickEggs = inRoom && G.actionsLeft > 0 && getKickTargetsForGnome(gnome).some(t => t.type === 'moth_eggs');
+    if (canKickEggs) addPopupBtn(popup, '👟 Kick', ()=>{ closeItemPopup(); doKick(); });
+    else addPopupBtn(popup, '👟 Kick', ()=>closeItemPopup(), true);
   }
   if (!popup.children.length) addPopupBtn(popup,'(no actions)',()=>closeItemPopup(),true);
   document.body.appendChild(popup);
@@ -7127,7 +7835,7 @@ function layoutActionButtons() {
     'btn-deposit','btn-weaver','btn-hamper','btn-vent','btn-scurry',
     'btn-shroom-confirm'
   ];
-  const trailingStatic = ['btn-end','btn-win-house'];
+  const trailingStatic = ['btn-win-house','btn-remove-sticky','btn-end'];
   const dynamicButtons = [...document.querySelectorAll('.dynamic-goodie-btn')];
   const seen = new Set();
   const orderedButtons = [];
@@ -7203,6 +7911,100 @@ function dropAllInventoryToCurrentRoom(gnome, { includeHat = true, log = true } 
   return dropped;
 }
 
+
+function dropSingleCarriedItemToCurrentRoom(gnome, { log = true } = {}) {
+  if (!gnome) return null;
+  const tile = G.grid[gnome.row]?.[gnome.col];
+  if (!tile) return null;
+  const slotIdx = gnome.satchel.findIndex(Boolean);
+  if (slotIdx === -1) return null;
+  const item = gnome.satchel[slotIdx];
+  if (!item) return null;
+  if (item.type === 'Socks') {
+    tile.Socks = (tile.Socks || 0) + 1;
+  } else if (item.type === 'goodie') {
+    tile.goodieIds = tile.goodieIds || [];
+    tile.goodieIds.push(item.id);
+  } else if (item.type === 'hat') {
+    tile.hatIds = tile.hatIds || [];
+    tile.hatIds.push(item.id);
+  }
+  gnome.satchel[slotIdx] = null;
+  if (log) addLog(`💼 ${gnome.name} drops ${getItemEmoji(item)} ${getItemName(item)} in ${ROOM_DEFS[tile.roomId].name}.`, 'bad');
+  GAME_EVENTS.emit('item.dropped', { itemType: item.type, mode: 'loose-satchel', count: 1 });
+  updateActionsForHat();
+  return item;
+}
+
+function maybeApplyLooseSatchelOnMove(gnome) {
+  if (!gnome?.looseSatchelThisTurn) return false;
+  const dropped = dropSingleCarriedItemToCurrentRoom(gnome, { log: true });
+  if (!dropped) addLog(`💼 Loose Satchel: ${gnome.name} has nothing left to drop.`, 'system');
+  return !!dropped;
+}
+
+function applyLightsOnEventEffect() {
+  G.lightsOn = true;
+  G.gnomes.forEach(g => { if (!g.ko) g.hidden = false; });
+  addLog('💡 Lights On! All Gnomes are revealed and cannot hide this turn.', 'bad');
+}
+
+function applyDisturbanceEventEffect() {
+  G.dressCodeActive = true;
+  addLog('📣 Disturbance! Hat abilities are disabled this turn.', 'bad');
+  renderAll();
+}
+
+function applyPanicEventEffect() {
+  addLog('😱 Panic! Each Gnome must move one room — resolve in order, then resume your turn.', 'bad');
+  SEQ.push({t:'pause', fn:(resume) => startPanic(resume)});
+}
+
+function applyMothsEventEffect() {
+  let destroyed = 0;
+  G.gnomes.forEach(g => {
+    const idx = g.satchel.findIndex(s => s?.type === 'Socks');
+    if (idx !== -1) {
+      g.satchel[idx] = null;
+      destroyed++;
+      addLog(`🦋 Moths destroys 1 🧦 from ${g.name}.`, 'bad');
+    }
+  });
+  if (!destroyed) addLog("🦋 Moths! No gnome was carrying socks.", 'system');
+}
+
+function applyInvestigationEventEffect() {
+  if (!G.patrols.length) {
+    addTrouble(1);
+    addLog('🔍 Investigation: no patrols in play, +1 Trouble.', 'bad');
+    return;
+  }
+  setPatrolTargetOverride({ scope:'global', mode:'roomId', roomId: 1, source:'investigation' });
+  addLog('🔍 Investigation! All Patrols now target the Laundry Room on their turns.', 'patrol');
+}
+
+function applyHustleEventEffect() {
+  if (!G.patrols.length) {
+    addLog('🏃 Hustle! No patrols are in play.', 'system');
+    return;
+  }
+  const target = getHighestRankPatrolInPlay();
+  if (!target) return;
+  queuePatrolMoveBonus(target.type, 1, 'hustle');
+  addLog(`🏃 Hustle! Highest ranking patrol ${capitalize(target.type)} gains +1 Move on their turn.`, 'patrol');
+}
+
+function applyLooseSatchelEventEffect(actorGnomeIdx) {
+  const resolvedIdx = Number.isInteger(actorGnomeIdx) ? actorGnomeIdx : G.currentGnomeIdx;
+  const gnome = G.gnomes?.[resolvedIdx];
+  if (!gnome) {
+    addLog('💼 Loose Satchel! No gnome was tied to this event, so nothing changes.', 'system');
+    return;
+  }
+  gnome.looseSatchelThisTurn = true;
+  addLog(`💼 Loose Satchel! ${gnome.name} drops an item every time they move this turn.`, 'bad');
+}
+
 function clearKoForBetweenHouseVisit() {
   let changed = false;
   G.gnomes.forEach(gnome => {
@@ -7240,12 +8042,19 @@ function renderDynamicGoodieButtons(gnome, freeOff) {
 function renderActions() {
   const g = G.gnomes[G.currentGnomeIdx];
   const phaseIsGnome = G.phase === 'gnome';
+  const actionsShell = document.getElementById('actions-shell');
+  const actionsRemainingEl = actionsShell?.querySelector('#actions-remaining') || document.getElementById('actions-remaining');
+  const currentGnomeInfoEl = actionsShell?.querySelector('#current-gnome-info') || document.getElementById('current-gnome-info');
+  if (!actionsRemainingEl || !currentGnomeInfoEl) {
+    console.warn('renderActions skipped: action shell is not fully mounted yet.');
+    return;
+  }
 
-  if (G.phase === 'panic') {
-    document.getElementById('actions-remaining').textContent = '😱';
-    document.getElementById('current-gnome-info').innerHTML =
-      `<strong style="color:#ff9999">😱 PANIC! ${g?.name||''} — click an adjacent room to move</strong>`;
-    ['btn-move','btn-scurry','btn-pickup','btn-kick','btn-hide','btn-end',
+  if (isPanicInterruptActive()) {
+    actionsRemainingEl.textContent = '😱';
+    currentGnomeInfoEl.innerHTML =
+      `<strong style="color:#ff9999">${getInterruptBannerText()}</strong>`;
+    ['btn-move','btn-remove-sticky','btn-scurry','btn-pickup','btn-kick','btn-hide','btn-end',
      'btn-deposit','btn-hamper','btn-weaver','btn-vent','btn-win-house','btn-shroom-confirm'].forEach(id => {
       updateActionControl(id, { visible: false, disabled: true, active: false });
     });
@@ -7254,9 +8063,20 @@ function renderActions() {
   }
 
   clearDynamicGoodieButtons();
+  if (isEventInterruptActive()) {
+    actionsRemainingEl.textContent = '…';
+    currentGnomeInfoEl.innerHTML =
+      `<strong style="color:#d9b3ff">${getInterruptBannerText()}</strong>`;
+    ['btn-move','btn-remove-sticky','btn-scurry','btn-pickup','btn-kick','btn-hide','btn-end',
+     'btn-deposit','btn-hamper','btn-weaver','btn-vent','btn-win-house','btn-shroom-confirm'].forEach(id => {
+      updateActionControl(id, { visible: false, disabled: true, active: false });
+    });
+    return;
+  }
   const tile = g ? G.grid[g.row][g.col] : null;
-  const actionLocked = !phaseIsGnome || !g || g.ko || G.actionsLeft <= 0;
-  const moveLocked = actionLocked || g?.stickyBlocked;
+  const interruptLocked = isInterruptActive();
+  const actionLocked = interruptLocked || !phaseIsGnome || !g || g.ko || G.actionsLeft <= 0;
+  const moveLocked = interruptLocked || actionLocked || g?.stickyBlocked;
   const satchelSize = g ? getSatchelSize(g) : 0;
   const satchelFull = !g || g.satchel.slice(0, satchelSize).every(Boolean);
   const tileHasSocks = tile?.Socks > 0;
@@ -7276,7 +8096,15 @@ function renderActions() {
   const freeMoveReady = isFreeMoveAvailable(g);
   const hatActionType = getHatActionType(g);
 
-  document.getElementById('actions-remaining').textContent = phaseIsGnome && g && !g.ko ? G.actionsLeft : '—';
+  actionsRemainingEl.textContent = phaseIsGnome && g && !g.ko ? G.actionsLeft : '—';
+
+  updateActionControl('btn-remove-sticky', {
+    visible: phaseIsGnome && !!g?.stickyBlocked,
+    disabled: interruptLocked || !phaseIsGnome || !g || g.ko || G.actionsLeft <= 0 || !g.stickyBlocked,
+    label: UI_TEXT.action.removeSticky.replace(/^🫟\s*/, ''),
+    icon: '🫟',
+    commandName: 'removeSticky',
+  });
 
   updateActionControl('btn-move', {
     visible: true,
@@ -7409,7 +8237,6 @@ function renderActions() {
     endTurnBtn.classList.toggle('ready', phaseIsGnome && !!g && !g.ko && G.actionsLeft <= 0);
     endTurnBtn.disabled = !phaseIsGnome || !g || g.ko;
   }
-  const actionsShell = document.getElementById('actions-shell');
   if (actionsShell) {
     const shouldHide = !phaseIsGnome || !g || g.ko;
     actionsShell.classList.toggle('is-hidden', shouldHide);
@@ -7508,8 +8335,18 @@ function renderPatrols() {
     content.appendChild(createElement('div', { className: 'patrol-ref-subhead', text: '' }));
     const body = createElement('div', { className: 'patrol-ref-body' });
     const status = createElement('div', { className: 'patrol-ref-status' });
+    if (p.stickyBlocked) status.appendChild(createElement('span', { className: 'patrol-ref-pill sticky', text: '🫟 Sticky' }));
+    const carriedSocks = getPatrolCarriedSockCount(p);
+    if (carriedSocks > 0) status.appendChild(createElement('span', { className: 'patrol-ref-pill', text: `🧦 x${carriedSocks}` }));
     if (G.distractState) status.appendChild(createElement('span', { className: 'patrol-ref-pill distract', text: '🎵 Distracted' }));
     if (status.childNodes.length) body.appendChild(status);
+    const targetLabel = getPatrolLiveTargetLabel(p);
+    if (targetLabel) {
+      const row0 = createElement('div', { className: 'patrol-ref-row' });
+      row0.appendChild(createElement('span', { className: 'patrol-ref-label', text: 'Target' }));
+      row0.appendChild(createElement('span', { className: 'patrol-ref-value', text: targetLabel }));
+      body.appendChild(row0);
+    }
     const row1 = createElement('div', { className: 'patrol-ref-row' });
     row1.appendChild(createElement('span', { className: 'patrol-ref-label', text: 'Move' }));
     row1.appendChild(createElement('span', { className: 'patrol-ref-value', text: d.move }));
@@ -7567,7 +8404,10 @@ function updateHeader() {
   el('Socks-goal').textContent = goal;
   el('trouble-val').textContent = G.trouble;
   el('house-num').textContent = G.house;
-  const pct = (G.trouble/20)*100;
+  const maxTrouble = getMaxTrouble();
+  const troubleMaxEl = el('trouble-max');
+  if (troubleMaxEl) troubleMaxEl.textContent = `/${maxTrouble}`;
+  const pct = (G.trouble / Math.max(1, maxTrouble)) * 100;
   const fill = el('trouble-bar-fill');
   const troubleWrap = el('trouble-bar-wrap');
   const socksChip = el('socks-chip');
@@ -7672,7 +8512,7 @@ function getItemDesc(item) {
 // ─────────────────────────────────────────────
 function handleRoomClick(r, c, tile) {
   // Panic phase: current gnome must move to an adjacent room
-  if (G.phase === 'panic') {
+  if (isPanicInterruptActive()) {
     if (G.panicMoving) return;   // still resolving previous move
     const gnome = G.gnomes[G.currentGnomeIdx];
     if (!gnome || gnome.ko) return;
@@ -7692,6 +8532,23 @@ function handleRoomClick(r, c, tile) {
   if (!gnome||gnome.ko) { showRoomDetail(r,c,tile); return; }
 
   const handled = resolveActiveBoardRoomAction(r, c, tile);
+  if (!handled && G.eventMode?.kind === 'mindControlSelectPatrol') {
+    const patrolsHere = G.patrols.filter(p => p.row === r && p.col === c);
+    if (!patrolsHere.length) {
+      addLog('🧠 Mind Control: click a Patrol to control it.', 'bad');
+      return;
+    }
+    if (patrolsHere.length === 1) {
+      selectMindControlPatrol(patrolsHere[0]);
+      return;
+    }
+    chooseOneModal('Mind Control', 'Choose a Patrol to control.', patrolsHere.map((p, idx) => ({
+      label: `${patrolEmoji(p.type)} ${capitalize(p.type)}`,
+      action: () => { selectMindControlPatrol(patrolsHere[idx]); renderAll(); },
+    })));
+    return;
+  }
+  if (!handled && G.eventMode?.kind === 'mindControlSelectDest') { addLog('🧠 Mind Control: click an adjacent room for the selected Patrol.', 'bad'); return; }
   if (!handled) {
     G.selectedCell = [r,c];
     showRoomDetail(r,c,tile);
@@ -7702,12 +8559,13 @@ function handleRoomClick(r, c, tile) {
 
 function handleRevealClick(r, c, fromDir) {
   if (G.phase !== 'gnome') return;
+  if (resolveActiveRevealAction(r, c, fromDir)) return;
   const gnome = G.gnomes[G.currentGnomeIdx];
   if (!gnome || gnome.ko) return;
   if (!canSpendMove(gnome)) return;
   if (gnome.stickyBlocked) { addLog(`🫟 ${gnome.name} is stuck — cannot move this turn!`,'bad'); return; }
   if (G.roomDeck.length===0) { addLog('No rooms left to reveal!','bad'); return; }
-  if (resolveActiveRevealAction(r, c, fromDir)) return;
+  if (G.eventMode?.kind === 'thirdEye') { addLog('👁️ Third Eye: click one of the highlighted room locations.', 'bad'); return; }
   executeGameAction('revealRoom', { r, c, fromDir, implicit: true });
 }
 
@@ -7727,6 +8585,10 @@ function cancelPendingBoardAction(kind='action') {
 
 function selectAction(action) {
   const active = G.gnomes[G.currentGnomeIdx];
+  if (isInterruptActive()) {
+    if (isEventInterruptActive()) addLog('Resolve the Event first.', 'bad');
+    return;
+  }
   if (G.phase !== 'gnome' || !active || active.ko) return;
   if (action === 'move' && !canSpendMove(active)) return;
   if (action !== 'move' && G.actionsLeft <= 0) return;
@@ -7748,23 +8610,34 @@ function doMove(gnome, r, c) {
   moveGnomeTo(gnome, r, c);
 }
 
+function removeStickyForActiveGnome() {
+  const gnome = G.gnomes[G.currentGnomeIdx];
+  if (!gnome || G.phase !== 'gnome' || gnome.ko || !gnome.stickyBlocked || G.actionsLeft <= 0) return false;
+  spendAction();
+  clearStickyStateForActor(gnome);
+  G.selectedAction = null;
+  addLog(`🫟 ${gnome.name} spends 1 action to remove Sticky.`, 'good');
+  renderAll();
+  return true;
+}
+
 function moveGnomeTo(gnome, r, c, isScurry=false) {
   if (G.dynamiteMode) disarmDynamite({ restoreInventory: true, render: false });
   if (G.shroomMode) disarmShroom({ restoreInventory: true, render: false });
   const fromKey = `${gnome.row},${gnome.col}`;
   const toKey = `${r},${c}`;
-  if (gnome.stickyBlocked && fromKey !== toKey) clearStickyStateForActor(gnome);
   const tile = G.grid[r][c];
   AUDIO_MANAGER.beginMove('gnome', { gnome, toR: r, toC: c, isScurry, suppressMoveSound: !!tile?.sticky });
   gnome.row = r; gnome.col = c;
   gnome.hidden = false;
   const def = ROOM_DEFS[tile.roomId];
   addLog(`${gnome.name} → ${def.name}`);
+  maybeApplyLooseSatchelOnMove(gnome);
 
   // Sticky: state change is immediate; splat animation is a SEQ step
   if (tile.sticky) {
     GAME_EVENTS.emit('sticky.triggered', { gnome, r, c });
-    addLog(`🫟 Sticky floor! ${gnome.name} cannot move again this turn (can still be Kicked).`, 'bad');
+    addLog(`🫟 Sticky floor! ${gnome.name} must spend 1 action to remove Sticky before moving again.`, 'bad');
     gnome.stickyBlocked = true;
     gnome.stickyCell = `${r},${c}`;
     G.selectedAction = null;
@@ -7788,6 +8661,8 @@ function moveGnomeTo(gnome, r, c, isScurry=false) {
   if (tile.chute && gnome.satchel.some(s=>s?.type==='Socks')) {
     addLog(`🕳️ Chute room! Use ${UI_TEXT.action.deposit} to bank Socks here.`, 'good');
   }
+
+  if (fromKey !== toKey) triggerEventRoomEntryForGnome(gnome.id, r, c);
 
   updateAllPatrolNextDirs();
 }
@@ -7858,7 +8733,7 @@ function doReveal(gnome, r, c, fromDir) {
 
   const extra = G.tilesRevealed - getFreeTiles() - 1;
   if (extra > 0) { addLog(`🏠 Extra tile → +1 Trouble`,'bad'); addTrouble(1); }
-  if (tile.event) triggerEvent(r,c);
+  triggerFirstRevealRoundEvent(G.currentGnomeIdx, r, c);
 
   if (isHouseFullyEnclosed()) {
     addLog(`💥 Fully enclosed house! ${ROOM_DEFS[tile.roomId].name} instantly triggers an automatic Explosion Event.`, 'good');
@@ -8114,11 +8989,30 @@ function getKickTargetsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
       targets.push(buildKickTarget(`${hdef?.emoji||'🎩'} ${hdef?.name||'Hat'}`, hdef?.emoji||'🎩', 'hat', { tile: kickTile, idx }));
     });
   }
+  if (kickTile?.mothEggs) {
+    targets.push(buildKickTarget('🥚 Moth Eggs', '🥚', 'moth_eggs', kickTile));
+  }
   return targets;
 }
 
 function getKickDestinationsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
   return kicker ? getConnectedRooms(kicker.row, kicker.col) : [];
+}
+
+
+function executeKickDestroyMothEggs(target) {
+  const kicker = G.gnomes[G.currentGnomeIdx];
+  const tile = target?.ref;
+  if (!kicker || !tile?.mothEggs) return false;
+  tile.mothEggs = false;
+  G.kickMode = null;
+  G.selectedAction = null;
+  GAME_EVENTS.emit('kick.executed', { itemType: 'moth_eggs' });
+  addLog(`${kicker.name} kicks and destroys the Moth Eggs in ${getRoomName(kicker.row, kicker.col)}!`, 'good');
+  playSfx('kick');
+  spendAction();
+  renderAll();
+  return true;
 }
 
 function doKick() {
@@ -8133,6 +9027,10 @@ function doKick() {
   if (!destinations.length) { addLog('No connected rooms to kick into!', 'bad'); return; }
 
   if (targets.length === 1) {
+    if (targets[0].type === 'moth_eggs') {
+      executeKickDestroyMothEggs(targets[0]);
+      return;
+    }
     // Only one target — go straight to board mode
     G.kickMode = { target: targets[0], destinations };
     addLog(UI_TEXT.kickChooseRoom(targets[0]), 'system');
@@ -8144,6 +9042,7 @@ function doKick() {
         label: t.label, cls: 'confirm',
         action: () => {
           closeModal();
+          if (t.type === 'moth_eggs') { executeKickDestroyMothEggs(t); return; }
           G.kickMode = { target: t, destinations };
           addLog(UI_TEXT.kickChooseRoom(t), 'system');
           renderAll();
@@ -8160,7 +9059,6 @@ function executeKick(dr, dc) {
   const kicker = G.gnomes[G.currentGnomeIdx];
 
   if (target.type === 'gnome') {
-    if (target.ref.stickyBlocked && `${target.ref.row},${target.ref.col}` !== `${dr},${dc}`) clearStickyStateForActor(target.ref);
     target.ref.row = dr;
     target.ref.col = dc;
     GAME_EVENTS.emit('kick.executed', { itemType: 'gnome' });
@@ -8211,12 +9109,24 @@ function executeKick(dr, dc) {
     }
   } else {
     const patrol = target.ref;
+    const srcTile = G.grid[patrol.row]?.[patrol.col];
+    if (srcTile) dropPatrolCarriedSocks(patrol, srcTile, { reason: 'kick' });
     patrol.row = dr;
     patrol.col = dc;
     GAME_EVENTS.emit('kick.executed', { itemType: patrol?.type || 'patrol' });
     addLog(`${kicker.name} kicks ${capitalize(patrol.type)} into ${destName}!`, 'good');
     const destTile = G.grid[dr][dc];
-    if (destTile?.sticky) patrol.stickyBlocked = true;
+    if (destTile) applyPatrolRoomEntryEffects(patrol, destTile);
+    if (destTile?.sticky) {
+      if (isPatrolStickyImmune(patrol)) {
+        patrol.stickyBlocked = false;
+        patrol.stickyCell = null;
+      } else {
+        patrol.stickyBlocked = true;
+        patrol.stickyCell = `${dr},${dc}`;
+        addLog(`${capitalize(patrol.type)} lands in sticky room!`, 'patrol');
+      }
+    }
     checkPatrolCatch(patrol);
   }
 
@@ -8279,6 +9189,7 @@ function depositSocks() {
   GAME_EVENTS.emit('item.dropped', { itemType: 'Socks', mode: 'deposit-bulk', count: socks.length });
   addLog(`${gnome.name} deposited${plural}${via}! Total: ${G.SocksBanked}/${getHouseGoal()}`, 'good');
   checkGoalMet();
+  triggerFirstDepositRoundEvent(G.currentGnomeIdx, gnome.row, gnome.col);
   renderAll();
 }
 
@@ -8392,7 +9303,6 @@ function applyGoodie(gnome, id, options = {}) {
         const cleared = [];
         if (tileTools.sticky) {
           tileTools.sticky = false;
-          G.gnomes.forEach(g => { if(g.row===gnome.row&&g.col===gnome.col) { g.stickyBlocked=false; g.stickyCell=null; } });
           document.querySelectorAll('.sticky-splat').forEach(el=>el.remove());
           cleared.push('Sticky');
         }
@@ -8605,7 +9515,7 @@ const SEQ = (() => {
 
       case 'patrolMove': {
         const {patrol, fromR, fromC, toR, toC} = step;
-        animatePatrolMeeple(patrolEmoji(patrol.type), fromR, fromC, toR, toC, () => next(runGen));
+        animatePatrolMeeple(patrol, patrolEmoji(patrol.type), fromR, fromC, toR, toC, () => next(runGen));
         break;
       }
 
@@ -8744,7 +9654,7 @@ function setWeaverModalContext(ctx) {
 }
 
 function getWeaverItemLabel(item) {
-  const def = item.type==='goodie' ? GOODIES_DEFS.find(g=>g.id===item.id) : HATS_DEFS.find(h=>h.id===item.id);
+  const def = item.type==='goodie' ? GOODIES_DEFS.find(g=>g.id===item.id) : getHatDefById(item.id);
   return `${item.type==='goodie' ? '🍄' : '🎩'} ${def?.name || (item.type==='goodie' ? 'Goodie' : 'Hat')}`;
 }
 
@@ -8753,14 +9663,14 @@ function getWeaverShopDefs(type) {
     return GOODIES_DEFS.map(def => ({ id:def.id, emoji:def.emoji || '🍄', name:def.name, desc:def.desc || '' }));
   }
   const seen = new Set();
-  return BETWEEN_HOUSE_HAT_POOL_TEMPLATE
-    .map(id => HAT_DEF_BY_ID[id])
+  return getBetweenHouseHatPoolTemplate()
+    .map(id => getHatDefById(id))
     .filter(def => def && !seen.has(def.id) && seen.add(def.id))
     .map(def => ({ id:def.id, iconKey:def.iconKey || '', emoji:def.emoji || '🎩', name:def.name, desc:def.desc || '' }));
 }
 
 function getWeaverOfferCost(type) {
-  return type === 'hat' ? 5 : 1;
+  return getGameRules().weaver.offerCostByType[type] ?? (type === 'hat' ? 5 : 1);
 }
 
 function pullWeaverOfferId(type) {
@@ -8771,7 +9681,7 @@ function pullWeaverOfferId(type) {
 function createWeaverOffer(type, forcedId = null) {
   const id = forcedId ?? pullWeaverOfferId(type);
   const def = type === 'hat'
-    ? (HAT_DEF_BY_ID[id] || HATS_DEFS[0])
+    ? (getHatDefById(id) || getHatDefs()[0])
     : (GOODIE_DEF_BY_ID[normalizeGoodieId(id)] || GOODIES_DEFS[0]);
   return {
     type,
@@ -8788,7 +9698,7 @@ function createWeaverOffer(type, forcedId = null) {
 }
 
 
-function buildWeaverOfferSet(type, count = 4, excludeIds = []) {
+function buildWeaverOfferSet(type, count = getWeaverOfferCount(type), excludeIds = []) {
   const defs = getWeaverShopDefs(type);
   const pool = shuffledCopy(defs.filter(def => !excludeIds.includes(def.id)));
   const offers = [];
@@ -8810,13 +9720,15 @@ function ensureWeaverOffers(ctx = G.weaverModal) {
   if (!ctx.offers) ctx.offers = { goodie: [], hat: [] };
   if (!Array.isArray(ctx.offers.goodie)) ctx.offers.goodie = [];
   if (!Array.isArray(ctx.offers.hat)) ctx.offers.hat = [];
-  if (ctx.offers.goodie.length < 4) {
-    const next = buildWeaverOfferSet('goodie', 4, ctx.offers.goodie.map(offer => offer?.id).filter(Boolean));
-    ctx.offers.goodie = [...ctx.offers.goodie.filter(Boolean), ...next].slice(0, 4);
+  const goodieCount = getWeaverOfferCount('goodie');
+  const hatCount = getWeaverOfferCount('hat');
+  if (ctx.offers.goodie.length < goodieCount) {
+    const next = buildWeaverOfferSet('goodie', goodieCount, ctx.offers.goodie.map(offer => offer?.id).filter(Boolean));
+    ctx.offers.goodie = [...ctx.offers.goodie.filter(Boolean), ...next].slice(0, goodieCount);
   }
-  if (ctx.offers.hat.length < 4) {
-    const next = buildWeaverOfferSet('hat', 4, ctx.offers.hat.map(offer => offer?.id).filter(Boolean));
-    ctx.offers.hat = [...ctx.offers.hat.filter(Boolean), ...next].slice(0, 4);
+  if (ctx.offers.hat.length < hatCount) {
+    const next = buildWeaverOfferSet('hat', hatCount, ctx.offers.hat.map(offer => offer?.id).filter(Boolean));
+    ctx.offers.hat = [...ctx.offers.hat.filter(Boolean), ...next].slice(0, hatCount);
   }
   return ctx.offers;
 }
@@ -8892,8 +9804,8 @@ function rerollWeaverOffers(mode) {
   if (G.SocksBanked < 1) return false;
   G.SocksBanked -= 1;
   modal.offers = {
-    goodie: buildWeaverOfferSet('goodie', 4),
-    hat: buildWeaverOfferSet('hat', 4)
+    goodie: buildWeaverOfferSet('goodie', getWeaverOfferCount('goodie')),
+    hat: buildWeaverOfferSet('hat', getWeaverOfferCount('hat'))
   };
   setWeaverModalContext({ kind:'shop', mode, offers: modal.offers, shopperIdx: modal.shopperIdx });
   renderWeaverScreen();
@@ -9209,7 +10121,7 @@ function showEscapeVictoryScreen() {
   document.body.classList.remove('card-showing');
   const screen = document.getElementById('screen-victory');
   const msg = document.getElementById('victory-message');
-  if (msg) msg.textContent = `Escaped with ${G.SocksBanked} socks! House ${G.house} complete. Trouble: ${G.trouble}/20.`;
+  if (msg) msg.textContent = `Escaped with ${G.SocksBanked} socks! House ${G.house} complete. Trouble: ${G.trouble}/${getMaxTrouble()}.`;
   screen?.classList.add('show');
 }
 
@@ -9240,6 +10152,20 @@ function resetGnomeForNewHouse(gnome) {
   };
 }
 
+function destroySatchelSocksForHouseWin() {
+  let destroyed = 0;
+  G.gnomes.forEach(gnome => {
+    gnome.satchel = gnome.satchel.map(item => {
+      if (item?.type === 'Socks') {
+        destroyed++;
+        return null;
+      }
+      return item;
+    });
+  });
+  if (destroyed) addLog(`🧦 ${destroyed} sock${destroyed === 1 ? '' : 's'} still in satchels are destroyed as the house is won.`, 'system');
+}
+
 function advanceHouse() {
   hideEscapeVictoryScreen();
   clearPatrolRefCards();
@@ -9249,8 +10175,8 @@ function advanceHouse() {
   G = createCoreState({
     house: nextHouse,
     roomDeck: shuffledCopy(BASE_ROOM_DECK_TEMPLATE),
-    goodiePool: buildGoodiePool(1, BETWEEN_HOUSE_GOODIE_POOL_TEMPLATE),
-    hatPool: shuffledCopy(BETWEEN_HOUSE_HAT_POOL_TEMPLATE),
+    goodiePool: buildGoodiePool(1, getBetweenHouseGoodiePoolTemplate()),
+    hatPool: shuffledCopy(getBetweenHouseHatPoolTemplate()),
     gnomes: savedGnomes,
   });
   G.grid[GRID_CENTER][GRID_CENTER] = createRoomTile(1, GRID_CENTER, GRID_CENTER);
@@ -9263,7 +10189,7 @@ function advanceHouse() {
 }
 
 function checkLoss() {
-  if(G.gnomes.every(g=>g.ko)||G.trouble>=20) showEndScreen(false);
+  if(G.gnomes.every(g=>g.ko)||G.trouble>=getMaxTrouble()) showEndScreen(false);
 }
 
 function showEndScreen(won) {
@@ -9283,13 +10209,13 @@ function showEndScreen(won) {
   const backdrop=screen.querySelector('.screen-backdrop');
   if(won){
     title.textContent='🎉 Victory!'; title.style.color='#4cff9e';
-    msg.textContent=`Escaped with ${G.SocksBanked} socks! House ${G.house} complete. Trouble: ${G.trouble}/20.`;
+    msg.textContent=`Escaped with ${G.SocksBanked} socks! House ${G.house} complete. Trouble: ${G.trouble}/${getMaxTrouble()}.`;
     art.className='end-figure victory is-revealing-victory';
     art.textContent='🧦';
     backdrop.className='screen-backdrop victory';
   } else {
     title.textContent='💀 Defeated!'; title.style.color='#ff8d8d';
-    const reason=G.trouble>=20?'Trouble reached 20!':'All gnomes KO\'d!';
+    const reason=G.trouble>=getMaxTrouble()?`Trouble reached ${getMaxTrouble()}!`:'All gnomes KO\'d!';
     msg.textContent=`${reason} Collected ${G.SocksBanked}/${getHouseGoal()} socks.`;
     art.className='end-figure defeat is-revealing-defeat';
     art.textContent='';
@@ -9312,12 +10238,8 @@ function startPanic(seqResume) {
     savedSelectedAction: G.selectedAction,
     panicQueue: G.gnomes.map((_,i)=>i).filter(i=>!G.gnomes[i].ko),
   };
-  G.phase = 'panic';
   G.panicMoving = false;
-  G.selectedAction = 'move';
-  document.body.classList.add('panic-mode');
-  document.getElementById('panic-overlay').classList.add('show');
-  document.getElementById('panic-banner').classList.add('show');
+  setInterruptMode({ kind:'panic' }, { render:false });
   advancePanic();
 }
 
@@ -9325,14 +10247,12 @@ function advancePanic() {
   if (!G.panicState || !G.panicState.panicQueue.length) {
     const s = G.panicState;
     G.panicState = null;
-    G.phase = s.savedPhase;
     G.currentGnomeIdx = s.savedGnomeIdx;
     G.actionsLeft = s.savedActionsLeft;
     G.selectedAction = s.savedSelectedAction;
+    G.phase = s.savedPhase;
     G.panicMoving = false;
-    document.body.classList.remove('panic-mode');
-    document.getElementById('panic-overlay').classList.remove('show');
-    document.getElementById('panic-banner').classList.remove('show');
+    clearInterruptMode({ render:false });
     addLog('😱 Panic resolved — resuming turn.', 'system');
     renderAll();
     if (s.seqResume) s.seqResume();   // unblock SEQ — next queued step runs
@@ -9341,8 +10261,7 @@ function advancePanic() {
   G.currentGnomeIdx = G.panicState.panicQueue[0];
   const gnome = G.gnomes[G.currentGnomeIdx];
   const remaining = G.panicState.panicQueue.length;
-  document.getElementById('panic-banner').textContent =
-    `😱 PANIC! ${gnome.name} — move one room (${remaining} gnome${remaining!==1?'s':''} remaining)`;
+  syncInterruptUi();
   addLog(`😱 ${gnome.name} must move one room!`, 'bad');
   renderAll();
 }
@@ -9402,7 +10321,6 @@ function spendAction() {
 // ─────────────────────────────────────────────
 function startPatrolPhase() {
   G.phase='patrol'; G.selectedAction=null; G.currentPatrolType = null;
-  G.dressCodeActive = false;
   addLog('=== PATROL PHASE ===','patrol');
   updateHeader(); renderAll();
   SEQ.push({t:'wait', ms:300}, {t:'effect', fn:() => runPatrolsAnimated()});
@@ -9411,7 +10329,7 @@ function startPatrolPhase() {
 // Compute all patrol moves as a sequence of steps, then play them one at a time
 function runPatrolsAnimated() {
   if (!G.patrols.length) { endPatrolPhase(); return; }
-  const order = ['roomba','dog','kid','dad'];
+  const order = getPatrolOrder();
   const sorted = [...G.patrols].sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type));
 
   // Check catches at START of patrol phase (before movement) via SEQ so addTrouble
@@ -9426,54 +10344,47 @@ function runPatrolsAnimated() {
 }
 
 function continuePatrolMovement(sorted) {
-  // We simulate moves on a copy to get positions, then replay on real patrols
-  // Actually easier: just compute each patrol's moves in order, collecting steps
-  const patrolSnapshots = G.patrols.map(p=>({...p})); // shallow copy positions
+  const patrolSnapshots = G.patrols.map(p=>({...p}));
+  const allSteps = [];
 
-  function buildStepsForPatrol(patrol) {
-    const steps = patrol.type === 'dad' ? 2 : 1;
+  function buildStepsForPatrol(patrol, totalSteps) {
     const patrolSteps = [];
-    for (let step=0; step<steps; step++) {
+    for (let step = 0; step < totalSteps; step++) {
       const moveStep = computePatrolMoveStep(patrol);
       if (!moveStep) break;
       patrol.row = moveStep.toR;
       patrol.col = moveStep.toC;
       patrol.lastDir = moveStep.newLastDir;
-      patrolSteps.push(moveStep);
+      patrolSteps.push({ ...moveStep });
       updateDadReturnState(patrol);
       const tile = G.grid[patrol.row][patrol.col];
-      if (!tile || tile.sticky) break;
+      if (!tile || (tile.sticky && !isPatrolStickyImmune(patrol))) break;
     }
     return patrolSteps;
   }
 
-  // Build all steps keeping patrol state in sync (use actual patrol objects so positions are correct)
-  // Reset patrol positions to pre-phase state first, then re-compute
-  const preMovePositions = sorted.map(p=>({row:p.row,col:p.col,lastDir:p.lastDir,returningToRoom:p.returningToRoom}));
-  // Actually just build steps using patrol objects directly (they're already at correct start pos)
-  const allSteps = []; // {patrol (ref), fromR, fromC, toR, toC}
   sorted.forEach(patrol => {
-    const steps = buildStepsForPatrol(patrol);
+    let totalSteps = isPatrolMovementLocked() ? 0 : (getPatrolStepCount(patrol.type) + consumeQueuedPatrolBonusMoves(patrol));
+    if (patrol.stickyBlocked) {
+      if (isPatrolStickyImmune(patrol)) {
+        allSteps.push({ patrol, kind: 'stickyClearFree' });
+        clearStickyStateForActor(patrol);
+      } else if (totalSteps > 0) {
+        allSteps.push({ patrol, kind: 'stickyClear' });
+        clearStickyStateForActor(patrol);
+        totalSteps -= 1;
+      }
+    }
+    const steps = buildStepsForPatrol(patrol, totalSteps);
     steps.forEach(s=>allSteps.push({patrol, ...s}));
   });
 
-  // Handle hustle after all normal moves
-  if (G.hustle) {
-    const lowest = sorted[0];
-    if (lowest) {
-      const hustleSteps = buildStepsForPatrol(lowest);
-      hustleSteps.forEach(s=>allSteps.push({patrol:lowest, isHustle:true, ...s}));
-    }
-    G.hustle=false;
-  }
-
-  // Reset all patrol positions to start (we moved them during planning)
   sorted.forEach((p,i)=>{
-    p.row=preMovePositions[i].row; p.col=preMovePositions[i].col;
-    p.lastDir=preMovePositions[i].lastDir; p.returningToRoom=preMovePositions[i].returningToRoom;
+    p.row=patrolSnapshots[i].row; p.col=patrolSnapshots[i].col;
+    p.lastDir=patrolSnapshots[i].lastDir; p.returningToRoom=patrolSnapshots[i].returningToRoom;
+    p.stickyBlocked=!!patrolSnapshots[i].stickyBlocked; p.stickyCell=patrolSnapshots[i].stickyCell ?? null;
   });
 
-  // Now play back steps one at a time
   playPatrolStep(allSteps, 0, sorted, ()=>{
     endPatrolPhase();
   });
@@ -9481,10 +10392,30 @@ function continuePatrolMovement(sorted) {
 
 function playPatrolStep(steps, idx, sorted, done) {
   if (idx >= steps.length) {
-    SEQ.push({t:'effect', fn:() => { G.currentPatrolType = null; renderAllNoBoard(); done(); }});
+    SEQ.push({t:'effect', fn:() => { G.currentPatrolType = null; renderAll(); done(); }});
     return;
   }
-  const {patrol, fromR, fromC, toR, toC, newLastDir, isHustle} = steps[idx];
+  const stepEntry = steps[idx];
+  if (stepEntry?.kind === 'stickyClear' || stepEntry?.kind === 'stickyClearFree') {
+    const patrol = stepEntry.patrol;
+    const isFree = stepEntry.kind === 'stickyClearFree';
+    SEQ.push(
+      {t:'wait', ms:0},
+      {t:'effect', fn:() => {
+        G.currentPatrolType = patrol.type;
+        clearStickyStateForActor(patrol);
+        addLog(isFree
+          ? `Roomba shrugs off Sticky without losing a move.`
+          : `${capitalize(patrol.type)} spends 1 move to remove Sticky.`, 'patrol');
+        renderAll();
+      }},
+      {t:'render'},
+      {t:'wait', ms:0},
+      {t:'effect', fn:() => playPatrolStep(steps, idx+1, sorted, done)}
+    );
+    return;
+  }
+  const {patrol, fromR, fromC, toR, toC, newLastDir} = stepEntry;
   const em = patrolEmoji(patrol.type);
   const name = capitalize(patrol.type);
   const nextDelay = 0;
@@ -9493,13 +10424,13 @@ function playPatrolStep(steps, idx, sorted, done) {
     {t:'wait', ms:0},
     {t:'effect', fn:() => {
       G.currentPatrolType = patrol.type;
-      renderAllNoBoard();
+      renderAll();
       AUDIO_MANAGER.beginMove(patrol.type, { patrol, fromR, fromC, toR, toC, phase: 'regular-turn-start' });
     }},
     {t:'patrolMove', patrol, fromR, fromC, toR, toC},
     {t:'effect', fn:() => {
       resolvePatrolArrival(patrol, {fromR, fromC, toR, toC, newLastDir}, {
-        logText: tile => `${em} ${name} → ${ROOM_DEFS[tile.roomId].name}.`,
+logText: tile => `${em} ${name} → ${ROOM_DEFS[tile.roomId].name}.`,
         logClass: 'patrol',
         animateSticky: true,
         _sfxPlayedAtStart: true,
@@ -9530,13 +10461,16 @@ function triggerExplosionFlash() {
   setTimeout(() => fx.classList.remove('show'), 650);
 }
 
-function animatePatrolMeeple(emoji, fromR, fromC, toR, toC, cb) {
+function animatePatrolMeeple(patrol, emoji, fromR, fromC, toR, toC, cb) {
   const board = document.getElementById('board');
   const srcCell = document.querySelector(`[data-r="${fromR}"][data-c="${fromC}"]`);
   const dstCell = document.querySelector(`[data-r="${toR}"][data-c="${toC}"]`);
   if (!board || !srcCell || !dstCell) { cb(); return; }
 
-  const token = srcCell.querySelector('.patrol-coin');
+  const patrolSelector = patrol?.type
+    ? `.patrol-coin[data-patrol-type="${CSS.escape(String(patrol.type))}"]`
+    : '.patrol-coin';
+  const token = srcCell.querySelector(patrolSelector) || srcCell.querySelector('.patrol-coin');
   const boardRect = board.getBoundingClientRect();
   const srcRect = srcCell.getBoundingClientRect();
   const dstRect = dstCell.getBoundingClientRect();
@@ -9588,7 +10522,7 @@ function animatePatrolMeeple(emoji, fromR, fromC, toR, toC, cb) {
 
 function runPatrols() {
   // Synchronous fallback — not used in animated flow but kept for Hustle card mid-turn
-  const order = ['roomba','dog','kid','dad'];
+  const order = getPatrolOrder();
   const sorted = [...G.patrols].sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type));
   sorted.forEach(p=>movePatrol(p));
 }
@@ -9699,6 +10633,54 @@ function updateDadReturnState(patrol) {
   }
 }
 
+function isPatrolStickyImmune(patrol) {
+  return patrol?.type === 'roomba';
+}
+
+function addPatrolCarriedSocks(patrol, count = 1) {
+  if (!canPatrolCarrySocks(patrol) || count <= 0) return getPatrolCarriedSockCount(patrol);
+  const next = getPatrolCarriedSockCount(patrol) + Math.max(0, Math.floor(count));
+  patrol.carriedSocks = next;
+  return next;
+}
+
+function dropPatrolCarriedSocks(patrol, tile, { log = true, reason = 'kick' } = {}) {
+  const carried = getPatrolCarriedSockCount(patrol);
+  if (!canPatrolCarrySocks(patrol) || carried <= 0 || !tile) return 0;
+  tile.Socks = (tile.Socks || 0) + carried;
+  patrol.carriedSocks = 0;
+  GAME_EVENTS.emit('item.dropped', { itemType: 'Socks', mode: `patrol-${reason}`, patrolType: patrol.type, count: carried });
+  if (log) {
+    const noun = carried === 1 ? 'Sock' : 'Socks';
+    addLog(`${capitalize(patrol.type)} drops ${carried} ${noun} in ${ROOM_DEFS[tile.roomId].name}.`, 'good');
+  }
+  return carried;
+}
+
+function pickupSockForPatrol(patrol, tile, { log = true } = {}) {
+  if (!canPatrolCarrySocks(patrol) || !tile || (tile.Socks || 0) <= 0) return false;
+  tile.Socks--;
+  const next = addPatrolCarriedSocks(patrol, 1);
+  GAME_EVENTS.emit('item.pickedUp', { itemType: 'Socks', mode: 'patrol', patrolType: patrol.type, count: 1, totalCarried: next });
+  if (log) addLog(`${capitalize(patrol.type)} picks up 1 Sock in ${ROOM_DEFS[tile.roomId].name}.`, 'patrol');
+  return true;
+}
+
+function applyPatrolRoomEntryEffects(patrol, tile) {
+  if (!patrol || !tile) return;
+  if (patrol.type === 'roomba' && tile.sticky) {
+    tile.sticky = false;
+    addLog(`Roomba removes Sticky from ${ROOM_DEFS[tile.roomId].name}.`, 'patrol');
+  }
+  if (patrol.type === 'dog' && tile.Socks > 0) {
+    tile.Socks--;
+    addLog(`Dog destroys 1 Sock in ${ROOM_DEFS[tile.roomId].name}.`, 'bad');
+  }
+  if (canPatrolCarrySocks(patrol) && tile.Socks > 0) {
+    pickupSockForPatrol(patrol, tile);
+  }
+}
+
 function resolvePatrolArrival(patrol, step, options={}) {
   const { logText, logClass='patrol' } = options;
   patrol.row = step.toR;
@@ -9708,13 +10690,12 @@ function resolvePatrolArrival(patrol, step, options={}) {
   if (!tile) return;
   if (logText) addLog(logText(tile), logClass);
   updateDadReturnState(patrol);
-  if (patrol.type === 'roomba' && tile.Socks > 0) {
-    tile.Socks--;
-    addLog(`🤖 Roomba destroys 1 Socks!`, 'bad');
-  }
+  applyPatrolRoomEntryEffects(patrol, tile);
   checkPatrolCatch(patrol);
-  if (tile.sticky) {
-    addLog(`🫟 ${capitalize(patrol.type)} hits sticky floor — stops here.`, 'patrol');
+  if (tile.sticky && !isPatrolStickyImmune(patrol)) {
+    patrol.stickyBlocked = true;
+    patrol.stickyCell = `${step.toR},${step.toC}`;
+    addLog(`${capitalize(patrol.type)} hits sticky floor and gains Sticky.`, 'patrol');
     if (options.animateSticky) SEQ.push({t:'boardAnim', r:step.toR, c:step.toC, css:'sticky-splat-anim', ms:3000});
   }
 }
@@ -9730,7 +10711,7 @@ function queueAnimatedPatrolStep(patrol, step, options={}) {
     {t:'wait', ms: 0},
     {t:'effect', fn:() => {
       G.currentPatrolType = patrol.type;
-      renderAllNoBoard();
+      renderAll();
       AUDIO_MANAGER.beginMove(patrol.type, { patrol, step, phase: 'start' });
     }},
     {t:'patrolMove', patrol, fromR: step.fromR, fromC: step.fromC, toR: step.toR, toC: step.toC},
@@ -9788,7 +10769,7 @@ function queueEventPatrolMove(patrol, options={}) {
 
       enqueue({t:'effect', fn:() => {
         const tile = G.grid[patrol.row]?.[patrol.col];
-        if (stepsLeft > 1 && tile && !tile.sticky) queueRemaining(stepsLeft - 1);
+        if (stepsLeft > 1 && tile && (!tile.sticky || isPatrolStickyImmune(patrol))) queueRemaining(stepsLeft - 1);
 
       }});
     }});
@@ -9799,7 +10780,7 @@ function queueEventPatrolMove(patrol, options={}) {
 }
 
 function movePatrol(patrol) {
-  const steps = patrol.type === 'dad' ? 2 : 1;
+  const steps = getPatrolStepCount(patrol.type);
   for (let step = 0; step < steps; step++) {
     const moveStep = computePatrolMoveStep(patrol);
     if (!moveStep) break;
@@ -9808,7 +10789,7 @@ function movePatrol(patrol) {
       logClass: 'patrol',
     });
     const tile = G.grid[patrol.row]?.[patrol.col];
-    if (!tile || tile.sticky) break;
+    if (!tile || (tile.sticky && !isPatrolStickyImmune(patrol))) break;
   }
 }
 
@@ -9845,24 +10826,27 @@ function applyCatchPenalty(type, gnome, patrolRef=null) {
       addTrouble(1);
       break;
     }
-    case 'dog':
-      gnome.satchel=gnome.satchel.map(s=>s?.type==='Socks'?null:s);
-      addLog(`🐶 Dog destroys ${gnome.name}'s socks!`,'bad');
+    case 'dog': {
+      gnome.satchel = gnome.satchel.map(s => s?.type === 'Socks' ? null : s);
+      addLog(`Dog destroys ${gnome.name}'s socks!`,'bad');
       addTrouble(1);
       break;
-    case 'kid':
-      gnome.ko=true;
-      dropAllInventoryToCurrentRoom(gnome, { includeHat: true, log: false });
-      addLog(`👦 Kid KO's ${gnome.name}!`,'bad');
-      addLog(`💥 ${gnome.name} drops all inventory in ${getRoomName(gnome.row, gnome.col)}!`,'bad');
-      addTrouble(2);
+    }
+    case 'kid': {
+      gnome.satchel = gnome.satchel.map(s => s?.type === 'Socks' ? null : s);
+      gnome.stickyBlocked = true;
+      gnome.stickyCell = `${gnome.row},${gnome.col}`;
+      addLog(`Kid destroys ${gnome.name}'s socks!`,'bad');
+      addLog(`${gnome.name} is now Sticky in ${getRoomName(gnome.row, gnome.col)}!`,'bad');
+      addTrouble(1);
       break;
+    }
     case 'dad':
-      gnome.ko=true;
+      gnome.ko = true;
       dropAllInventoryToCurrentRoom(gnome, { includeHat: true, log: false });
-      addLog(`👨 Dad KO's ${gnome.name}!`,'bad');
-      addLog(`💥 ${gnome.name} drops all inventory in ${getRoomName(gnome.row, gnome.col)}!`,'bad');
-      addTrouble(3);
+      addLog(`Dad KO's ${gnome.name}!`,'bad');
+      addLog(`${gnome.name} drops all inventory in ${getRoomName(gnome.row, gnome.col)}!`,'bad');
+      addTrouble(2);
       break;
   }
   checkLoss();
@@ -9882,11 +10866,17 @@ function endPatrolPhase() {
   G.newlySpawnedCells.clear();
   G.messy = false;
   G.lightsOn = false;
+  G.dressCodeActive = false;
+  G.patrolTargetOverride = null;
+  G.patrolMoveBonuses = [];
+  G.patrolMovementLock = null;
   G.gnomes.forEach(g => { if (!g.ko) g.hidden = false; });
   G.currentGnomeIdx=0;
   while(G.currentGnomeIdx<G.gnomes.length&&G.gnomes[G.currentGnomeIdx].ko) G.currentGnomeIdx++;
   if(G.currentGnomeIdx>=G.gnomes.length){checkLoss();return;}
   G.selectedAction=null;
+  resetRoundEventTriggerFlags();
+  triggerMothEggsRoundStart();
   addLog(`=== GNOME PHASE ===`,'system');
   beginGnomeTurn(G.currentGnomeIdx);
   renderAll();
@@ -9895,155 +10885,24 @@ function endPatrolPhase() {
 // ─────────────────────────────────────────────
 // TROUBLE & EVENTS
 // ─────────────────────────────────────────────
-// addTrouble: each +1 is fully serialised — increment, then show card, then apply effect,
-// then check milestones — so effects never interleave with the card they belong to.
+// addTrouble: each +1 is fully serialised — increment, then check patrol milestones
+// and defeat at 20. Trouble is now a pure track and no longer draws trouble cards.
 function addTrouble(n) {
   for (let i = 0; i < n; i++) {
     SEQ.push(
-      {t:'effect', fn:() => { G.trouble++; updateHeader(); }},
       {t:'effect', fn:() => {
-        if (G.trouble >= 20) {
-          G._pendingTroubleId = null;
-          G._pendingTroubleCard = null;
+        if (G.trouble >= getMaxTrouble()) {
+          checkLoss();
+          updateHeader();
           return;
         }
-        if (!G.troubleDeck.length) { G.troubleDeck=[1,2,2,2,3,4,4,4,5,6,7,8,8,8,9,9,9,9,9]; shuffle(G.troubleDeck); }
-        const id = G.troubleDeck.pop();
-        const card = TROUBLE_CARDS.find(c=>c.id===id);
-        if (!card) {
-          G._pendingTroubleId = null;
-          G._pendingTroubleCard = null;
-          return;
-        }
-        addLog(`💢 Trouble Card: ${card.emoji} ${card.name} — ${card.desc}`, 'bad');
-        G._pendingTroubleId = id;
-        G._pendingTroubleCard = card;
-      }},
-      {t:'effect', fn:() => {
-        if (!G._pendingTroubleCard || !G._pendingTroubleId) return;
-        SEQ.insertAfterCurrent(
-          {t:'card', cardType:'💢 Trouble Card', emoji:G._pendingTroubleCard.emoji, name:G._pendingTroubleCard.name, desc:G._pendingTroubleCard.desc, cls:'trouble'},
-          {t:'effect', fn:() => { applyTroubleCard(G._pendingTroubleId); G._pendingTroubleId=null; G._pendingTroubleCard=null; }},
-          {t:'effect', fn:() => { checkTroubleMilestones(); if(G.trouble>=20) checkLoss(); updateHeader(); }},
-          {t:'render'}
-        );
-      }},
-      {t:'effect', fn:() => {
-        if (G.trouble >= 20) checkLoss();
+        G.trouble = Math.min(getMaxTrouble(), (G.trouble || 0) + 1);
+        checkTroubleMilestones();
+        if (G.trouble >= getMaxTrouble()) checkLoss();
         updateHeader();
       }},
       {t:'render'}
     );
-  }
-}
-
-// drawTroubleCard is now handled inside addTrouble — kept as a no-op shim for safety
-function drawTroubleCard() {}
-
-function applyTroubleCard(id) {
-  switch(id){
-    case 1:
-      G.gnomes.forEach(g=>{
-        const dropped=g.satchel.filter(Boolean);
-        g.satchel=g.satchel.map(()=>null);
-        const tile=G.grid[g.row][g.col];
-        if(tile) dropped.forEach(item=>{
-          if(item.type==='Socks'){if(tile.roomId===1){G.SocksBanked++;}else tile.Socks++;}
-          else if(item.type==='goodie'){ if(!tile.goodieIds)tile.goodieIds=[]; tile.goodieIds.push(item.id); }
-        });
-      }); break;
-    case 2: G.dressCodeActive=true; addLog('👔 Dress Code! Silly Hat benefits are cancelled until the round ends.','bad'); renderAll(); break;
-    case 3: {
-      // Hustle — lowest-ranked patrol moves immediately via SEQ
-      const order = ['roomba','dog','kid','dad'];
-      const sorted = [...G.patrols].sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type));
-      const lowest = sorted[0];
-      if (lowest) {
-        lowest.stickyBlocked = false;
-        addLog(`🏃 Hustle! ${capitalize(lowest.type)} moves immediately!`,'patrol');
-        const moveStep = computePatrolMoveStep(lowest);
-        if (moveStep) {
-          const em=patrolEmoji(lowest.type), name=capitalize(lowest.type);
-          SEQ.push(
-            {t:'banner', text:`${em} ${name} (Hustle!)`},
-            {t:'wait', ms:400},
-            {t:'patrolMove', patrol:lowest, fromR:moveStep.fromR, fromC:moveStep.fromC, toR:moveStep.toR, toC:moveStep.toC},
-            {t:'effect', fn:()=>{
-              resolvePatrolArrival(lowest, moveStep, {
-                logText: tile => `${em} ${name} (Hustle) → ${ROOM_DEFS[tile.roomId].name}.`,
-                logClass: 'patrol',
-              });
-              const tile=G.grid[lowest.row]?.[lowest.col];
-              if (tile?.sticky) lowest.stickyBlocked=true;
-            }},
-            {t:'hideBanner'},
-            {t:'render'}
-          );
-        }
-      }
-      break;
-    }
-    case 4:
-      // Lights On — Gnomes cannot hide this turn
-      G.lightsOn = true;
-      G.gnomes.forEach(g => { g.hidden = false; });
-      addLog('💡 Lights On! All Gnomes are revealed and cannot hide this turn.', 'bad');
-      break;
-    case 5:
-      // Panic! — pause the SEQ queue; startPanic receives resume() to unblock it when all gnomes move
-      addLog('😱 Panic! Each Gnome must move one room — resolve in order, then resume your turn.', 'bad');
-      SEQ.push({t:'pause', fn:(resume) => startPanic(resume)});
-      break;
-    case 6:
-      // Stiff Breeze — All Gnomes drop their equipped hats
-      addLog('🌬️ Stiff Breeze! All Gnomes lose their hats!', 'bad');
-      G.gnomes.forEach(g => {
-        if (g.hat === null) return;
-        const tile = G.grid[g.row][g.col];
-        if (tile) { if (!tile.hatIds) tile.hatIds = []; tile.hatIds.push(g.hat); }
-        addLog(`  ${g.name} drops their hat.`, 'bad');
-        g.hat = null;
-      });
-      break;
-    case 7:
-      // Moths — Destroy 1 Socks from each Satchel
-      addLog('🦋 Moths! 1 Socks eaten from each Gnome\'s Satchel!', 'bad');
-      G.gnomes.forEach(g => {
-        const idx = g.satchel.findIndex(s => s?.type === 'Socks');
-        if (idx !== -1) { g.satchel[idx] = null; addLog(`  ${g.name} loses 1 🧦.`, 'bad'); }
-      });
-      break;
-    case 8:
-      // Investigation — All Patrols move one room toward the Laundry Room
-      SEQ.insertAfterCurrent(
-        {t:'log', msg:'🔍 Investigation! All Patrols move toward the Laundry Room!', cls:'patrol'},
-        {t:'effect', fn:() => {
-          const order = ['roomba','dog','kid','dad'];
-          const sorted = [...G.patrols].sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type));
-          const packet = [];
-          sorted.forEach((patrol, idx) => {
-            packet.push({t:'effect', fn:() => {
-              const step = computePatrolStepTowardTarget(patrol, G.CENTER, G.CENTER);
-              if (!step) {
-                if (patrol.row === G.CENTER && patrol.col === G.CENTER) addLog(`  ${capitalize(patrol.type)} is already in the Laundry Room.`, 'patrol');
-                return;
-              }
-              queueAnimatedPatrolStep(patrol, step, {
-                bannerText: `${patrolEmoji(patrol.type)} ${capitalize(patrol.type)} (Investigation!)`,
-                logText: tile => `  ${capitalize(patrol.type)} → ${ROOM_DEFS[tile.roomId].name}`,
-                logClass: 'patrol',
-                waitAfter: idx === sorted.length - 1 ? 300 : 0,
-              });
-            }});
-          });
-          SEQ.insertAfterCurrent(...packet);
-        }}
-      );
-      break;
-    case 9:
-      // Lucky Break — Nothing happens
-      addLog('🍀 Lucky Break! Nothing happens. Phew!', 'good');
-      break;
   }
 }
 
@@ -10057,7 +10916,7 @@ function checkTroubleMilestones() {
     SEQ.push(
       {t:'render'},
       {t:'card', cardType:'🚨 Patrol Spawn', emoji:'🤖', name:'Roomba Appears!',
-       desc:'The Roomba has activated and is patrolling the house. Watch out — it destroys any socks it rolls over!', cls:'patrol-spawn', sfxHint:'roomba'}
+       desc:'MOVE: Along right perimeter. CATCH: +1 💢 Trouble. Pushes Gnome 1 room. SPECIAL: Picks up a 🧦 Sock in every room—Kick to drop held Socks. Immune to Sticky and removes Sticky from every room it enters.', cls:'patrol-spawn', sfxHint:'roomba'}
     );
   }
   if(G.trouble>=6&&!G.patrols.find(p=>p.type==='dog')){
@@ -10067,7 +10926,7 @@ function checkTroubleMilestones() {
     SEQ.push(
       {t:'render'},
       {t:'card', cardType:'🚨 Patrol Spawn', emoji:'🐶', name:'The Dog is Loose!',
-       desc:'The dog is on the hunt for gnomes. Getting caught means losing all your socks!', cls:'patrol-spawn', sfxHint:'dog'}
+       desc:'MOVE: Targets nearest unhidden Gnome. CATCH: +1 💢 Trouble. Destroys all 🧦 Socks held by Gnome. SPECIAL: Destroys a 🧦 Sock in every room it enters.', cls:'patrol-spawn', sfxHint:'dog'}
     );
   }
   if(G.trouble>=10&&!G.patrols.find(p=>p.type==='kid')){
@@ -10077,7 +10936,7 @@ function checkTroubleMilestones() {
     SEQ.push(
       {t:'render'},
       {t:'card', cardType:'🚨 Patrol Spawn', emoji:'👦', name:'The Kid is Up!',
-       desc:'The kid is hunting the gnome with the most socks. Getting caught means getting KO\'d!', cls:'patrol-spawn', sfxHint:'kid'}
+       desc:'MOVE: Targets Gnome with most 🧦 Socks. CATCH: +1 💢 Trouble. Destroys all 🧦 Socks held by Gnome. Adds Sticky status to any caught Gnome.', cls:'patrol-spawn', sfxHint:'kid'}
     );
   }
   if(G.trouble>=15&&!G.patrols.find(p=>p.type==='dad')){
@@ -10087,7 +10946,7 @@ function checkTroubleMilestones() {
     SEQ.push(
       {t:'render'},
       {t:'card', cardType:'🚨 Patrol Spawn', emoji:'👨', name:'Dad Woke Up!',
-       desc:"Dad is patrolling between his room and the Laundry Room. You can't hide from Dad — and getting caught is brutal!", cls:'patrol-spawn', sfxHint:'dad'}
+       desc:"MOVE: 2 Moves per turn between Dad's Room and Laundry Room. CATCH: +2 💢 Trouble. KO's the caught Gnome. SPECIAL: Picks up a 🧦 Sock in every room—Kick to drop held Socks. Gnomes cannot hide from Dad.", cls:'patrol-spawn', sfxHint:'dad'}
     );
   }
 }
@@ -10196,27 +11055,27 @@ function clearStickySplat(r, c) {
 const PATROL_REF_DATA = {
   roomba: {
     emoji: '🤖', name: 'Roomba',
-    move: 'along right perimeter.',
-    catch: '+1 💢 Trouble. Pushes Gnome 1 room ahead in Roomba\'s path.',
-    special: 'Destroys a 🧦 Sock in every room.',
+    move: 'Along right perimeter.',
+    catch: '+1 💢 Trouble. Pushes Gnome 1 room.',
+    special: 'Picks up a 🧦 Sock in every room—Kick to drop held Socks. Immune to Sticky and removes Sticky from every room it enters.',
   },
   dog: {
     emoji: '🐶', name: 'Dog',
-    move: 'toward the nearest unhidden Gnome.',
-    catch: '+1 💢 Trouble. Destroys ALL 🧦 Socks held.',
-    special: '',
+    move: 'Targets nearest unhidden Gnome.',
+    catch: '+1 💢 Trouble. Destroys all 🧦 Socks held by Gnome.',
+    special: 'Destroys a 🧦 Sock in every room it enters.',
   },
   kid: {
     emoji: '👦', name: 'Kid',
-    move: 'toward the Gnome carrying the most 🧦 Socks.',
-    catch: '+2 💢 Trouble. KO\'s the Gnome.',
+    move: 'Targets Gnome with most 🧦 Socks.',
+    catch: '+1 💢 Trouble. Destroys all 🧦 Socks held by Gnome. Adds Sticky status to any caught Gnome.',
     special: '',
   },
   dad: {
     emoji: '👨', name: 'Dad',
-    move: '🚶🚶 between Dad\'s Room and the Laundry Room.',
-    catch: '+3 💢 Trouble. KO\'s the Gnome.',
-    special: 'Gnomes CANNOT hide from Dad.',
+    move: "2 Moves per turn between Dad's Room and Laundry Room.",
+    catch: "+2 💢 Trouble. KO's the caught Gnome.",
+    special: "Picks up a 🧦 Sock in every room—Kick to drop held Socks. Gnomes cannot hide from Dad.",
   },
 };
 
@@ -10239,7 +11098,7 @@ function clearPatrolRefCards() {
 
 function spawnPatrol(type, r, c) {
   if(!G.patrols.find(p=>p.type===type)){
-    G.patrols.push({type,row:r,col:c,returningToRoom:false,lastDir:null,stickyBlocked:false});
+    G.patrols.push({type,row:r,col:c,returningToRoom:false,lastDir:null,stickyBlocked:false,carriedSocks:0});
     G.newlySpawnedCells.add(`${r},${c}`);
     if (G.newPatrolTypes?.add) G.newPatrolTypes.add(type);
     addLog(`🚨 ${capitalize(type)} spawned at ${getRoomName(r,c)}!`,'patrol');
@@ -10250,10 +11109,10 @@ function buildEventSequence(ev, r, c, opts = {}) {
   if (!ev) return [];
   const clsMap = {good:'event-good', trouble:'event-trouble', patrol:'event-patrol'};
   const patrolSpawnCardByEffect = {
-    spawn_roomba: { cardType:'🚨 Patrol Spawn', emoji:'🤖', name:'Roomba Appears!', desc:'The Roomba has activated and is patrolling the house. Watch out — it destroys any socks it rolls over!', cls:'patrol-spawn', sfxHint:'roomba' },
-    spawn_dog:    { cardType:'🚨 Patrol Spawn', emoji:'🐶', name:'The Dog is Loose!', desc:'The dog is on the hunt for gnomes. Getting caught means losing all your socks!', cls:'patrol-spawn', sfxHint:'dog' },
-    spawn_kid:    { cardType:'🚨 Patrol Spawn', emoji:'👦', name:'The Kid is Up!', desc:'The kid is hunting the gnome with the most socks. Getting caught means getting KO\'d!', cls:'patrol-spawn', sfxHint:'kid' },
-    spawn_dad:    { cardType:'🚨 Patrol Spawn', emoji:'👨', name:'Dad Woke Up!', desc:"Dad is patrolling between his room and the Laundry Room. You can't hide from Dad — and getting caught is brutal!", cls:'patrol-spawn', sfxHint:'dad' },
+    spawn_roomba: { cardType:'🚨 Patrol Spawn', emoji:'🤖', name:'Roomba Appears!', desc:'MOVE: Along right perimeter. CATCH: +1 💢 Trouble. Pushes Gnome 1 room. SPECIAL: Picks up a 🧦 Sock in every room—Kick to drop held Socks. Immune to Sticky and removes Sticky from every room it enters.', cls:'patrol-spawn', sfxHint:'roomba' },
+    spawn_dog:    { cardType:'🚨 Patrol Spawn', emoji:'🐶', name:'The Dog is Loose!', desc:'MOVE: Targets nearest unhidden Gnome. CATCH: +1 💢 Trouble. Destroys all 🧦 Socks held by Gnome. SPECIAL: Destroys a 🧦 Sock in every room it enters.', cls:'patrol-spawn', sfxHint:'dog' },
+    spawn_kid:    { cardType:'🚨 Patrol Spawn', emoji:'👦', name:'The Kid is Up!', desc:'MOVE: Targets Gnome with most 🧦 Socks. CATCH: +1 💢 Trouble. Destroys all 🧦 Socks held by Gnome. Adds Sticky status to any caught Gnome.', cls:'patrol-spawn', sfxHint:'kid' },
+    spawn_dad:    { cardType:'🚨 Patrol Spawn', emoji:'👨', name:'Dad Woke Up!', desc:"MOVE: 2 Moves per turn between Dad's Room and Laundry Room. CATCH: +2 💢 Trouble. KO's the caught Gnome. SPECIAL: Picks up a 🧦 Sock in every room—Kick to drop held Socks. Gnomes cannot hide from Dad.", cls:'patrol-spawn', sfxHint:'dad' },
   };
   const stackedPatrolCard = patrolSpawnCardByEffect[ev.effect] || null;
   const preCardEffect = ev.effect === 'explosion'
@@ -10294,49 +11153,58 @@ function buildEventSequence(ev, r, c, opts = {}) {
     {t:'log', msg:`${prefix}: ${ev.emoji} ${ev.name}`, cls:opts.logClass || 'event'},
     ...preCardEffect,
     cardStep,
-    {t:'effect', fn:() => applyEvent(ev,r,c)},
+    {t:'effect', fn:() => applyEvent(ev,r,c,opts)},
     {t:'render'}
   ];
 }
 
-function triggerEvent(r,c) {
+function triggerEvent(r,c, opts = {}) {
+  if (!G?.grid?.[r]?.[c] || G.gameEnded) return false;
   if (!G.eventDeck.length) G.eventDeck = buildEventDeck();
   const id=G.eventDeck.pop();
-  const ev=EVENT_CARDS.find(e=>e.id===id);
-  SEQ.push(...buildEventSequence(ev, r, c));
+  const ev=getEventCardById(id);
+  if (!ev) return false;
+  const enqueue = opts.insert === 'prepend' ? SEQ.prepend.bind(SEQ) : opts.insert === 'afterCurrent' ? SEQ.insertAfterCurrent.bind(SEQ) : SEQ.push.bind(SEQ);
+  enqueue(...buildEventSequence(ev, r, c, opts));
+  return true;
 }
 
-function applyEvent(ev,r,c) {
+function applyEvent(ev,r,c,opts = {}) {
   const tile=G.grid[r][c]; if(!tile) return;
+  const actorGnomeIdx = Number.isInteger(opts.actorGnomeIdx) ? opts.actorGnomeIdx : (Number.isInteger(G.currentGnomeIdx) ? G.currentGnomeIdx : null);
   switch(ev.effect){
     case 'vent': tile.vent=true; break;
     case 'goodie': { if(!tile.goodieIds)tile.goodieIds=[]; const gid=G.goodiePool.length?G.goodiePool.pop():1; tile.goodieIds.push(gid); break; }
     case 'chute': tile.chute=true; break;
     case 'weaver': tile.weaver=true; break;
     case 'Socks': tile.Socks++; break;
-    case 'creaky': if(tile.creaky)addTrouble(1);else{tile.creaky=true;addTrouble(1);} break;
-    case 'sticky': if(tile.sticky)addTrouble(1);else{tile.sticky=true;addTrouble(1);} break;
+    case 'creaky':
+      if (tile.creaky) {
+        addTrouble(1);
+        addLog('📢 Creaky Floor: room was already Creaky, +1 Trouble.', 'bad');
+      } else {
+        tile.creaky = true;
+        addLog('📢 Creaky Floor added to this room.', 'system');
+      }
+      break;
+    case 'sticky':
+      if (tile.sticky) {
+        addTrouble(1);
+        addLog('🫟 Sticky Floor: room was already Sticky, +1 Trouble.', 'bad');
+      } else {
+        tile.sticky = true;
+        addLog('🫟 Sticky Floor added to this room.', 'system');
+      }
+      break;
     case 'avalanche': addTrouble(1);tile.Socks+=2; break;
     case 'alarm':
       if(!G.patrols.length){ addTrouble(1); addLog('⏰ Alarm: no patrols in play, +1 Trouble.','bad'); break; }
       {
-        const near = getNearestPatrolTo(r, c) || G.patrols[0];
-        const name=capitalize(near.type);
-        queueEventPatrolMove(near, {
-          mode: 'toward',
-          targetR: r,
-          targetC: c,
-          label: 'Alarm!',
-          logText: (tile, patrol, stepsLeft) => `⏰ Alarm: ${capitalize(patrol.type)} moves toward event (${stepsLeft} step${stepsLeft>1?'s':''} left).`,
-          logClass: 'patrol',
-          waitAfter: 0,
-          steps: 2,
-          hideBannerAtEnd: true,
-          onBlocked: patrol => {
-            if (patrol.row === r && patrol.col === c) addLog(`⏰ Alarm: ${name} is already at the event room.`, 'patrol');
-          },
-          insert: 'afterCurrent',
-        });
+        const highest = getHighestRankPatrolInPlay();
+        if (!highest) { addTrouble(1); addLog('⏰ Alarm: no patrols in play, +1 Trouble.','bad'); break; }
+        setPatrolTargetOverride({ scope:'specific', patrolType: highest.type, mode:'room', targetR: r, targetC: c, source:'alarm' });
+        queuePatrolMoveBonus(highest.type, 1, 'alarm');
+        addLog(`⏰ Alarm! Highest ranking patrol ${capitalize(highest.type)} targets ${getRoomName(r, c)} and gains +1 Move on their turn.`, 'patrol');
       } break;
     case 'explosion':
       ['N','E','S','W'].forEach(dir => openDoorFromTile(tile, dir));
@@ -10371,6 +11239,42 @@ function applyEvent(ev,r,c) {
     case 'spawn_dog':    if(G.patrols.find(p=>p.type==='dog'))   {addTrouble(1);}else{spawnPatrolNear('dog',16,r,c);   addPatrolRefCard('dog');}    break;
     case 'spawn_kid':    if(G.patrols.find(p=>p.type==='kid'))   {addTrouble(2);}else{spawnPatrolNear('kid',15,r,c);   addPatrolRefCard('kid');}    break;
     case 'spawn_dad':    if(G.patrols.find(p=>p.type==='dad'))   {addTrouble(2);}else{spawnPatrolNear('dad',14,r,c);   addPatrolRefCard('dad');}    break;
+    case 'lights_on':
+      applyLightsOnEventEffect();
+      break;
+    case 'disturbance':
+      applyDisturbanceEventEffect();
+      break;
+    case 'panic':
+      applyPanicEventEffect();
+      break;
+    case 'moths':
+      applyMothsEventEffect();
+      break;
+    case 'investigation':
+      applyInvestigationEventEffect();
+      break;
+    case 'freeze_time':
+      applyFreezeTimeEventEffect();
+      break;
+    case 'third_eye':
+      applyThirdEyeEventEffect(actorGnomeIdx);
+      break;
+    case 'mind_control':
+      applyMindControlEventEffect();
+      break;
+    case 'stinky_sink':
+      applyStinkySinkEventEffect();
+      break;
+    case 'moth_eggs':
+      applyMothEggsEventEffect(tile, r, c);
+      break;
+    case 'hustle':
+      applyHustleEventEffect();
+      break;
+    case 'loose_satchel':
+      applyLooseSatchelEventEffect(actorGnomeIdx);
+      break;
   }
 }
 
@@ -10397,7 +11301,6 @@ function snapshotStateForTests(state = G) {
     roomDeck: [...state.roomDeck],
     goodiePool: [...state.goodiePool],
     eventDeck: [...state.eventDeck],
-    troubleDeck: [...state.troubleDeck],
     hatPool: [...state.hatPool],
     gnomes: state.gnomes.map(g => ({
       ...g,
@@ -10430,6 +11333,47 @@ function verifyStateInvariants(state = G) {
   (state.patrols || []).forEach((patrol, idx) => {
     if (!GameQueries.getTile(patrol.row, patrol.col, state)) push(`Patrol ${idx} is standing on an empty cell.`);
   });
+  return { ok: issues.length === 0, issues };
+}
+
+function verifyRuleConfig() {
+  const issues = [];
+  const eventIds = new Set();
+  const eventEffects = new Set();
+
+  getEventCards().forEach(card => {
+    if (!card?.id) issues.push('Event card missing id.');
+    if (!card?.effect) issues.push(`Event ${card?.name || card?.id || '?'} missing effect.`);
+    if (card?.id && eventIds.has(card.id)) issues.push(`Duplicate event id: ${card.id}`);
+    if (card?.effect && eventEffects.has(card.effect)) issues.push(`Duplicate event effect: ${card.effect}`);
+    if (card?.id && !Number.isFinite(getEventQty(card.id))) issues.push(`Event ${card.id} has invalid quantity.`);
+    if (card?.id) eventIds.add(card.id);
+    if (card?.effect) eventEffects.add(card.effect);
+  });
+
+
+  getStartingHatPoolTemplate().forEach(id => {
+    if (!getHatDefById(id)) issues.push(`Starting hat pool references missing hat ${id}.`);
+  });
+
+  getBetweenHouseHatPoolTemplate().forEach(id => {
+    if (!getHatDefById(id)) issues.push(`Weaver hat pool references missing hat ${id}.`);
+  });
+
+  getBetweenHouseGoodiePoolTemplate().forEach(id => {
+    if (!GOODIE_DEF_BY_ID[normalizeGoodieId(id)]) issues.push(`Between-house goodie pool references missing goodie ${id}.`);
+  });
+
+  getPatrolOrder().forEach(type => {
+    if (!PATROL_REF_DATA[type]) issues.push(`Patrol order references missing patrol type ${type}.`);
+    if (!Number.isInteger(getPatrolStepCount(type)) || getPatrolStepCount(type) < 1) issues.push(`Patrol ${type} has invalid step count.`);
+  });
+
+  ['goodie', 'hat'].forEach(type => {
+    if (!Number.isInteger(getWeaverOfferCount(type)) || getWeaverOfferCount(type) < 1) issues.push(`Weaver ${type} offer count is invalid.`);
+    if (!Number.isFinite(getWeaverOfferCost(type)) || getWeaverOfferCost(type) < 0) issues.push(`Weaver ${type} cost is invalid.`);
+  });
+
   return { ok: issues.length === 0, issues };
 }
 
@@ -10475,6 +11419,11 @@ function runSmokeTests() {
     assertSmoke(report.ok, report.issues.join(' | '));
   });
 
+  test('rules config is internally consistent', () => {
+    const report = verifyRuleConfig();
+    assertSmoke(report.ok, report.issues.join(' | '));
+  });
+
   return results;
 }
 
@@ -10487,6 +11436,7 @@ window.GnomeInvasionDev = Object.freeze({
   validateGameActionIntent,
   executeGameAction,
   verifyStateInvariants,
+  verifyRuleConfig,
   runSmokeTests,
   withTempState,
   getCurrentState: () => G,
@@ -10509,9 +11459,9 @@ function getDebugRegistries() {
     spawnOptions: [
       { value: 'Socks', label: '🧦 Socks' },
       ...GOODIES_DEFS.filter(Boolean).map(def => ({ value: `goodie:${def.id}`, label: `${def.emoji} ${def.name}` })),
-      ...HATS_DEFS.filter(Boolean).map(def => ({ value: `hat:${def.id}`, label: `${def.emoji} ${def.name}` })),
+      ...getHatDefs().filter(Boolean).map(def => ({ value: `hat:${def.id}`, label: `${def.emoji} ${def.name}` })),
     ],
-    eventOptions: EVENT_CARDS.filter(Boolean).map(ev => ({ value: ev.effect, label: `${ev.emoji} ${ev.name}` })),
+    eventOptions: getEventCards().filter(Boolean).map(ev => ({ value: ev.effect, label: `${ev.emoji} ${ev.name}` })),
     patrolOptions: Object.entries(PATROL_REF_DATA).map(([type, def]) => ({ value: type, label: `${def.emoji} ${def.name}` })),
     roomOptions: ROOM_DEFS.filter(Boolean).map(def => ({ value: String(def.id), label: `${def.id}. ${def.name}` })),
   };
@@ -10719,9 +11669,9 @@ function debugTriggerSelectedEvent(effectName) {
   const tile = debugCurrentTile();
   const g = debugActiveGnome();
   if (!tile || !g) return addLog('Debug: start a game first.', 'bad');
-  const ev = EVENT_CARDS.find(card => card.effect === effectName);
+  const ev = getEventCardByEffect(effectName);
   if (!ev) return addLog('Debug: event not found.', 'bad');
-  SEQ.push(...buildEventSequence(ev, g.row, g.col, { logPrefix:'Debug event', logClass:'system' }));
+  SEQ.push(...buildEventSequence(ev, g.row, g.col, { logPrefix:'Debug event', logClass:'system', actorGnomeIdx: G.currentGnomeIdx }));
 }
 
 function debugSpawnPatrolInCurrentRoom(type) {
@@ -10733,8 +11683,10 @@ function debugSpawnPatrolInCurrentRoom(type) {
 }
 
 function debugAdjustTrouble(delta) {
-  G.trouble = Math.max(0, Math.min(20, (G.trouble || 0) + delta));
-  if (G.trouble >= 20) {
+  const prevTrouble = G.trouble || 0;
+  G.trouble = Math.max(0, Math.min(getMaxTrouble(), prevTrouble + delta));
+  if (G.trouble > prevTrouble) checkTroubleMilestones();
+  if (G.trouble >= getMaxTrouble()) {
     showEndScreen(false);
     return;
   }
@@ -10829,7 +11781,7 @@ function initDebugFork() {
       if (action === 'actionPlus') { G.actionsLeft = (G.actionsLeft || 0) + 1; renderAll(); return; }
       if (action === 'nextGnome') { G.currentGnomeIdx = ((G.currentGnomeIdx || 0) + 1) % (G.gnomes?.length || 1); renderAll(); return; }
       if (action === 'clearQueue') { SEQ.clear(); debugClearTransientUi(); renderAll(); return; }
-      if (action === 'forceDefeat') { SEQ.clear(); debugClearTransientUi(); G.trouble = 20; showEndScreen(false); return; }
+      if (action === 'forceDefeat') { SEQ.clear(); debugClearTransientUi(); G.trouble = getMaxTrouble(); showEndScreen(false); return; }
       if (action === 'inspectNow') return debugInspectState();
       if (action === 'toggleDoorOverlay') { DEBUG_FORK.showDoorOverlay = !DEBUG_FORK.showDoorOverlay; refreshDebugOverlayToggle(); renderAll(); return; }
       if (action === 'refreshRegistries') return debugRefreshRegistries();
@@ -10869,6 +11821,7 @@ function winHouse() {
   clearKoForBetweenHouseVisit();
   const inLaundry = G.gnomes.find(g => !g.ko && G.grid[g.row]?.[g.col]?.roomId === 1);
   if (!inLaundry) { addLog('A gnome must be in the Laundry Room to escape!', 'bad'); return; }
+  destroySatchelSocksForHouseWin();
   addLog(`🏁 ${inLaundry.name} leads the escape with ${G.SocksBanked} Socks!`, 'good');
   showEscapeVictoryScreen();
 }
@@ -11035,7 +11988,7 @@ function bestStepToward(fr,fc,tr,tc,candidates) {
 // Returns the direction ('N'|'S'|'E'|'W') the patrol would move next,
 // without mutating any state. Returns null if patrol cannot move.
 function computeNextDir(patrol) {
-  if (patrol.stickyBlocked) return null;
+  if ((patrol.stickyBlocked && !isPatrolStickyImmune(patrol)) || isPatrolMovementLocked()) return null;
   const step = computePatrolMoveStep(patrol);
   return step?.newLastDir || null;
 }
@@ -11067,7 +12020,7 @@ function showRoomDetail(r,c,tile) {
     <div>Doors: ${doors}</div>
     <div style="margin-top:3px;">
       ${tile.hide?'🪑 ':''} ${tile.creaky?'📢 ':''} ${tile.sticky?'🫟 ':''} 
-      ${tile.vent?'♨️ ':''} ${tile.chute?'🕳️ ':''} ${tile.weaver?'🧌 ':''}
+      ${tile.vent?'♨️ ':''} ${tile.chute?'🕳️ ':''} ${tile.weaver?'🧌 ':''} ${tile.mothEggs?'🥚 ':''}
     </div>`;
 }
 
