@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gnome Invasion v265 Weaver Mockup</title>
+  <style>
+    :root{
+      --bg:#17110d;
+      --bg-2:#241914;
+      --panel:#33241a;
+      --panel-2:#3c2a1e;
+      --slot:#3a2a1f;
+      --slot-empty:#2f221a;
+      --border:rgba(214,166,82,.14);
+      --border-strong:rgba(231,193,124,.34);
+      --text:#f7ead1;
+      --text-dim:#cdbb94;
+      --gold:#e7c17c;
+      --gold-2:#d6a652;
+      --shadow:0 18px 32px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04);
+      --shadow-soft:0 12px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.03);
+      --drawer-ease:cubic-bezier(.2,.9,.22,1);
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:var(--font);
+      overflow:hidden;
+      background:#0f0b09;
+    }
+    button,input,select,textarea{font:inherit}
+
+    .playfield{
+      position:fixed; inset:0; overflow:hidden;
+      background:radial-gradient(circle at 50% 18%, rgba(92,61,36,.42), rgba(17,12,9,.96) 58%), linear-gradient(180deg, #2d2119 0%, #15100d 100%);
+    }
+    .board-backdrop{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(circle at 18% 32%, rgba(102,171,214,.16), transparent 12%),
+        radial-gradient(circle at 70% 38%, rgba(203,120,88,.14), transparent 16%),
+        radial-gradient(circle at 82% 74%, rgba(96,136,190,.12), transparent 14%),
+        linear-gradient(180deg, rgba(9,7,6,.2), rgba(9,7,6,.62)),
+        repeating-linear-gradient(90deg, rgba(56,37,26,.72) 0 32px, rgba(31,21,15,.82) 32px 64px),
+        linear-gradient(180deg, #3b2a1e 0%, #1a120d 100%);
+      filter:blur(3px) saturate(.82);
+      transform:scale(1.04);
+      opacity:.7;
+      transition:opacity .16s ease, filter .16s ease;
+    }
+    .between-curtain{
+      position:absolute; inset:0;
+      background:radial-gradient(circle at top, rgba(67,46,31,.18), transparent 36%), linear-gradient(180deg, #1c1410 0%, #120d0a 100%);
+      opacity:0;
+      transition:opacity .16s ease;
+    }
+    .play-dim{
+      position:absolute; inset:0;
+      background:rgba(9,7,6,.48);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      transition:background .16s ease;
+    }
+    body.mode-between .board-backdrop{opacity:0}
+    body.mode-between .between-curtain{opacity:1}
+    body.mode-between .play-dim{background:rgba(9,7,6,.12);backdrop-filter:none;-webkit-backdrop-filter:none}
+
+    .topbar{
+      position:fixed; left:0; right:0; top:0; z-index:20;
+      height:56px; padding:10px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:18px;
+      background:linear-gradient(180deg, rgba(52,62,69,.94), rgba(34,39,45,.92));
+      border-bottom:1px solid rgba(255,255,255,.06);
+      box-shadow:0 8px 18px rgba(0,0,0,.28);
+    }
+    .topbar-left,.topbar-right{display:flex;align-items:center;gap:16px}
+    .game-wordmark{font:700 1rem/1 Georgia, serif; letter-spacing:.02em; color:#f7ead1; white-space:nowrap}
+    .game-sub{font-size:.9rem; color:#d9d1bd; opacity:.9}
+    .header-counters{display:flex; align-items:center; gap:14px}
+    .header-pressable{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;color:#f6e2a1;text-shadow:0 1px 0 rgba(0,0,0,.45)}
+    #mock-trouble-readout,#mock-socks-readout{display:inline-flex;align-items:baseline;gap:3px;font-weight:900}
+    #mock-trouble-icon,.socks-icon{font-size:1rem;line-height:1}
+    #mock-trouble-val,#mock-Socks-count{font-size:1rem;line-height:1}
+    #mock-trouble-max,#mock-socks-goal-wrap{font-size:.78rem;color:#d8cfb9;font-weight:800}
+    .topbar-icons{display:flex;align-items:center;gap:10px;color:#eee0bf;font-size:1.05rem;opacity:.94}
+
+    .dev-controls{
+      position:fixed; left:16px; top:72px; z-index:30;
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .mode-btn,.utility-btn,.action-btn{
+      min-height:34px; padding:7px 12px; border-radius:10px; border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(111,76,52,.88), rgba(58,40,27,.98));
+      color:var(--text); cursor:pointer; font-weight:800;
+      transition:transform .12s ease,border-color .12s ease,background .12s ease,opacity .12s ease;
+      box-shadow:var(--shadow-soft);
+    }
+    .mode-btn:hover,.utility-btn:hover,.action-btn:hover:not(:disabled){transform:translateY(-1px);border-color:var(--border-strong)}
+    .mode-btn.active{background:linear-gradient(180deg, rgba(214,166,82,.28), rgba(92,64,42,.95));border-color:rgba(231,193,124,.4)}
+    .utility-btn{background:linear-gradient(180deg, rgba(78,59,47,.92), rgba(45,32,24,.98))}
+
+    .modal-layer{
+      position:fixed; inset:56px 0 110px 0; z-index:15;
+      display:flex; align-items:center; justify-content:center;
+      padding:28px 24px;
+      pointer-events:none;
+    }
+    .shell{
+      position:relative;
+      padding:16px 16px 18px;
+      display:inline-block;
+      width:fit-content;
+      max-width:calc(100vw - 80px);
+      background:linear-gradient(180deg, rgba(60,42,30,.94), rgba(41,29,22,.97));
+      border:1px solid var(--border);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      pointer-events:auto;
+      overflow:visible;
+    }
+    .shell.drawer-open{box-shadow:var(--shadow), 0 0 0 1px rgba(231,193,124,.08)}
+    .weaver-stage{display:inline-block}
+    .store-grid{display:grid;grid-template-columns:repeat(3,96px);grid-auto-rows:96px;gap:12px;justify-content:start}
+    .store-tile{
+      position:relative;width:96px;height:96px;border-radius:18px;border:1px solid rgba(214,166,82,.11);
+      background:linear-gradient(180deg, rgba(111,76,52,.98), rgba(58,40,27,.99));
+      color:var(--text);cursor:pointer;text-align:center;box-shadow:0 14px 24px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.06);
+      transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,opacity .16s ease,filter .16s ease;
+      overflow:hidden;padding:12px 8px 8px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;
+    }
+    .store-tile:hover:not(:disabled){transform:translateY(-4px) scale(1.02);border-color:var(--border-strong);box-shadow:0 18px 30px rgba(0,0,0,.30),0 0 0 1px rgba(255,255,255,.06) inset}
+    .store-tile.selected{transform:translateY(-5px) scale(1.03);border-color:var(--gold);background:linear-gradient(180deg, rgba(137,95,62,.98), rgba(72,49,31,.99));box-shadow:0 18px 30px rgba(0,0,0,.30),0 0 0 2px rgba(242,192,107,.92),0 0 24px rgba(242,192,107,.34), inset 0 0 0 1px rgba(255,255,255,.1)}
+    .store-tile.selected::after{content:'✦';position:absolute;left:8px;top:8px;width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:var(--gold);color:#2b1e16;font-size:.68rem;font-weight:900;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+    .store-tile.action{background:linear-gradient(180deg, rgba(98,69,95,.98), rgba(54,39,57,.99))}
+    .store-tile.disabled{opacity:.45;cursor:not-allowed;filter:saturate(.6)}
+    .store-tile.sold{background:linear-gradient(180deg, rgba(110,88,66,.55), rgba(72,56,44,.72));box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);cursor:not-allowed}
+    .tile-cost{
+      position:absolute;top:7px;right:7px;padding:3px 6px;border-radius:999px;background:rgba(214,166,82,.10);
+      border:1px solid rgba(214,166,82,.10);font:800 .54rem/1 var(--font);letter-spacing:.04em;color:#fff7d7;
+    }
+    .tile-icon{font-size:2rem;line-height:1;display:flex;align-items:center;justify-content:center;height:28px;margin-top:12px}
+    .tile-name{font:800 .8rem/1.02 var(--font);letter-spacing:.02em;color:var(--text);max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+    .tile-note{margin-top:auto;font-size:.56rem;line-height:1;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;min-height:.7rem}
+
+    .payment-drawer{
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:calc(100% + 16px);
+      width:252px;
+      padding:10px 10px 12px;
+      border-radius:20px;
+      border:1px solid rgba(214,166,82,.14);
+      background:linear-gradient(180deg, rgba(60,42,30,.98), rgba(35,25,19,.995));
+      box-shadow:0 20px 36px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04);
+      transform:translateX(-22px) scale(.985);
+      opacity:0;
+      pointer-events:none;
+      transition:transform .16s var(--drawer-ease), opacity .16s var(--drawer-ease);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      overflow:hidden;
+    }
+    .payment-drawer.open{transform:translateX(0) scale(1);opacity:1;pointer-events:auto}
+    .drawer-head{display:flex;justify-content:flex-start;align-items:flex-start;gap:6px}
+    .drawer-title{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:900}
+    .progress-box{padding:8px 9px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+    .progress-row{display:flex;justify-content:space-between;gap:6px;font-size:.7rem;line-height:1.1}
+    .progress-bar{margin-top:6px;height:7px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+    .progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg, var(--gold-2), var(--gold));width:0%}
+    .compare-swap{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+    .compare-mini{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+    .compare-icon{width:28px;height:28px;border-radius:9px;background:var(--slot);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:.95rem}
+    .compare-name{font-size:.66rem;font-weight:800;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .compare-sub{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);font-weight:800}
+    .compare-arrow{font-size:.9rem;color:var(--gold);flex:0 0 auto}
+    .payment-group{display:flex;flex-direction:column;gap:5px}
+    .payment-label{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:900}
+    .slot-row{display:flex;gap:6px;flex-wrap:wrap}
+    .pay-slot{
+      width:36px;height:36px;border-radius:8px;border:1px solid rgba(214,166,82,.24);
+      background:var(--slot);display:flex;align-items:center;justify-content:center;
+      position:relative;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,245,224,.04), 0 1px 3px rgba(0,0,0,.18);
+      font-size:1rem;transition:border-color .12s ease, transform .12s ease, background .12s ease;
+    }
+    .pay-slot:hover{border-color:var(--border-strong);transform:translateY(-1px)}
+    .pay-slot.selected{border-color:var(--gold);background:linear-gradient(180deg, rgba(111,82,45,.95), rgba(72,49,31,.98));box-shadow:0 0 0 1px rgba(255,255,255,.08) inset, 0 0 14px rgba(242,192,107,.14)}
+    .pay-slot.selected::after{content:'✦';position:absolute;right:-5px;top:-7px;width:16px;height:16px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:var(--gold);color:#2b1e16;font-size:.62rem;font-weight:900}
+    .pay-slot.goodie{font-size:.92rem}
+    .slot-empty{color:rgba(205,187,148,.44);background:var(--slot-empty);cursor:default}
+    .slot-empty:hover{transform:none;border-color:rgba(214,166,82,.14)}
+    .payment-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+    .payment-drawer .action-btn{min-height:32px;padding:7px 10px;border-radius:10px;font-size:.72rem}
+    .action-btn.primary{background:linear-gradient(180deg, var(--gold-2), #b7863a);color:#2b1e16;border-color:#8c6626}
+    .action-btn.primary:hover:not(:disabled){background:linear-gradient(180deg, var(--gold), var(--gold-2))}
+    .action-btn:disabled{background:linear-gradient(180deg, rgba(78,59,47,.75), rgba(45,32,24,.82));color:rgba(218,197,162,.54);cursor:not-allowed;opacity:.9}
+    .mini-note{font-size:.62rem;line-height:1.25;color:var(--text-dim)}
+    .target-chooser{padding:8px;border-radius:12px;background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.22);display:flex;flex-direction:column;gap:8px}
+    .target-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .target-btn{border:1px solid rgba(192,132,252,.22);border-radius:12px;background:rgba(255,255,255,.04);color:var(--text);padding:7px;display:flex;gap:6px;align-items:center;cursor:pointer;text-align:left}
+    .target-btn:hover{border-color:#c084fc;transform:translateY(-1px)}
+    .target-token{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.95rem}
+    .shopper-name{font-weight:900;font-size:.84rem;line-height:1}
+
+    .bottom-dock{
+      position:fixed; left:0; right:0; bottom:0; z-index:20;
+      display:flex; justify-content:center; padding:0 18px 18px;
+      pointer-events:none;
+    }
+    .gnome-stack{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+      max-width:calc(100vw - 36px);
+      pointer-events:auto;
+    }
+    .gnome-chip{
+      min-width:116px; min-height:38px; padding:7px 12px;
+      border-radius:14px; border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(46,31,23,.94), rgba(28,19,14,.98));
+      color:var(--text);
+      display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 8px 18px rgba(0,0,0,.24);
+      transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease,opacity .12s ease;
+    }
+    .gnome-chip:hover{transform:translateY(-1px)}
+    .gnome-chip.active{border-color:var(--border-strong);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 0 0 2px rgba(231,193,124,.16), 0 10px 20px rgba(0,0,0,.28)}
+    .gnome-chip.ko{opacity:.72}
+    .gnome-chip.locked{cursor:default}
+    .gnome-chip.locked:hover{transform:none}
+    .gnome-swatch{width:10px;height:10px;border-radius:999px;background:var(--swatch, var(--gold));box-shadow:0 0 0 1px rgba(255,255,255,.15) inset;flex:0 0 auto}
+    .status-stack{display:inline-flex;gap:4px;align-items:center;margin-left:auto}
+    .status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:.82rem;height:.82rem;padding:0 .08rem;border-radius:999px;background:rgba(58,42,31,.96);border:1px solid rgba(255,235,204,.16);font-size:.54rem;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+    .status-badge.hidden{color:#d6dde8}
+    .status-badge.sticky{color:#f59e0b}
+    .status-badge.distract{color:#c084fc}
+    .status-badge.ko{color:#ff8f8a}
+
+    .prototype-note{
+      position:fixed; right:16px; bottom:16px; z-index:22;
+      padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.08);
+      background:rgba(16,12,10,.62); color:var(--text-dim); font-size:.7rem;
+      box-shadow:0 8px 16px rgba(0,0,0,.18);
+    }
+
+    #game-tooltip{position:fixed;z-index:10000;background:linear-gradient(180deg, rgba(79,55,35,.98), rgba(43,30,22,.98));border:1px solid rgba(231,193,124,.28);border-radius:8px;padding:6px 11px;font-size:.75rem;color:var(--text);white-space:pre-wrap;max-width:240px;pointer-events:none;display:none;box-shadow:0 10px 24px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,245,224,.04);line-height:1.4;font-family:var(--font)}
+
+    @media (max-width: 1180px){
+      .modal-layer{justify-content:flex-start;align-items:flex-start;padding-top:96px;overflow:auto}
+      .payment-drawer{position:relative;left:auto;top:auto;bottom:auto;width:min(100%, 252px);margin-top:14px;transform:translateY(-10px) scale(.99);overflow:visible}
+      .payment-drawer.open{transform:translateY(0) scale(1)}
+      .shell{margin-bottom:170px}
+    }
+    @media (max-width: 760px){
+      .topbar{height:auto;min-height:56px;align-items:flex-start;flex-wrap:wrap;padding:10px 14px}
+      .modal-layer{inset:74px 0 108px 0;padding:20px 14px}
+      .dev-controls{top:112px;left:14px}
+      .store-grid{grid-template-columns:repeat(3,92px);grid-auto-rows:92px;gap:10px}
+      .store-tile{width:92px;height:92px}
+      .target-grid{grid-template-columns:1fr}
+      .gnome-chip{min-width:102px}
+      .prototype-note{display:none}
+    }
+  </style>
+</head>
+<body class="mode-between">
+  <div class="playfield">
+    <div class="board-backdrop"></div>
+    <div class="between-curtain"></div>
+    <div class="play-dim"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="game-wordmark">Gnome Invasion <span class="game-sub">Weaver</span></div>
+      <div class="header-counters">
+        <div id="mock-trouble-wrap" class="header-pressable" title="Trouble counter"><div id="mock-trouble-readout"><span id="mock-trouble-icon">💢</span><strong id="mock-trouble-val">0</strong><span id="mock-trouble-max">/20</span></div></div>
+        <div id="mock-socks-chip" class="header-pressable" title="Banked socks">
+          <span class="socks-icon">🧦</span>
+          <div id="mock-socks-readout"><strong id="mock-Socks-count">0</strong><span id="mock-socks-goal-wrap">/<span id="mock-Socks-goal">8</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-icons"><span>🎟️</span><span>🧪</span><span>⚙️</span></div>
+    </div>
+  </header>
+
+  <div class="dev-controls">
+    <button class="mode-btn active" data-mode="between">Between Houses</button>
+    <button class="mode-btn" data-mode="mid">Mid-House</button>
+    <button class="utility-btn" id="reset-mockup">Reset Mockup</button>
+  </div>
+
+  <main class="modal-layer">
+    <section class="shell" id="weaver-shell">
+      <div class="weaver-stage">
+        <div class="store-grid" id="store-grid"></div>
+      </div>
+      <aside class="payment-drawer" id="payment-drawer"></aside>
+    </section>
+  </main>
+
+  <footer class="bottom-dock">
+    <div class="gnome-stack" id="gnome-stack"></div>
+  </footer>
+
+  <div class="prototype-note">Standalone overlay prototype</div>
+  <div id="game-tooltip"></div>
+
+  <script>
+    const GOODIE_POOL = [
+      { id:'goodie-jar', type:'goodie', icon:'🫙', name:'Moon Jam', desc:'Gain a sticky backup snack. Trades away cleanly for Weaver value.', cost:1 },
+      { id:'goodie-bell', type:'goodie', icon:'🔔', name:'Copper Bell', desc:'A loud little trinket that still counts as 1 value if you burn it at the Weaver.', cost:1 },
+      { id:'goodie-cake', type:'goodie', icon:'🧁', name:'Pocket Cake', desc:'A sweet emergency goodie. Hover text stays off the face of the tile.', cost:1 },
+      { id:'goodie-kite', type:'goodie', icon:'🪁', name:'String Kite', desc:'A fussy toy turned trade good. Great filler for testing inventory pressure.', cost:1 },
+      { id:'goodie-bone', type:'goodie', icon:'🦴', name:'Lucky Bone', desc:'A weird keepsake with a little charm. Still only worth 1 value in this mockup.', cost:1 },
+      { id:'goodie-crystal', type:'goodie', icon:'🔮', name:'Dust Globe', desc:'A delicate trinket. Use this to judge whether burning goodies feels intuitive.', cost:1 }
+    ];
+
+    const HAT_POOL = [
+      { id:'hat-feather', type:'hat', icon:'🎩', name:'Feather Cap', desc:'Soft and jaunty. This purchase replaces the shopper\'s currently equipped hat.', cost:2 },
+      { id:'hat-thimble', type:'hat', icon:'🪡', name:'Thimble Crown', desc:'A prickly little cap. Good for testing the compare row without extra text clutter.', cost:2 },
+      { id:'hat-mushroom', type:'hat', icon:'🍄', name:'Mushroom Hood', desc:'Stout and odd. Serves as a stand-in for a real Weaver hat offer.', cost:2 },
+      { id:'hat-star', type:'hat', icon:'⭐', name:'Starlet Band', desc:'Flashier than practical. Lets you judge how strong a new hat feels next to the current one.', cost:2 },
+      { id:'hat-spool', type:'hat', icon:'🧵', name:'Spool Halo', desc:'Very Weaver-coded. Shows up nicely in the compare row.', cost:2 },
+      { id:'hat-acorn', type:'hat', icon:'🌰', name:'Acorn Helm', desc:'Round, solid, and humble. Another sample hat for layout testing.', cost:2 }
+    ];
+
+    const ACTION_TILES = {
+      reroll:{ id:'action-reroll', type:'action', action:'reroll', icon:'🔄', name:'Reroll', desc:'Refresh all six hat and goodie offers. The reroll tile stays in a fixed slot.', cost:1 },
+      revive:{ id:'action-revive', type:'action', action:'revive', icon:'💖', name:'Revive KO\'d Gnome', desc:'Revive any KO\'d gnome in the room where they were knocked out. If more than one is KO\'d, choose which gnome after paying.', cost:2 },
+      reduce:{ id:'action-reduce', type:'action', action:'reduce', icon:'🕸️', name:'Reduce Threat', desc:'Lower trouble by 1. Each gnome can only buy this once per round.', cost:1 }
+    };
+
+    const BASE_GNOMES = [
+      { id:'maple', name:'Maple', color:'#e7c17c', room:'Nursery', ko:false, hidden:true, stickyBlocked:false, distractActive:false, hat:{ icon:'🪖', name:'Tin Lid', desc:'A reliable, worn-down starter hat.' }, heldSocks:['🧦','🧦'], goodies:[{ icon:'🫙', name:'Moon Jam', desc:'A tradeable held goodie.' }], reduceUsed:false },
+      { id:'pip', name:'Pip', color:'#7fc1ff', room:'Cellar', ko:true, hidden:false, stickyBlocked:false, distractActive:false, hat:{ icon:'🎓', name:'Tutor Cap', desc:'An orderly cap with a plain brim.' }, heldSocks:['🧦'], goodies:[{ icon:'🔔', name:'Copper Bell', desc:'A loud but tradeable trinket.' }], reduceUsed:false },
+      { id:'fern', name:'Fern', color:'#90d89c', room:'Pantry', ko:false, hidden:false, stickyBlocked:false, distractActive:true, hat:null, heldSocks:['🧦'], goodies:[{ icon:'🪁', name:'String Kite', desc:'A light, awkward toy.' }, { icon:'🦴', name:'Lucky Bone', desc:'Probably not lucky.' }], reduceUsed:true },
+      { id:'thim', name:'Thim', color:'#ef9bc5', room:'Attic', ko:true, hidden:false, stickyBlocked:true, distractActive:false, hat:{ icon:'🧢', name:'Patch Cap', desc:'A patched cap with stubborn character.' }, heldSocks:['🧦','🧦'], goodies:[], reduceUsed:false }
+    ];
+
+    const state = {
+      mode:'between',
+      bankedSocks:4,
+      selectedShopper:0,
+      selectedTile:null,
+      selectedPayment:{ banked:[], socks:[], goodies:[] },
+      pendingRevive:false,
+      trouble:5,
+      gnomes:[],
+      offers:{ hats:[], goodies:[] }
+    };
+
+    const el = {
+      socksCount: document.getElementById('mock-Socks-count'),
+      socksGoal: document.getElementById('mock-Socks-goal'),
+      troubleVal: document.getElementById('mock-trouble-val'),
+      troubleMax: document.getElementById('mock-trouble-max'),
+      storeGrid: document.getElementById('store-grid'),
+      paymentDrawer: document.getElementById('payment-drawer'),
+      weaverShell: document.getElementById('weaver-shell'),
+      gnomeStack: document.getElementById('gnome-stack'),
+      tooltip: document.getElementById('game-tooltip')
+    };
+
+    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+    function samplePool(pool, count){
+      const copy = [...pool];
+      for(let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, count).map(item => ({ ...item, soldOut:false }));
+    }
+    function resetMockup(){
+      state.mode = 'between';
+      state.bankedSocks = 4;
+      state.selectedShopper = 0;
+      state.selectedTile = null;
+      state.selectedPayment = { banked:[], socks:[], goodies:[] };
+      state.pendingRevive = false;
+      state.trouble = 5;
+      state.gnomes = clone(BASE_GNOMES);
+      state.offers = { hats: samplePool(HAT_POOL, 3), goodies: samplePool(GOODIE_POOL, 3) };
+      document.body.classList.toggle('mode-mid', false);
+      document.body.classList.toggle('mode-between', true);
+      updateModeButtons();
+      renderAll();
+    }
+    function currentShopper(){ return state.gnomes[state.selectedShopper]; }
+    function paymentCount(){ return state.selectedPayment.banked.length + state.selectedPayment.socks.length + state.selectedPayment.goodies.length; }
+    function selectionComplete(){ return !!state.selectedTile && paymentCount() === state.selectedTile.cost; }
+    function koGnomes(){ return state.gnomes.filter(g => g.ko); }
+    function maxPaymentValue(gnome = currentShopper()){
+      return state.bankedSocks + gnome.heldSocks.length + gnome.goodies.length;
+    }
+    function displayTrouble(){ return state.mode === 'between' ? 0 : state.trouble; }
+    function getStoreTiles(){
+      return [
+        state.offers.hats[0],
+        state.offers.goodies[0],
+        ACTION_TILES.reroll,
+        state.offers.hats[1],
+        state.offers.goodies[1],
+        ACTION_TILES.revive,
+        state.offers.hats[2],
+        state.offers.goodies[2],
+        ACTION_TILES.reduce
+      ];
+    }
+    function statusMarkup(gnome){
+      const bits = [];
+      if(gnome.hidden) bits.push('<span class="status-badge hidden">🫣</span>');
+      if(gnome.stickyBlocked) bits.push('<span class="status-badge sticky">🫟</span>');
+      if(gnome.distractActive) bits.push('<span class="status-badge distract">🤢</span>');
+      if(gnome.ko) bits.push('<span class="status-badge ko">💀</span>');
+      return bits.length ? `<span class="status-stack">${bits.join('')}</span>` : '<span class="status-stack"></span>';
+    }
+    function shopperCanUseReduce(gnome = currentShopper()){
+      return !gnome.reduceUsed;
+    }
+    function getTileState(tile){
+      if(!tile) return { disabled:true, reason:'Missing tile' };
+      if(tile.soldOut) return { disabled:true, reason:'Sold Out' };
+      const shopper = currentShopper();
+      if(tile.action === 'revive' && koGnomes().length === 0) return { disabled:true, reason:'No KO' };
+      if(tile.action === 'reduce' && !shopperCanUseReduce(shopper)) return { disabled:true, reason:'Used' };
+      if(maxPaymentValue(shopper) < tile.cost) return { disabled:true, reason:`Need ${tile.cost}` };
+      return { disabled:false, reason:'' };
+    }
+    function tileTooltip(tile){
+      const stateInfo = getTileState(tile);
+      const lines = [tile.desc, `Cost: ${tile.cost}`];
+      if(tile.type === 'hat') lines.push('Buying this replaces the current shopper\'s hat.');
+      if(tile.type === 'goodie') lines.push('Goodies used for payment are destroyed from the satchel.');
+      if(tile.action === 'reduce') lines.push('Shown as disabled when this shopper already bought it this round.');
+      if(tile.soldOut) lines.push('Currently sold out. Reroll to refresh this offer.');
+      if(stateInfo.reason) lines.push(`Status: ${stateInfo.reason}`);
+      return lines.join('\n');
+    }
+    function clearSelection(){
+      state.selectedTile = null;
+      state.selectedPayment = { banked:[], socks:[], goodies:[] };
+      state.pendingRevive = false;
+    }
+    function renderAll(){
+      renderHeader();
+      renderStack();
+      renderStore();
+      renderDrawer();
+    }
+    function renderHeader(){
+      const maxTrouble = 20;
+      const socksGoal = 8;
+      if (el.socksCount) el.socksCount.textContent = state.bankedSocks;
+      if (el.socksGoal) el.socksGoal.textContent = socksGoal;
+      if (el.troubleVal) el.troubleVal.textContent = displayTrouble();
+      if (el.troubleMax) el.troubleMax.textContent = `/${maxTrouble}`;
+    }
+    function renderStack(){
+      el.gnomeStack.innerHTML = '';
+      state.gnomes.forEach((gnome, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `gnome-chip ${idx === state.selectedShopper ? 'active' : ''} ${gnome.ko ? 'ko' : ''} ${state.mode === 'mid' ? 'locked' : ''}`;
+        btn.style.setProperty('--swatch', gnome.color || '#e7c17c');
+        btn.innerHTML = `<span class="gnome-swatch"></span><span class="shopper-name">${escapeHtml(gnome.name)}</span>${statusMarkup(gnome)}`;
+        if(state.mode === 'between'){
+          btn.addEventListener('click', () => {
+            if(state.selectedShopper !== idx){
+              state.selectedShopper = idx;
+              clearSelection();
+              renderAll();
+            }
+          });
+        } else {
+          btn.disabled = idx !== state.selectedShopper;
+        }
+        el.gnomeStack.appendChild(btn);
+      });
+    }
+    function renderStore(){
+      el.storeGrid.innerHTML = '';
+      getStoreTiles().forEach(tile => {
+        const status = getTileState(tile);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `store-tile ${tile.type === 'action' ? 'action' : ''} ${tile.soldOut ? 'sold' : ''} ${status.disabled ? 'disabled' : ''} ${state.selectedTile && state.selectedTile.id === tile.id ? 'selected' : ''}`;
+        btn.dataset.tip = tileTooltip(tile);
+        btn.innerHTML = `
+          <span class="tile-cost">🧦 ${tile.cost}</span>
+          <span class="tile-icon">${tile.soldOut ? '🪵' : tile.icon}</span>
+          <span class="tile-name">${tile.soldOut ? 'Sold Out' : escapeHtml(tile.name)}</span>
+          <span class="tile-note">${status.disabled ? escapeHtml(status.reason) : '\u00A0'}</span>`;
+        if(status.disabled){
+          btn.disabled = true;
+        } else {
+          btn.addEventListener('click', () => {
+            state.pendingRevive = false;
+            state.selectedPayment = { banked:[], socks:[], goodies:[] };
+            state.selectedTile = tile;
+            renderAll();
+          });
+        }
+        el.storeGrid.appendChild(btn);
+      });
+    }
+    function togglePayment(kind, index){
+      if(!state.selectedTile) return;
+      const list = state.selectedPayment[kind];
+      const found = list.indexOf(index);
+      if(found >= 0){
+        list.splice(found, 1);
+      } else if(paymentCount() < state.selectedTile.cost){
+        list.push(index);
+      }
+      renderDrawer();
+    }
+    function renderDrawer(){
+      const tile = state.selectedTile;
+      if(!tile){
+        el.paymentDrawer.classList.remove('open');
+        el.weaverShell.classList.remove('drawer-open');
+        el.paymentDrawer.innerHTML = '';
+        return;
+      }
+      const shopper = currentShopper();
+      const selected = paymentCount();
+      const pct = Math.max(0, Math.min(100, (selected / tile.cost) * 100));
+      const compareHtml = tile.type === 'hat' ? `
+        <div class="compare-swap">
+          <div class="compare-mini">
+            <div class="compare-icon">${shopper.hat ? shopper.hat.icon : '—'}</div>
+            <div>
+              <div class="compare-sub">Current</div>
+              <div class="compare-name">${shopper.hat ? escapeHtml(shopper.hat.name) : 'No Hat Equipped'}</div>
+            </div>
+          </div>
+          <div class="compare-arrow">→</div>
+          <div class="compare-mini">
+            <div class="compare-icon">${tile.icon}</div>
+            <div>
+              <div class="compare-sub">New</div>
+              <div class="compare-name">${escapeHtml(tile.name)}</div>
+            </div>
+          </div>
+        </div>` : '';
+      const reviveHtml = state.pendingRevive ? renderReviveChooserHtml() : '';
+      el.paymentDrawer.innerHTML = `
+        <div class="drawer-head">
+          <div class="drawer-title">Trade</div>
+        </div>
+        <div class="progress-box">
+          <div class="progress-row"><span>Selected</span><strong>${selected} / ${tile.cost}</strong></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        ${compareHtml}
+        ${renderPaymentGroupHtml('Banked Socks','banked', Array.from({length: state.bankedSocks}, () => ({ icon:'🧦', tip:'Spend 1 banked sock from the Weaver reserve.' })), 'banked')}
+        ${renderPaymentGroupHtml('Held Socks','socks', shopper.heldSocks.map(() => ({ icon:'🧦', tip:'Spend 1 held sock. This destroys the sock from the satchel.' })), 'socks')}
+        ${renderPaymentGroupHtml('Held Goodies','goodies', shopper.goodies.map(g => ({ icon:g.icon, tip:`${g.desc}\n\nSelecting this destroys it from the satchel.` })), 'goodies')}
+        <div class="payment-actions">
+          <button class="action-btn primary" id="confirm-payment" ${selectionComplete() ? '' : 'disabled'}>${state.pendingRevive ? 'Choose Target' : 'Trade'}</button>
+          <button class="action-btn" id="cancel-payment">Cancel</button>
+        </div>
+        ${reviveHtml}`;
+      el.paymentDrawer.classList.add('open');
+      el.weaverShell.classList.add('drawer-open');
+      bindDrawerEvents();
+    }
+    function renderPaymentGroupHtml(label, id, items, kind){
+      const slots = items.length ? items.map((item, idx) => {
+        const selected = state.selectedPayment[kind].includes(idx);
+        return `<button class="pay-slot ${kind === 'goodies' ? 'goodie' : ''} ${selected ? 'selected' : ''}" type="button" data-pay-kind="${kind}" data-pay-idx="${idx}" data-tip="${escapeHtml(item.tip)}">${item.icon}</button>`;
+      }).join('') : '<div class="pay-slot slot-empty" data-tip="Nothing available from this source.">—</div>';
+      return `<div class="payment-group"><div class="payment-label">${label}</div><div class="slot-row" id="group-${id}">${slots}</div></div>`;
+    }
+    function renderReviveChooserHtml(){
+      const targets = koGnomes();
+      if(targets.length === 0) return '<div class="target-chooser"><div class="mini-note">No KO\'d gnomes remain.</div></div>';
+      return `
+        <div class="target-chooser">
+          <div class="target-grid">
+            ${targets.map(g => `
+              <button class="target-btn" type="button" data-revive-id="${g.id}">
+                <div class="target-token">💀</div>
+                <div>
+                  <div class="shopper-name">${escapeHtml(g.name)}</div>
+                  <div class="mini-note">KO in ${escapeHtml(g.room)}</div>
+                </div>
+              </button>`).join('')}
+          </div>
+        </div>`;
+    }
+    function bindDrawerEvents(){
+      el.paymentDrawer.querySelectorAll('[data-pay-kind]').forEach(btn => {
+        btn.addEventListener('click', () => togglePayment(btn.dataset.payKind, Number(btn.dataset.payIdx)));
+      });
+      const cancelBtn = document.getElementById('cancel-payment');
+      if(cancelBtn){
+        cancelBtn.addEventListener('click', () => {
+          clearSelection();
+          renderAll();
+        });
+      }
+      const confirmBtn = document.getElementById('confirm-payment');
+      if(confirmBtn){
+        confirmBtn.addEventListener('click', () => {
+          if(!selectionComplete()) return;
+          if(state.selectedTile.action === 'revive' && koGnomes().length > 1){
+            state.pendingRevive = true;
+            renderDrawer();
+            return;
+          }
+          finalizePurchase();
+        });
+      }
+      el.paymentDrawer.querySelectorAll('[data-revive-id]').forEach(btn => {
+        btn.addEventListener('click', () => finalizePurchase(btn.dataset.reviveId));
+      });
+    }
+    function consumeSelectedResources(gnome){
+      state.selectedPayment.banked.sort((a,b) => b-a).forEach(() => {
+        state.bankedSocks = Math.max(0, state.bankedSocks - 1);
+      });
+      state.selectedPayment.socks.sort((a,b) => b-a).forEach(idx => { gnome.heldSocks.splice(idx, 1); });
+      state.selectedPayment.goodies.sort((a,b) => b-a).forEach(idx => { gnome.goodies.splice(idx, 1); });
+    }
+    function finalizePurchase(reviveTargetId = null){
+      const tile = state.selectedTile;
+      const shopper = currentShopper();
+      consumeSelectedResources(shopper);
+      if(tile.type === 'hat'){
+        shopper.hat = { icon:tile.icon, name:tile.name, desc:tile.desc };
+        const idx = state.offers.hats.findIndex(item => item && item.id === tile.id);
+        if(idx >= 0) state.offers.hats[idx] = { ...tile, soldOut:true };
+      } else if(tile.type === 'goodie'){
+        shopper.goodies.push({ icon:tile.icon, name:tile.name, desc:tile.desc });
+        const idx = state.offers.goodies.findIndex(item => item && item.id === tile.id);
+        if(idx >= 0) state.offers.goodies[idx] = { ...tile, soldOut:true };
+      } else if(tile.action === 'reroll'){
+        state.offers.hats = samplePool(HAT_POOL, 3);
+        state.offers.goodies = samplePool(GOODIE_POOL, 3);
+      } else if(tile.action === 'reduce'){
+        state.trouble = Math.max(0, state.trouble - 1);
+        shopper.reduceUsed = true;
+      } else if(tile.action === 'revive'){
+        const targets = koGnomes();
+        const target = reviveTargetId ? state.gnomes.find(g => g.id === reviveTargetId) : targets[0];
+        if(target) target.ko = false;
+      }
+      clearSelection();
+      renderAll();
+    }
+    function updateModeButtons(){
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === state.mode));
+      document.body.classList.toggle('mode-mid', state.mode === 'mid');
+      document.body.classList.toggle('mode-between', state.mode === 'between');
+    }
+    function escapeHtml(str){
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.mode = btn.dataset.mode;
+        if(state.mode === 'mid') state.selectedShopper = 0;
+        clearSelection();
+        updateModeButtons();
+        renderAll();
+      });
+    });
+    document.getElementById('reset-mockup').addEventListener('click', resetMockup);
+    document.addEventListener('mouseover', e => {
+      const tip = e.target.closest('[data-tip]');
+      if(!tip || !tip.dataset.tip) return;
+      el.tooltip.textContent = tip.dataset.tip;
+      el.tooltip.style.display = 'block';
+    });
+    document.addEventListener('mousemove', e => {
+      if(el.tooltip.style.display !== 'block') return;
+      el.tooltip.style.left = (e.clientX + 16) + 'px';
+      el.tooltip.style.top = (e.clientY + 16) + 'px';
+    });
+    document.addEventListener('mouseout', e => {
+      const tip = e.target.closest('[data-tip]');
+      if(tip) el.tooltip.style.display = 'none';
+    });
+    resetMockup();
+  </script>
+</body>
+</html>
