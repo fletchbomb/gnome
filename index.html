@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v254">
+<html lang="en" data-game-version="v259">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v254</title>
+  <title>Gnome Invasion v259</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -3959,17 +3959,21 @@ function disarmDynamite({ restoreInventory = false, render = true } = {}) {
   if (render) renderAll();
 }
 
-function armShroom(gnome, source = {}) {
+function armLegacyRoomRotate(gnome, source = {}) {
+  const sourceType = source.sourceType || 'goodie';
   G.shroomMode = {
     armed: true,
-    returnGoodieId: 1,
+    returnGoodieId: Object.prototype.hasOwnProperty.call(source, 'returnGoodieId') ? source.returnGoodieId : 1,
     sourceActorIdx: source.actorIdx ?? G.currentGnomeIdx,
     sourceSlotIdx: source.slotIdx ?? null,
+    sourceType,
+    sourceName: source.sourceName || (sourceType === 'hat' ? 'Purple Hat' : 'Shroom'),
+    sourceEmoji: source.sourceEmoji || (sourceType === 'hat' ? '🟣' : '🍄'),
   };
   G.shroomPreview = null;
 }
 
-function disarmShroom({ restoreInventory = false, render = true } = {}) {
+function disarmLegacyRoomRotate({ restoreInventory = false, render = true } = {}) {
   const mode = G.shroomMode;
   if (restoreInventory && mode?.returnGoodieId) {
     const actorIdx = mode.sourceActorIdx ?? G.currentGnomeIdx;
@@ -4041,14 +4045,18 @@ function updateShroomActionTooltip() {
     btn.removeAttribute('title');
     return;
   }
+  const sourceName = G.shroomMode?.sourceName || 'Shroom';
+  const refundable = !!G.shroomMode?.returnGoodieId;
   if (!G.shroomPreview) {
-    btn.title = 'Cancel and refund the Shroom.';
+    btn.title = refundable ? `Cancel and refund the ${sourceName}.` : `Cancel ${sourceName}.`;
     return;
   }
   const tile = G.grid[G.shroomPreview.r]?.[G.shroomPreview.c];
   const originalRot = tile ? (tile.rotationOffset || 0) : 0;
   if ((G.shroomPreview.rotation % 4) === originalRot) {
-    btn.title = 'Cancel and refund the Shroom. This rotation matches the room\'s original position.';
+    btn.title = refundable
+      ? `Cancel and refund the ${sourceName}. This rotation matches the room's original position.`
+      : `${sourceName} has not changed this room yet. Cancel to exit room rotation.`;
     return;
   }
   if (!shroomRotationMaintainsConnection(G.shroomPreview.r, G.shroomPreview.c, G.shroomPreview.rotation)) {
@@ -4174,29 +4182,36 @@ const ROOM_DEFS = [
 ];
 
 const GOODIES_DEFS = [
-  {id:1,name:'Shroom',      emoji:'🍄', desc:'Rotate a room 90°.'},
+  {id:1,name:'Shroom',      emoji:'🍄', desc:'Look at the top 4 Room Tiles and reorder.'},
   {id:2,name:'Coffee Bean', emoji:'☕', desc:'+2 Actions this turn.'},
-  {id:3,name:'Dynamite',    emoji:'💥', desc:'Add a Door.'},
-  {id:4,name:'Pipe',        emoji:'🪈', desc:'💢 -2 Trouble.'},
-  {id:5,name:'Mouse Heart', emoji:'🐭', desc:'Revive a KO\'d Gnome.'},
-  {id:6,name:'Tools',       emoji:'🧰', desc:'Remove Sticky/Creaky'},
+  {id:3,name:'Dynamite',    emoji:'💥', desc:'Create a new 🚪 Door. Also creates connection to any adjacent room.'},
+  {id:4,name:'Flute',       emoji:'🪈', desc:'Reduce 💢 Trouble by 2.'},
+  {id:6,name:'Tools',       emoji:'🧰', desc:'Remove Sticky/Creaky from this Room.'},
+  {id:8,name:'Smoke Pipe',  emoji:'💨', desc:'Add Stinky this turn.'},
 ];
 
 const HATS_DEFS = [
-  {id:1,name:'Green Hat',emoji:'🔺',iconKey:'hat_red',desc:'Gain an action free Move.',default:true, freeMove:true},
+  {id:1,name:'Red Hat',emoji:'🔺',iconKey:'hat_red',desc:'+1 Free Move every turn.',default:true,freeMove:true},
   {id:2,name:'Blue Hat',emoji:'🎩',iconKey:'hat_blue',desc:'+1 Satchel slot.',satchelBonus:1},
-  {id:3,name:'Fedora',emoji:'🪖',desc:'+2 Actions per turn.',actionBonus:2},
-  {id:4,name:'Party Hat',emoji:'🎉',desc:'Draw an Item.'},
-  {id:5,name:'Spiked Helm',emoji:'⛑️',desc:'Kick into Patrol to remove it.'},
-  {id:6,name:'Purple Hat',emoji:'🎵',iconKey:'hat_purple',desc:'Distract all Patrols.',hatAction:'distract'},
-  {id:7,name:'Kid Hat',emoji:'👒',desc:'Invisible to Dog.'},
-  {id:8,name:'Dad Hat',emoji:'🔺',desc:'Carry the Hamper in your Satchel.'},
-  {id:9,name:'Yellow Hat',emoji:'🌀',iconKey:'hat_yellow',desc:'Scry the next 4 Room tiles.',hatAction:'scry'},
+  {id:4,name:'Rainbow Hat',emoji:'🌈',desc:'+1 Satchel slot. +1 Action.',satchelBonus:1,actionBonus:1},
+  {id:6,name:'Purple Hat',emoji:'🟣',iconKey:'hat_purple',desc:'Permanently rotate a room tile 90°. Must always connect 1 door.',hatAction:'roomRotate'},
+  {id:8,name:'Dad Hat',emoji:'🧢',desc:'+2 Actions per turn.',actionBonus:2},
+  {id:9,name:'Yellow Hat',emoji:'🤢',iconKey:'hat_yellow',desc:'Smoke Pipe: Add Stinky. Draw attention from all Patrols this turn.',hatAction:'stinky'},
+  {id:10,name:'Thief Cowl',emoji:'🥷',desc:'Permanent hidden status. Dad can still see you. Reveal effects remove hiding until the start of your next turn.'},
+  {id:11,name:'Bandana',emoji:'🪢',desc:'+1 Satchel slot. Kick in a straight line as far as connected doors allow.',satchelBonus:1},
 ];
 
 const ROOM_DEF_BY_ID = Object.fromEntries(ROOM_DEFS.filter(Boolean).map(def => [def.id, def]));
 const GOODIE_DEF_BY_ID = Object.fromEntries(GOODIES_DEFS.map(def => [def.id, def]));
 function normalizeGoodieId(id) { return id === 7 ? 6 : id; }
+const LEGACY_EFFECTS = Object.freeze({
+  roomRotate: Object.freeze({ key:'roomRotate', label:'Rotate a room 90 degrees', source:'Formerly used by Shroom' }),
+  reviveKOGnome: Object.freeze({ key:'reviveKOGnome', label:'Revive a KO gnome', source:'Formerly used by Mouse Heart' }),
+  drawItemHat: Object.freeze({ key:'drawItemHat', label:'Draw an item', source:'Formerly used by Party Hat' }),
+  kickRemovePatrol: Object.freeze({ key:'kickRemovePatrol', label:'Kick into Patrol to remove it', source:'Formerly used by Spiked Helm' }),
+  invisibleToDog: Object.freeze({ key:'invisibleToDog', label:'Invisible to Dog', source:'Formerly used by Kid Hat' }),
+  carryHamper: Object.freeze({ key:'carryHamper', label:'Carry the Hamper in your Satchel', source:'Formerly used by Dad Hat' }),
+});
 const HAT_DEF_BY_ID = Object.fromEntries(HATS_DEFS.map(def => [def.id, def]));
 
 
@@ -4212,6 +4227,30 @@ function showHatCancelled(gnome) {
 function getHatDef(id) { return HAT_DEF_BY_ID[id] || null; }
 function getActiveHatDef(gnome) { return getHatDef(getEffectiveHatId(gnome)); }
 function getHatActionType(gnome) { return getActiveHatDef(gnome)?.hatAction || null; }
+function isThiefCowlHatId(hatId) { return hatId === 10; }
+function hasThiefCowlEquipped(gnome) { return !!(gnome?.hat != null && isThiefCowlHatId(gnome.hat)); }
+function isThiefCowlActive(gnome) { return isThiefCowlHatId(getEffectiveHatId(gnome)); }
+function isBandanaHatId(hatId) { return hatId === 11; }
+function isBandanaActive(gnome) { return isBandanaHatId(getEffectiveHatId(gnome)); }
+function shouldApplyThiefCowlHidden(gnome) {
+  return !!(gnome && !gnome.ko && isThiefCowlActive(gnome) && !G.lightsOn && !gnome.thiefCowlRevealUntilTurnStart);
+}
+function syncPassiveHiddenForGnome(gnome) {
+  if (!gnome) return false;
+  if (shouldApplyThiefCowlHidden(gnome)) {
+    gnome.hidden = true;
+    gnome.cowlHiddenActive = true;
+    return true;
+  }
+  if (gnome.cowlHiddenActive) {
+    gnome.hidden = false;
+    gnome.cowlHiddenActive = false;
+  }
+  return false;
+}
+function syncPassiveHiddenForAllGnomes() {
+  G.gnomes?.forEach(syncPassiveHiddenForGnome);
+}
 function isFreeMoveAvailable(gnome) {
   return !!(G.phase === 'gnome' && gnome && !gnome.ko && G.actionsLeft === 0 && getActiveHatDef(gnome)?.freeMove && !gnome.freeMoveUsedThisTurn && !gnome.stickyBlocked);
 }
@@ -4248,15 +4287,16 @@ function clearDistractState({ reason = '', log = false } = {}) {
   const g = G.gnomes?.[actorIdx];
   if (g) g.distractActive = false;
   G.distractState = null;
-  if (G.patrolTargetOverride?.source === 'distract') clearPatrolTargetOverride();
-  if (log && reason && g) addLog(`🎵 ${g.name} loses Distract${reason}`, 'system');
+  if (G.patrolTargetOverride?.source === 'stinky') clearPatrolTargetOverride();
+  if (log && reason && g) addLog(`🤢 ${g.name} loses Stinky${reason}`, 'system');
   return true;
 }
 function getDistractSourceGnome() {
   const idx = G.distractState?.actorIdx;
   if (idx == null) return null;
   const g = G.gnomes?.[idx] || null;
-  if (!g || g.ko || getHatActionType(g) !== 'distract') return null;
+  if (!g || g.ko) return null;
+  if (G.distractState?.sourceType === 'hat' && getHatActionType(g) !== 'stinky') return null;
   return g;
 }
 function ensureDistractStateValid({ log = false } = {}) {
@@ -4265,24 +4305,42 @@ function ensureDistractStateValid({ log = false } = {}) {
   if (G.distractState) clearDistractState({ reason: ' immediately.', log });
   return null;
 }
-function activateDistract(gnome, actorIdx) {
+function activateDistract(gnome, actorIdx, options = {}) {
   const existing = ensureDistractStateValid();
   if (existing) existing.distractActive = false;
   gnome.distractActive = true;
-  G.distractState = { actorIdx, expiresOnActorTurnStart: actorIdx };
-  setPatrolTargetOverride({ scope:'global', mode:'distract', source:'distract' });
-  addLog(`🎵 ${gnome.name} distracts all patrols until their next turn.`, 'good');
+  G.distractState = { actorIdx, expiresOnActorTurnStart: actorIdx, sourceType: options.sourceType || 'hat' };
+  setPatrolTargetOverride({ scope:'global', mode:'stinky', source:'stinky' });
+  addLog(`🤢 ${gnome.name} becomes the patrol target until their next turn.`, 'good');
 }
+function doStinky(sourceType = 'hat') {
+  const gnome = G.gnomes[G.currentGnomeIdx];
+  if (!gnome || G.actionsLeft < 0) return false;
+  const applyNow = () => { if (sourceType === 'hat') spendAction(); activateDistract(gnome, G.currentGnomeIdx, { sourceType }); G.selectedAction = null; renderAll(); };
+  const existing = ensureDistractStateValid();
+  if (existing && existing !== gnome) {
+    showModal('Replace Stinky?', 'This will end the current Stinky effect and apply it to this gnome instead.', [
+      { label: 'Replace Stinky', cls: 'confirm', action: () => { G.modalLocked = false; closeModal(); applyNow(); } },
+      { label: 'Cancel', cls: 'cancel', action: () => { G.modalLocked = false; closeModal(); } },
+    ]);
+    return true;
+  }
+  applyNow();
+  return true;
+}
+
 function beginGnomeTurn(actorIdx) {
   G.currentGnomeIdx = actorIdx;
   clearInteractionModes({ clearScurry: true, render: false });
   const g = G.gnomes[actorIdx];
   if (!g) return;
   if (G.distractState?.expiresOnActorTurnStart === actorIdx) clearDistractState({ reason: ' at the start of their turn.', log: true });
+  if (g.thiefCowlRevealUntilTurnStart) g.thiefCowlRevealUntilTurnStart = false;
   g.freeMoveUsedThisTurn = false;
   g.eventDrawnThisTurn = false;
   g.looseSatchelThisTurn = false;
   updateActionsForHat();
+  syncPassiveHiddenForGnome(g);
   addLog(`--- ${g.name}'s turn ---`,'system');
 }
 function getPatrolDistractTarget() {
@@ -4375,7 +4433,13 @@ function triggerHatAction() {
   const g = G.gnomes[G.currentGnomeIdx];
   const hatAction = getHatActionType(g);
   if (!g || G.phase !== 'gnome' || g.ko || G.actionsLeft <= 0) return false;
-  if (hatAction === 'distract') return doDistract();
+  if (hatAction === 'stinky') return doStinky('hat');
+  if (hatAction === 'roomRotate') {
+    armLegacyRoomRotate(g, { actorIdx: G.currentGnomeIdx, sourceType: 'hat', sourceName: 'Purple Hat', sourceEmoji: '🟣', returnGoodieId: null });
+    G.selectedAction = null;
+    renderAll();
+    return true;
+  }
   if (hatAction === 'scry') return openScryModal();
   return false;
 }
@@ -4552,8 +4616,9 @@ function clearInteractionModes({ log = false, render = false, clearScurry = fals
   if (G.kickMode) { G.kickMode = null; changed = true; }
   if (G.ventMode) { G.ventMode = false; changed = true; }
   if (G.dynamiteMode) { disarmDynamite({ restoreInventory: true, render: false }); changed = true; }
-  if (G.shroomMode) { disarmShroom({ restoreInventory: true, render: false }); changed = true; }
+  if (G.shroomMode) { disarmLegacyRoomRotate({ restoreInventory: true, render: false }); changed = true; }
   else if (G.shroomPreview) { G.shroomPreview = null; changed = true; }
+  if (G.goodieScryMode) { G.goodieScryMode = null; changed = true; }
   if (changed && log) addLog(log, 'system');
   if (changed && render) renderAll();
   return changed;
@@ -4621,7 +4686,7 @@ const UI_COMMANDS = Object.freeze({
   doVent: () => executeGameAction('vent'),
   cancelVent: () => { G.ventMode = false; renderAll(); },
   cancelDynamite: () => { disarmDynamite({ restoreInventory: true, render: true }); },
-  cancelShroom: () => { disarmShroom({ restoreInventory: true, render: true }); },
+  cancelShroom: () => { disarmLegacyRoomRotate({ restoreInventory: true, render: true }); },
   shroomConfirm: () => executeGameAction('shroomConfirm'),
   depositSocks: () => executeGameAction('deposit'),
   openWeaver: () => executeGameAction('weaver'),
@@ -4653,7 +4718,7 @@ function getActiveBoardInteractionId() {
 function rotateShroomTarget(r, c) {
   const tile = G.grid[r]?.[c];
   if (!tile) return false;
-  const shroomTargets = getShroomTargets();
+  const shroomTargets = getLegacyRoomRotateTargets();
   const isTarget = shroomTargets.some(([tr, tc]) => tr === r && tc === c);
   if (!isTarget) return false;
   const curRot = (G.shroomPreview?.r === r && G.shroomPreview?.c === c)
@@ -4983,7 +5048,7 @@ const GAME_ACTIONS = Object.freeze({
   shroomConfirm: {
     createIntent: () => ({ actionId: 'shroomConfirm', actorIdx: G.currentGnomeIdx }),
     validate: () => G.shroomPreview ? { ok: true } : 'No rotation selected — click a room first.',
-    apply: () => shroomConfirm(),
+    apply: () => confirmLegacyRoomRotate(),
   },
   shroomRotateTarget: {
     transactional: false,
@@ -4991,7 +5056,7 @@ const GAME_ACTIONS = Object.freeze({
     validate: intent => {
       const tile = G.grid[intent.target.r]?.[intent.target.c];
       if (!tile) return 'No room there to rotate.';
-      const isTarget = getShroomTargets().some(([r, c]) => r === intent.target.r && c === intent.target.c);
+      const isTarget = getLegacyRoomRotateTargets().some(([r, c]) => r === intent.target.r && c === intent.target.c);
       return isTarget ? { ok: true } : 'That room cannot be rotated by Shroom.';
     },
     apply: intent => rotateShroomTarget(intent.target.r, intent.target.c),
@@ -5026,14 +5091,14 @@ const GAME_ACTIONS = Object.freeze({
     createIntent: () => ({ actionId: 'endTurn', actorIdx: G.currentGnomeIdx }),
     apply: () => endGnomeTurn(),
   },
-  distract: {
-    createIntent: () => ({ actionId: 'distract', actorIdx: G.currentGnomeIdx }),
-    validate: intent => { const ctx = createActionContext(intent); const baseError = validateGnomeTurnActionContext(ctx); if (baseError) return baseError; if (getHatActionType(ctx.gnome) !== 'distract') return 'Purple Hat is not active.'; return { ok: true }; },
-    apply: () => doDistract(),
+  stinky: {
+    createIntent: () => ({ actionId: 'stinky', actorIdx: G.currentGnomeIdx }),
+    validate: intent => { const ctx = createActionContext(intent); const baseError = validateGnomeTurnActionContext(ctx); if (baseError) return baseError; if (getHatActionType(ctx.gnome) !== 'stinky') return 'This hat does not grant Stinky.'; return { ok: true }; },
+    apply: () => doStinky('hat'),
   },
   scry: {
     createIntent: () => ({ actionId: 'scry', actorIdx: G.currentGnomeIdx }),
-    validate: intent => { const ctx = createActionContext(intent); const baseError = validateGnomeTurnActionContext(ctx); if (baseError) return baseError; if (getHatActionType(ctx.gnome) !== 'scry') return 'Yellow Hat is not active.'; if (!G.roomDeck.length) return 'No rooms left to preview.'; return { ok: true }; },
+    validate: intent => { const ctx = createActionContext(intent); const baseError = validateGnomeTurnActionContext(ctx); if (baseError) return baseError; if (getHatActionType(ctx.gnome) !== 'scry') return 'This hat does not grant Scry.'; if (!G.roomDeck.length) return 'No rooms left to preview.'; return { ok: true }; },
     apply: () => openScryModal(),
   },
   useGoodie: {
@@ -5163,7 +5228,7 @@ const V3_EVENT_CARDS_PENDING = [
 // ─────────────────────────────────────────────
 var G = {};
 
-const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v254';
+const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v259';
 
 const GAME_BUILD = Object.freeze({
   boardCellSize: 162,
@@ -5196,9 +5261,9 @@ const BASE_ROOM_DECK_TEMPLATE = [
   12,          // 1× Bathroom
   13,          // 1× Linen Closet
 ];
-const STARTING_HAT_POOL_TEMPLATE = [2,3,4,5,6,7,8,9,2,6,9,4];
-const BETWEEN_HOUSE_HAT_POOL_TEMPLATE = [2,3,4,5,6,9];
-const BETWEEN_HOUSE_GOODIE_POOL_TEMPLATE = [1,2,3,4,5,6,1,2,3,4,5,6];
+const STARTING_HAT_POOL_TEMPLATE = [1,2,4,6,8,9,10,11,1,2,4,6,8,9,10,11];
+const BETWEEN_HOUSE_HAT_POOL_TEMPLATE = [1,2,4,6,8,9,10,11];
+const BETWEEN_HOUSE_GOODIE_POOL_TEMPLATE = [1,2,3,4,6,8,1,2,3,4,6,8];
 
 function createEmptyGrid(size = GRID_SIZE) {
   return Array.from({length:size}, () => Array(size).fill(null));
@@ -5290,7 +5355,7 @@ function setPatrolTargetOverride(override = null) {
 function getActivePatrolTargetOverride() {
   const override = G?.patrolTargetOverride || null;
   if (!override) return null;
-  if (override.mode === 'distract') {
+  if (override.mode === 'stinky') {
     const target = getPatrolDistractTarget();
     if (!target) {
       G.patrolTargetOverride = null;
@@ -5304,7 +5369,7 @@ function getPatrolOverrideTarget(patrol) {
   const override = getActivePatrolTargetOverride();
   if (!override) return null;
   if (override.scope === 'specific' && override.patrolType !== patrol.type) return null;
-  if (override.mode === 'distract') return getPatrolDistractTarget();
+  if (override.mode === 'stinky') return getPatrolDistractTarget();
   if (override.mode === 'room') return { row: override.targetR, col: override.targetC };
   if (override.mode === 'roomId') {
     const coords = getRoomCoordsById(override.roomId);
@@ -5684,7 +5749,7 @@ function createCoreState({ house = 1, roomDeck, goodiePool, hatPool, gnomes = []
     hamper:{row:-1, col:-1, items:[]},  // Hamper disabled for now — set row/col to GRID_CENTER to re-enable
     trouble:0, SocksBanked:0, house,
     phase:'gnome', currentGnomeIdx:0, actionsLeft:2, actionCapacity:2,
-    distractState:null, scryOrder:null, scryAnim:null, scryQueue:null, modalLocked:false, currentPatrolType:null,
+    distractState:null, scryOrder:null, scryAnim:null, scryQueue:null, goodieScryMode:null, modalLocked:false, currentPatrolType:null,
     tilesRevealed:1,
     roundFirstRevealEventUsed:false,
     roundFirstDepositEventUsed:false,
@@ -5732,6 +5797,7 @@ function hydrateInitialBoard(state, playerCount, names, selectedProfiles = null)
       row:state.CENTER, col:state.CENTER, hat:(startingHatByProfile[srcIdx] ?? null),
       satchel: Array(BASE_SATCHEL_SIZE + 1).fill(null),
       ko:false, hidden:false, stickyExitMoves:0, freeMoveUsedThisTurn:false, eventDrawnThisTurn:false, looseSatchelThisTurn:false, distractActive:false,
+      thiefCowlRevealUntilTurnStart:false, cowlHiddenActive:false,
     });
   }
   state.gnomes = gnomes;
@@ -7002,7 +7068,7 @@ function renderBoard() {
         appendDebugDoorOverlay(cell, r, c);
 
         if (G.shroomMode) {
-          const shroomTargets = getShroomTargets();
+          const shroomTargets = getLegacyRoomRotateTargets();
           const isTarget = shroomTargets.some(([tr,tc])=>tr===r&&tc===c);
           if (isTarget) {
             cell.classList.add('shroom-target');
@@ -7314,7 +7380,7 @@ function renderGnomePanels() {
       const statusStack = createElement('span', { className: 'gnome-status-stack' });
       if (g.hidden) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge hidden', text: '🫣' }));
       if (g.stickyBlocked) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge sticky', text: '🫟' }));
-      if (g.distractActive) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge distract', text: '🎵' }));
+      if (g.distractActive) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge distract', text: '🤢' }));
       if (g.ko) statusStack.appendChild(createElement('span', { className: 'gnome-status-badge ko', text: '💀' }));
       emojiWrap.appendChild(statusStack);
     }
@@ -7761,7 +7827,7 @@ function showOccupantPopup(anchor, obj, type, r, c) {
       if (inRoom && og!==gnome && dests.length && G.actionsLeft>0) {
         addPopupBtn(popup,`👟 Kick ${og.name}`,()=>{closeItemPopup();G.kickMode={target:{label:`${og.emoji} ${og.name}`,emoji:og.emoji,type:'gnome',ref:og},destinations:dests};addLog(UI_TEXT.kickChooseRoom(og.name),'system');renderAll();});
       }
-      if (inRoom && og.ko) addPopupBtn(popup,`🐭 Revive (need Mouse Heart)`,()=>{closeItemPopup();addLog('Use a Mouse Heart goodie to revive.','bad');});
+      
       addPopupBtn(popup,`📍 ${og.name} — ${getRoomName(og.row,og.col)}`,()=>closeItemPopup());
     }
   } else if (type==='hamper') {
@@ -7945,12 +8011,18 @@ function maybeApplyLooseSatchelOnMove(gnome) {
 
 function applyLightsOnEventEffect() {
   G.lightsOn = true;
-  G.gnomes.forEach(g => { if (!g.ko) g.hidden = false; });
+  G.gnomes.forEach(g => {
+    if (g.ko) return;
+    if (hasThiefCowlEquipped(g)) g.thiefCowlRevealUntilTurnStart = true;
+    g.hidden = false;
+    g.cowlHiddenActive = false;
+  });
   addLog('💡 Lights On! All Gnomes are revealed and cannot hide this turn.', 'bad');
 }
 
 function applyDisturbanceEventEffect() {
   G.dressCodeActive = true;
+  syncPassiveHiddenForAllGnomes();
   addLog('📣 Disturbance! Hat abilities are disabled this turn.', 'bad');
   renderAll();
 }
@@ -8112,20 +8184,20 @@ function renderActions() {
     label: freeMoveReady ? 'Free Move' : UI_TEXT.action.move.replace(/^🚶\s*/, ''),
     icon: freeMoveReady ? '🔺' : '🚶',
     active: G.selectedAction === 'move',
-    title: freeMoveReady ? 'Green Hat: one free normal move at 0 actions' : '',
+    title: freeMoveReady ? 'Red Hat: one free normal move at 0 actions' : '',
     commandName: 'selectAction',
     commandArg: 'move',
   });
   const moveBtn = document.getElementById('btn-move');
   if (moveBtn) moveBtn.classList.toggle('free-move-ready', !!freeMoveReady);
 
-  const hatActionVisible = hatActionType === 'distract' || hatActionType === 'scry';
+  const hatActionVisible = hatActionType === 'stinky' || hatActionType === 'scry' || hatActionType === 'roomRotate';
   const hatActionDisabled = actionLocked || (hatActionType === 'scry' && !G.roomDeck.length);
   updateActionControl('btn-scurry', {
     visible: !!hatActionVisible,
     disabled: hatActionDisabled,
-    label: hatActionType === 'distract' ? 'Distract' : (hatActionType === 'scry' ? 'Scry' : 'Hat'),
-    icon: hatActionType === 'distract' ? '🎵' : (hatActionType === 'scry' ? '🌀' : '🎩'),
+    label: hatActionType === 'stinky' ? 'Stinky' : (hatActionType === 'roomRotate' ? 'Rotate' : (hatActionType === 'scry' ? 'Scry' : 'Hat')),
+    icon: hatActionType === 'stinky' ? '🤢' : (hatActionType === 'roomRotate' ? '🟣' : (hatActionType === 'scry' ? '🌀' : '🎩')),
     active: false,
     commandName: 'selectAction',
     commandArg: 'hatAction',
@@ -8206,7 +8278,7 @@ function renderActions() {
       : (G.shroomMode
           ? (shroomRotationMaintainsConnection((G.shroomPreview||{}).r, (G.shroomPreview||{}).c, (G.shroomPreview||{}).rotation) ? 'Confirm' : 'Cancel')
           : 'Confirm'),
-    icon: G.dynamiteMode ? '💥' : '🍄',
+    icon: G.dynamiteMode ? '💥' : (G.shroomMode?.sourceEmoji || '🍄'),
     commandName: G.dynamiteMode
       ? 'cancelDynamite'
       : (G.shroomMode
@@ -8338,7 +8410,7 @@ function renderPatrols() {
     if (p.stickyBlocked) status.appendChild(createElement('span', { className: 'patrol-ref-pill sticky', text: '🫟 Sticky' }));
     const carriedSocks = getPatrolCarriedSockCount(p);
     if (carriedSocks > 0) status.appendChild(createElement('span', { className: 'patrol-ref-pill', text: `🧦 x${carriedSocks}` }));
-    if (G.distractState) status.appendChild(createElement('span', { className: 'patrol-ref-pill distract', text: '🎵 Distracted' }));
+    if (G.distractState) status.appendChild(createElement('span', { className: 'patrol-ref-pill distract', text: '🤢 Stinky' }));
     if (status.childNodes.length) body.appendChild(status);
     const targetLabel = getPatrolLiveTargetLabel(p);
     if (targetLabel) {
@@ -8574,7 +8646,7 @@ function cancelPendingBoardAction(kind='action') {
   if (G.kickMode) { G.kickMode = null; cancelled = true; }
   if (G.ventMode) { G.ventMode = false; cancelled = true; }
   if (G.dynamiteMode) { disarmDynamite({ restoreInventory: true, render: false }); cancelled = true; }
-  if (G.shroomMode) { disarmShroom({ restoreInventory: true, render: false }); cancelled = true; }
+  if (G.shroomMode) { disarmLegacyRoomRotate({ restoreInventory: true, render: false }); cancelled = true; }
   if (G.selectedAction) { G.selectedAction = null; cancelled = true; }
   if (cancelled) {
     addLog(`Cancelled ${kind}.`, 'system');
@@ -8623,13 +8695,15 @@ function removeStickyForActiveGnome() {
 
 function moveGnomeTo(gnome, r, c, isScurry=false) {
   if (G.dynamiteMode) disarmDynamite({ restoreInventory: true, render: false });
-  if (G.shroomMode) disarmShroom({ restoreInventory: true, render: false });
+  if (G.shroomMode) disarmLegacyRoomRotate({ restoreInventory: true, render: false });
   const fromKey = `${gnome.row},${gnome.col}`;
   const toKey = `${r},${c}`;
   const tile = G.grid[r][c];
   AUDIO_MANAGER.beginMove('gnome', { gnome, toR: r, toC: c, isScurry, suppressMoveSound: !!tile?.sticky });
   gnome.row = r; gnome.col = c;
   gnome.hidden = false;
+  gnome.cowlHiddenActive = false;
+  syncPassiveHiddenForGnome(gnome);
   const def = ROOM_DEFS[tile.roomId];
   addLog(`${gnome.name} → ${def.name}`);
   maybeApplyLooseSatchelOnMove(gnome);
@@ -8788,8 +8862,11 @@ function getShroomPreviewDoorDirs(tile, rotationOverride = null) {
   return delta ? rotateDirs(getTileDoors(tile), delta) : getTileDoors(tile);
 }
 
-function shroomConfirm() {
+function confirmLegacyRoomRotate() {
   if (!G.shroomPreview) { addLog('No rotation selected — click a room first.','bad'); return; }
+  const mode = G.shroomMode || {};
+  const sourceName = mode.sourceName || 'Shroom';
+  const sourceEmoji = mode.sourceEmoji || '🍄';
   const {r, c, rotation} = G.shroomPreview;
   const tile = G.grid[r][c];
   if (!tile) return;
@@ -8814,24 +8891,24 @@ function shroomConfirm() {
   tile.pendingDoorDirs = rotatedPendingDirs;
   normalizeTileDoorState(tile);
 
-  if (!G.shroomMode?.committed) {
-    const sourceSlotIdx = G.shroomMode?.sourceSlotIdx;
-    const sourceActorIdx = G.shroomMode?.sourceActorIdx ?? G.currentGnomeIdx;
-    if (typeof sourceSlotIdx === 'number' && sourceSlotIdx >= 0) {
+  if (!mode.committed) {
+    const sourceSlotIdx = mode.sourceSlotIdx;
+    const sourceActorIdx = mode.sourceActorIdx ?? G.currentGnomeIdx;
+    if (typeof sourceSlotIdx === 'number' && sourceSlotIdx >= 0 && mode.returnGoodieId) {
       const actor = G.gnomes[sourceActorIdx];
-      if (actor && actor.satchel[sourceSlotIdx]?.type === 'goodie' && actor.satchel[sourceSlotIdx]?.id === 1) actor.satchel[sourceSlotIdx] = null;
+      if (actor && actor.satchel[sourceSlotIdx]?.type === 'goodie' && actor.satchel[sourceSlotIdx]?.id === mode.returnGoodieId) actor.satchel[sourceSlotIdx] = null;
     }
     spendAction();
     G.shroomMode.committed = true;
   }
   GAME_EVENTS.emit('shroom.rotate');
-  addLog(`🍄 Shroom applied — ${ROOM_DEFS[tile.roomId].name} rotated to ${rotation*90}°!`, 'good');
+  addLog(`${sourceEmoji} ${sourceName} applied — ${ROOM_DEFS[tile.roomId].name} rotated to ${rotation*90}°!`, 'good');
   G.shroomMode = false;
   G.shroomPreview = null;
   renderAll();
 }
 
-function getShroomTargets() {
+function getLegacyRoomRotateTargets() {
   const gnome = G.gnomes[G.currentGnomeIdx];
   if (!gnome) return [];
   const targets = [[gnome.row, gnome.col]];
@@ -8840,6 +8917,18 @@ function getShroomTargets() {
     if (nr>=0&&nr<G.GRID&&nc>=0&&nc<G.GRID&&G.grid[nr][nc]) targets.push([nr,nc]);
   }
   return targets;
+}
+function armShroom(gnome, source = {}) { return armLegacyRoomRotate(gnome, source); }
+function disarmShroom(options = {}) { return disarmLegacyRoomRotate(options); }
+function shroomConfirm() { return confirmLegacyRoomRotate(); }
+function getShroomTargets() { return getLegacyRoomRotateTargets(); }
+function applyLegacyReviveKOGnome(gnome, id = 5) {
+  const ko = G.gnomes.find(g=>g.ko);
+  if (ko) { ko.ko = false; addLog(`🐭 ${ko.name} revived!`, 'good'); return true; }
+  const free = gnome?.satchel?.findIndex?.(s=>s===null) ?? -1;
+  if (free !== -1) gnome.satchel[free] = {type:'goodie', id};
+  addLog('🐭 Nobody to revive — legacy revive returned.', 'bad');
+  return false;
 }
 
 function blastWall(dir, nr, nc) {
@@ -8995,8 +9084,32 @@ function getKickTargetsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
   return targets;
 }
 
+function getStraightLineKickDestinationsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
+  if (!kicker) return [];
+  const result = [];
+  for (const [dir, [dr, dc]] of Object.entries(DIR_DELTA)) {
+    let cr = kicker.row;
+    let cc = kicker.col;
+    let current = G.grid[cr]?.[cc];
+    while (current) {
+      const nr = cr + dr;
+      const nc = cc + dc;
+      const next = G.grid[nr]?.[nc];
+      if (!next || !tilesConnected(current, next)) break;
+      result.push([nr, nc]);
+      cr = nr;
+      cc = nc;
+      current = next;
+    }
+  }
+  return result;
+}
+
 function getKickDestinationsForGnome(kicker = G.gnomes[G.currentGnomeIdx]) {
-  return kicker ? getConnectedRooms(kicker.row, kicker.col) : [];
+  if (!kicker) return [];
+  return isBandanaActive(kicker)
+    ? getStraightLineKickDestinationsForGnome(kicker)
+    : getConnectedRooms(kicker.row, kicker.col);
 }
 
 
@@ -9063,12 +9176,6 @@ function executeKick(dr, dc) {
     target.ref.col = dc;
     GAME_EVENTS.emit('kick.executed', { itemType: 'gnome' });
     addLog(`${kicker.name} kicks ${target.ref.name} into ${destName}!`, 'good');
-    const helmed = getEffectiveHatId(target.ref) === 5;
-    const patrolThere = G.patrols.find(p => p.row===dr && p.col===dc);
-    if (helmed && patrolThere) {
-      G.patrols.splice(G.patrols.indexOf(patrolThere), 1);
-      addLog(`⛑️ Spiked Helm! ${capitalize(patrolThere.type)} patrol removed!`, 'good');
-    }
     const destTile = G.grid[dr][dc];
     if (destTile?.sticky) { target.ref.stickyBlocked = true; target.ref.stickyCell = `${dr},${dc}`; addLog(`🫟 ${target.ref.name} lands in sticky room!`, 'bad'); }
   } else if (target.type === 'hamper') {
@@ -9238,11 +9345,11 @@ function isGoodieUsable(gnome, id) {
     case 2: return true;
     case 3: return getBlastableWalls().length > 0;
     case 4: return G.trouble > 0;
-    case 5: return G.gnomes.some(g=>g.ko);
     case 6: {
       const t=G.grid[gnome.row][gnome.col];
       return !!(t?.sticky || t?.creaky);
     }
+    case 8: return true;
     default: return true;
   }
 }
@@ -9254,8 +9361,8 @@ function applyGoodie(gnome, id, options = {}) {
 
   switch(id) {
     case 1:
-      armShroom(gnome, { actorIdx: G.currentGnomeIdx, slotIdx: options.slotIdx ?? null });
-      addLog('🍄 Shroom! Choose your room or an adjacent room, then rotate and confirm.','good');
+      openGoodieScryModal(gnome, { slotIdx: options.slotIdx ?? null });
+      addLog(`🍄 ${gnome.name} reorders the next ${Math.min(4, getScryPreviewIds().length)} Room Tiles.`, 'good');
       renderAll();
       break;
     case 2:
@@ -9282,21 +9389,14 @@ function applyGoodie(gnome, id, options = {}) {
       if (G.trouble <= 0) {
         const free = gnome.satchel.findIndex(s=>s===null);
         if (free !== -1) gnome.satchel[free] = {type:'goodie', id};
-        addLog('🪈 Trouble is already 0 — Pipe returned.', 'bad');
+        addLog('🪈 Trouble is already 0 — Flute returned.', 'bad');
       } else {
         G.trouble = Math.max(0, G.trouble-2); updateHeader(); addLog('🪈 Trouble -2!','good');
       }
       break;
-    case 5: {
-      const ko = G.gnomes.find(g=>g.ko);
-      if (ko) { ko.ko=false; addLog(`🐭 ${ko.name} revived!`,'good'); }
-      else {
-        const free = gnome.satchel.findIndex(s=>s===null);
-        if (free !== -1) gnome.satchel[free] = {type:'goodie', id};
-        addLog('🐭 Nobody to revive — Mouse Heart returned.', 'bad');
-      }
+    case 8:
+      doStinky('goodie');
       break;
-    }
     case 6: {
       const tileTools = G.grid[gnome.row][gnome.col];
       if (tileTools?.sticky || tileTools?.creaky) {
@@ -9931,7 +10031,7 @@ function renderWeaverScreen() {
     const recipientAttrs = canReceive ? ` data-recipient-idx="${idx}"` : (canSwitchShopper ? ` data-weaver-shopper-idx="${idx}"` : '');
     const recipientClass = canReceive ? ' is-recipient' : (canSwitchShopper ? ' is-shopper-switch' : '');
     const statusStack = (g.hidden || g.stickyBlocked || g.distractActive)
-      ? `<span class="gnome-status-stack">${g.hidden ? '<span class="gnome-status-badge hidden">🫣</span>' : ''}${g.stickyBlocked ? '<span class="gnome-status-badge sticky">🫟</span>' : ''}${g.distractActive ? '<span class="gnome-status-badge distract">🎵</span>' : ''}</span>`
+      ? `<span class="gnome-status-stack">${g.hidden ? '<span class="gnome-status-badge hidden">🫣</span>' : ''}${g.stickyBlocked ? '<span class="gnome-status-badge sticky">🫟</span>' : ''}${g.distractActive ? '<span class="gnome-status-badge distract">🤢</span>' : ''}</span>`
       : '';
     const title = hat ? `${hat.name}: ${hat.desc}${showHatCancelled(g) ? ' (cancelled this round)' : ''}` : 'No hat equipped';
     return `
@@ -10149,6 +10249,8 @@ function resetGnomeForNewHouse(gnome) {
     hidden: false,
     stickyBlocked: false,
     stickyExitMoves: 0,
+    thiefCowlRevealUntilTurnStart: false,
+    cowlHiddenActive: false,
   };
 }
 
@@ -10305,6 +10407,7 @@ function updateActionsForHat() {
   G.actionCapacity = G.actionsLeft;
   G.gnomes?.forEach(gn => reconcileSatchelOverflow(gn, { log: false }));
   ensureDistractStateValid();
+  syncPassiveHiddenForAllGnomes();
 }
 
 function spendAction() {
@@ -11878,8 +11981,8 @@ function canGnomeHideNow(gnome) {
   return !!(G.phase === 'gnome' && gnome && !gnome.ko && G.actionsLeft > 0 && !G.lightsOn && isInHidingRoom(gnome));
 }
 function confirmHideCancelsDistract(gnome, onConfirm) {
-  showModal('Lose Distract?', 'Hiding will cancel this gnome\'s Distract effect.', [
-    { label: 'Hide and Lose Distract', cls: 'confirm', action: () => { G.modalLocked = false; closeModal(); onConfirm(); } },
+  showModal('Lose Stinky?', 'Hiding will cancel this gnome\'s Stinky effect.', [
+    { label: 'Hide and Lose Stinky', cls: 'confirm', action: () => { G.modalLocked = false; closeModal(); onConfirm(); } },
     { label: 'Cancel', cls: 'cancel', action: () => { G.modalLocked = false; closeModal(); } },
   ]);
 }
@@ -11927,7 +12030,6 @@ function getNearestGnome(patrol, allowHidden) {
   G.gnomes.forEach(g => {
     if (g.ko) return;
     if (!allowHidden && g.hidden) return;
-    if (patrol.type === 'dog' && getEffectiveHatId(g) === 7) return;
     const pathDist = getPathDistance(patrol.row, patrol.col, g.row, g.col);
     const manhattan = Math.abs(g.row - patrol.row) + Math.abs(g.col - patrol.col);
     const effectivePath = Number.isFinite(pathDist) ? pathDist : Infinity;
@@ -12028,21 +12130,7 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
 
-function doDistract() {
-  const gnome = G.gnomes[G.currentGnomeIdx];
-  if (!gnome || getHatActionType(gnome) !== 'distract' || G.actionsLeft <= 0) return false;
-  const applyNow = () => { spendAction(); activateDistract(gnome, G.currentGnomeIdx); G.selectedAction = null; renderAll(); };
-  const existing = ensureDistractStateValid();
-  if (existing && existing !== gnome) {
-    showModal('Replace Distract?', 'This will end the current Distract effect and apply it to this gnome instead.', [
-      { label: 'Replace Distract', cls: 'confirm', action: () => { G.modalLocked = false; closeModal(); applyNow(); } },
-      { label: 'Cancel', cls: 'cancel', action: () => { G.modalLocked = false; closeModal(); } },
-    ]);
-    return true;
-  }
-  applyNow();
-  return true;
-}
+function doDistract() { return doStinky('hat'); }
 function getScryPreviewIds() {
   const preview = [];
   const queued = Array.isArray(G.scryQueue) ? G.scryQueue.filter(id => G.roomDeck.includes(id)) : [];
@@ -12075,7 +12163,8 @@ function renderScryMiniTile(roomId) {
 function moveScryCard(index, dir) { if (!Array.isArray(G.scryOrder)) return; const next = index + dir; if (next < 0 || next >= G.scryOrder.length) return; const arr = G.scryOrder; [arr[index], arr[next]] = [arr[next], arr[index]]; G.scryAnim = { index: next, dir: dir < 0 ? 'moving-left' : 'moving-right', movedIndex: next }; renderScryModal(); setTimeout(() => { if (!G.scryAnim || G.scryAnim.movedIndex !== next) return; G.scryAnim = null; renderScryModal(); }, 260); }
 function renderScryModal() { const body = document.getElementById('modal-body'); const buttons = document.getElementById('modal-buttons'); if (!body || !buttons || !Array.isArray(G.scryOrder)) return; body.innerHTML = `<p>Reorder the next ${G.scryOrder.length} Room Tiles.</p><div class="scry-grid">${G.scryOrder.map((roomId, idx) => { const classes = []; if (G.scryAnim && G.scryAnim.index === idx) classes.push(G.scryAnim.dir); if (G.scryAnim && G.scryAnim.movedIndex === idx) classes.push('is-moved'); const cls = classes.length ? ' ' + classes.join(' ') : ''; return `<div class="scry-card${cls}"><div class="scry-card-head"><div class="scry-card-title">${idx + 1}. ${ROOM_DEF_BY_ID[roomId]?.name || 'Room'}</div></div>${renderScryMiniTile(roomId)}<div class="scry-card-controls"><button class="scry-arrow" ${idx === 0 ? 'disabled' : ''} data-command="scryShift" data-command-arg="${idx},-1">←</button><button class="scry-arrow" ${idx === G.scryOrder.length - 1 ? 'disabled' : ''} data-command="scryShift" data-command-arg="${idx},1">→</button></div></div>`; }).join('')}</div>`; buttons.innerHTML = ''; buttons.appendChild(buildButton('Commit Order', commitScryOrder, { className: 'modal-btn confirm', emitClick: true })); }
 function openScryModal() { const g = G.gnomes[G.currentGnomeIdx]; if (!g || getHatActionType(g) !== 'scry' || G.actionsLeft <= 0 || !G.roomDeck.length) return false; G.scryOrder = [...getScryPreviewIds()]; G.modalLocked = true; document.body.classList.add('scry-open'); document.getElementById('modal-title').textContent = '🌀 Scry'; document.getElementById('modal-overlay').classList.add('show'); renderScryModal(); return true; }
-function commitScryOrder() { if (!Array.isArray(G.scryOrder)) return false; const count = G.scryOrder.length; G.scryQueue = [...G.scryOrder]; spendAction(); addLog(`🌀 ${G.gnomes[G.currentGnomeIdx].name} scries the next ${count} Room Tiles.`, 'good'); G.scryOrder = null; G.scryAnim = null; G.modalLocked = false; document.body.classList.remove('scry-open'); el('modal-overlay').classList.remove('show'); renderAll(); return true; }
+function openGoodieScryModal(gnome, source = {}) { if (!gnome || G.actionsLeft <= 0 || !G.roomDeck.length) { if (!G.roomDeck.length) { const free = gnome?.satchel?.findIndex?.(s=>s===null) ?? -1; if (free !== -1) gnome.satchel[free] = { type:'goodie', id:1 }; addLog('🍄 No rooms left to preview — Shroom returned.', 'bad'); renderAll(); } return false; } G.scryOrder = [...getScryPreviewIds()]; G.modalLocked = true; G.goodieScryMode = { sourceActorIdx: source.actorIdx ?? G.currentGnomeIdx, sourceSlotIdx: source.slotIdx ?? null, committed: false }; document.body.classList.add('scry-open'); document.getElementById('modal-title').textContent = '🍄 Shroom'; document.getElementById('modal-overlay').classList.add('show'); renderScryModal(); return true; }
+function commitScryOrder() { if (!Array.isArray(G.scryOrder)) return false; const count = G.scryOrder.length; G.scryQueue = [...G.scryOrder]; const goodieMode = G.goodieScryMode || null; if (goodieMode) { const actor = G.gnomes[goodieMode.sourceActorIdx ?? G.currentGnomeIdx]; const slotIdx = goodieMode.sourceSlotIdx; if (typeof slotIdx === 'number' && slotIdx >= 0 && actor && actor.satchel[slotIdx]?.type === 'goodie' && actor.satchel[slotIdx]?.id === 1) actor.satchel[slotIdx] = null; spendAction(); addLog(`🍄 ${G.gnomes[G.currentGnomeIdx].name} reorders the next ${count} Room Tiles.`, 'good'); } else { spendAction(); addLog(`🌀 ${G.gnomes[G.currentGnomeIdx].name} scries the next ${count} Room Tiles.`, 'good'); } G.goodieScryMode = null; G.scryOrder = null; G.scryAnim = null; G.modalLocked = false; document.body.classList.remove('scry-open'); el('modal-overlay').classList.remove('show'); renderAll(); return true; }
 
 // ─────────────────────────────────────────────
 // MODAL
@@ -12099,7 +12188,7 @@ function showModal(title, body, buttons) {
 function closeModal(){
   if (G.modalLocked) return;
   el('modal-overlay').classList.remove('show');
-  if (!document.body.classList.contains('scry-open')) G.scryAnim = null;
+  if (!document.body.classList.contains('scry-open')) { G.scryAnim = null; G.goodieScryMode = null; }
   setWeaverModalContext(null);
 }
 el('modal-overlay').addEventListener('click',e=>{if(e.target===el('modal-overlay') && !G.weaverModal && !G.modalLocked)closeModal();});
