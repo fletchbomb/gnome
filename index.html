@@ -1286,6 +1286,34 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   body.weaver-manage-open #current-gnome-info{pointer-events:none;opacity:.6;}
   body.weaver-manage-open #gnome-panels{position:relative;z-index:120;}
   body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px #4dd0e133;}
+  body.weaver-overlay-v2.weaver-manage-open #header,
+  body.weaver-overlay-v2.weaver-manage-open #gnome-panels,
+  body.weaver-overlay-v2.weaver-manage-open #top-left-shell,
+  body.weaver-overlay-v2.weaver-manage-open #bottom-dock{opacity:1;pointer-events:auto;}
+  body.weaver-overlay-v2.weaver-manage-open #board-area,
+  body.weaver-overlay-v2.weaver-manage-open #actions-shell,
+  body.weaver-overlay-v2.weaver-manage-open #hamper-display,
+  body.weaver-overlay-v2.weaver-manage-open #patrol-display,
+  body.weaver-overlay-v2.weaver-manage-open #room-detail,
+  body.weaver-overlay-v2.weaver-manage-open .legend,
+  body.weaver-overlay-v2.weaver-manage-open #log-area{pointer-events:none;opacity:.24;filter:saturate(.7);}
+  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card.active{
+    width:128px;
+    min-width:128px;
+    max-width:128px;
+    box-shadow:0 0 0 1px color-mix(in srgb, var(--gnome-accent, var(--gold)) 45%, transparent), 0 10px 18px rgba(0,0,0,.3);
+  }
+  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card .gnome-portrait-chip{
+    width:52px;
+    height:64px;
+    flex-basis:52px;
+  }
+  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card .gnome-card-body{
+    display:none !important;
+  }
+  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card .hat-slot-inline{
+    display:none !important;
+  }
   #modal h2{color:var(--gold);margin-bottom:8px;}
   #modal p{font-size:.82rem;margin-bottom:7px;line-height:1.5;}
   .modal-btn{padding:7px 14px;border-radius:7px;border:none;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;margin:3px;font-size:.82rem;}
@@ -2118,6 +2146,26 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .game-screen.screen-weaver .weaver-active-card{align-self:stretch;}
 .game-screen.screen-weaver .weaver-active-card.active{width:272px;min-width:272px;max-width:272px;}
 .game-screen.screen-weaver .weaver-active-card .weaver-active-pips{margin-top:8px;}
+
+.game-screen.screen-weaver.weaver-overlay-v2{
+  z-index:42;
+  padding:16px 24px 20px;
+  pointer-events:none;
+}
+.game-screen.screen-weaver.weaver-overlay-v2 .screen-backdrop{
+  pointer-events:auto;
+  background:rgba(9,7,6,.52);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.game-screen.screen-weaver.weaver-overlay-v2.weaver-mode-between .screen-backdrop{
+  background:linear-gradient(180deg, rgba(22,16,12,.9) 0%, rgba(12,9,7,.96) 100%);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+.game-screen.screen-weaver.weaver-overlay-v2 .weaver-shell{
+  pointer-events:auto;
+}
 
 .game-screen.screen-weaver .weaver-marketboard-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
 .game-screen.screen-weaver .weaver-header-bank{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:82px;height:36px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg, rgba(214,166,82,.16), rgba(255,245,224,.07));border:1px solid rgba(214,166,82,.20);box-shadow:0 12px 24px rgba(0,0,0,.22), 0 0 18px rgba(242,192,107,.18);overflow:visible;isolation:isolate;}
@@ -5234,6 +5282,7 @@ const GAME_BUILD = Object.freeze({
   boardCellSize: 162,
   boardGap: 4,
 });
+const USE_NEW_WEAVER_OVERLAY = true;
 
 function applyBuildMetadata() {
   document.title = `Gnome Invasion ${GAME_VERSION}`;
@@ -9748,9 +9797,13 @@ function afterCards(fn) {
 function setWeaverModalContext(ctx) {
   G.weaverModal = ctx;
   document.body.classList.toggle('weaver-manage-open', !!ctx);
+  document.body.classList.toggle('weaver-overlay-v2', !!ctx && USE_NEW_WEAVER_OVERLAY);
   el('modal-overlay').classList.remove('show');
   const screen = el('screen-weaver');
-  if (screen) screen.classList.toggle('show', !!ctx);
+  if (screen) {
+    screen.classList.toggle('show', !!ctx);
+    screen.classList.toggle('weaver-overlay-v2', !!ctx && USE_NEW_WEAVER_OVERLAY);
+  }
 }
 
 function getWeaverItemLabel(item) {
@@ -12287,5 +12340,3 @@ refreshDebugForkUi();
 <script src="multiplayer.js"></script>
 </body>
 </html>
-
-
