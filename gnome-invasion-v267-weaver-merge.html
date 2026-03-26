@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v262">
+<html lang="en" data-game-version="v261">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v262</title>
+  <title>gnome-invasion-v267-weaver-merge.html</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -5394,7 +5394,7 @@ const V3_EVENT_CARDS_PENDING = [
 // ─────────────────────────────────────────────
 var G = {};
 
-const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v262';
+const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v261';
 
 const GAME_BUILD = Object.freeze({
   boardCellSize: 162,
@@ -10270,6 +10270,30 @@ function renderWeaverScreen() {
           : undefined,
         selectedOfferType: type,
         selectedOfferIndex: index
+      });
+      renderWeaverScreen();
+    });
+  });
+  document.querySelectorAll('#screen-weaver [data-trade-type]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const type = btn.dataset.tradeType;
+      const index = Number(btn.dataset.tradeIndex || 0);
+      startWeaverRoll(type, mode, index);
+    });
+  });
+  document.querySelectorAll('#screen-weaver [data-cancel-type]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setWeaverModalContext({
+        kind:'shop',
+        mode,
+        offers: G.weaverModal?.offers || offers,
+        shopperIdx: mode === 'between'
+          ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
+          : undefined,
+        selectedOfferType: '',
+        selectedOfferIndex: -1
       });
       renderWeaverScreen();
     });

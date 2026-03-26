@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v262">
+<html lang="en" data-game-version="v260">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v262</title>
+  <title>gnome-invasion-v266-weaver-merge.html</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -3104,66 +3104,6 @@ body.weaver-overlay-v2 #screen-weaver .weaver-roster{
 body.weaver-overlay-v2 #screen-weaver .weaver-hats-panel{
   display:none !important;
 }
-body.weaver-overlay-v2 #screen-weaver .weaver-marketboard{
-  position:relative !important;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-token-shell.is-selected{
-  transform:translateY(-3px) scale(1.02) !important;
-  filter:none !important;
-  opacity:1 !important;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer{
-  margin-top:8px;
-  border:1px solid rgba(214,166,82,.22);
-  border-radius:14px;
-  padding:11px 12px;
-  background:linear-gradient(180deg, rgba(60,42,30,.96), rgba(35,25,19,.98));
-  box-shadow:0 14px 26px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,245,224,.04);
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-head{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-icon{
-  width:34px;
-  height:34px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:10px;
-  background:rgba(255,245,224,.08);
-  border:1px solid rgba(214,166,82,.16);
-  font-size:1rem;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-copy{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-copy strong{
-  font:800 .84rem/1.1 var(--font-body);
-  color:var(--ui-text);
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-copy span{
-  font-size:.68rem;
-  line-height:1.32;
-  color:var(--color-text-soft);
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-cost{
-  margin-top:8px;
-  font-size:.7rem;
-  color:#f7e4bb;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-actions{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
-}
-body.weaver-overlay-v2 #screen-weaver .weaver-trade-drawer-actions .weaver-token-action{
-  min-height:34px;
-}
 @media (max-width: 980px){
   body.weaver-overlay-v2 #screen-weaver .weaver-shell{
     width:min(760px, calc(100vw - 24px)) !important;
@@ -5394,7 +5334,7 @@ const V3_EVENT_CARDS_PENDING = [
 // ─────────────────────────────────────────────
 var G = {};
 
-const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v262';
+const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v260';
 
 const GAME_BUILD = Object.freeze({
   boardCellSize: 162,
@@ -10113,7 +10053,7 @@ function renderWeaverScreen() {
     const cost = offer.cost ?? getWeaverOfferCost(type);
     const title = `${offer.name}: ${offer.desc || ''}`;
     const classes = ['weaver-token-shell', type === 'hat' ? 'is-hat' : 'is-goodie'];
-    if (selected) classes.push('is-selected');
+    if (selected) classes.push('is-flipped', 'is-selected');
     if (dimmed) classes.push('is-dimmed');
     if (disabled) classes.push('is-disabled');
     if (poor) classes.push('is-poor');
@@ -10124,6 +10064,10 @@ function renderWeaverScreen() {
           <span class="weaver-token-cost">🧦 ${cost}</span>
           <span class="weaver-token-icon">${getIconHTML({ iconKey: offer.iconKey, emoji: offer.emoji, fallbackEmoji: type === 'hat' ? '🎩' : '🍄', alt: offer.name })}</span>
           <span class="weaver-token-name">${offer.name}</span>
+        </div>
+        <div class="weaver-token-face weaver-token-back">
+          <button class="weaver-token-action is-trade" type="button" data-trade-type="${type}" data-trade-index="${index}" ${disabled ? 'disabled' : ''}>Trade</button>
+          <button class="weaver-token-action is-cancel" type="button" data-cancel-type="${type}" data-cancel-index="${index}">Cancel</button>
         </div>
       </div>
     </div>`;
@@ -10173,22 +10117,6 @@ function renderWeaverScreen() {
         ${renderTokenGrid('goodie', 'Goodies')}
         ${renderTokenGrid('hat', 'Hats')}
       </div>
-      ${selectedOffer ? `
-        <aside class="weaver-trade-drawer is-open">
-          <div class="weaver-trade-drawer-head">
-            <span class="weaver-trade-drawer-icon">${getIconHTML({ iconKey: selectedOffer.iconKey, emoji: selectedOffer.emoji, fallbackEmoji: selectedOfferType === 'hat' ? '🎩' : '🍄', alt: selectedOffer.name })}</span>
-            <div class="weaver-trade-drawer-copy">
-              <strong>${selectedOffer.name}</strong>
-              <span>${selectedOffer.desc || ''}</span>
-            </div>
-          </div>
-          <div class="weaver-trade-drawer-cost">Trade Cost: <strong>🧦 ${selectedOffer.cost ?? getWeaverOfferCost(selectedOfferType)}</strong></div>
-          <div class="weaver-trade-drawer-actions">
-            <button id="weaver-drawer-trade-btn" class="weaver-token-action is-trade" type="button" ${G.SocksBanked < (selectedOffer.cost ?? getWeaverOfferCost(selectedOfferType)) ? 'disabled' : ''}>Trade</button>
-            <button id="weaver-drawer-cancel-btn" class="weaver-token-action is-cancel" type="button">Cancel</button>
-          </div>
-        </aside>
-      ` : ''}
       ${!currentItem ? `<button id="weaver-reroll-btn" class="weaver-buy-btn weaver-reroll-wide" type="button" ${(selectedOffer || G.SocksBanked < 1) ? 'disabled' : ''}><span>Reroll Items</span><span class="weaver-inline-cost">🧦 1</span></button>` : ''}
     </div>`;
   hatsPanel.innerHTML = '';
@@ -10256,7 +10184,7 @@ function renderWeaverScreen() {
     <button id="weaver-close-btn" class="weaver-buy-btn weaver-leave-btn${socksEmpty ? ' is-empty' : ''}" type="button">${inRoomTrade ? 'Leave' : `Leave — Begin House ${G.house+1}`}</button>`;
 
   document.querySelectorAll('#screen-weaver .weaver-token-shell').forEach(tile => {
-    if (tile.classList.contains('is-disabled') || currentItem) return;
+    if (tile.classList.contains('is-flipped') || tile.classList.contains('is-disabled') || currentItem) return;
     tile.addEventListener('click', (e) => {
       if (e.target.closest('button')) return;
       const type = tile.dataset.buyType;
@@ -10274,25 +10202,32 @@ function renderWeaverScreen() {
       renderWeaverScreen();
     });
   });
+  document.querySelectorAll('#screen-weaver [data-trade-type]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const type = btn.dataset.tradeType;
+      const index = Number(btn.dataset.tradeIndex || 0);
+      startWeaverRoll(type, mode, index);
+    });
+  });
+  document.querySelectorAll('#screen-weaver [data-cancel-type]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setWeaverModalContext({
+        kind:'shop',
+        mode,
+        offers: G.weaverModal?.offers || offers,
+        shopperIdx: mode === 'between'
+          ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
+          : undefined,
+        selectedOfferType: '',
+        selectedOfferIndex: -1
+      });
+      renderWeaverScreen();
+    });
+  });
   document.getElementById('weaver-reroll-btn')?.addEventListener('click', () => {
     rerollWeaverOffers(mode);
-  });
-  document.getElementById('weaver-drawer-trade-btn')?.addEventListener('click', () => {
-    if (!selectedOfferType || !Number.isInteger(selectedOfferIndex) || selectedOfferIndex < 0) return;
-    startWeaverRoll(selectedOfferType, mode, selectedOfferIndex);
-  });
-  document.getElementById('weaver-drawer-cancel-btn')?.addEventListener('click', () => {
-    setWeaverModalContext({
-      kind:'shop',
-      mode,
-      offers: G.weaverModal?.offers || offers,
-      shopperIdx: mode === 'between'
-        ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
-        : undefined,
-      selectedOfferType: '',
-      selectedOfferIndex: -1
-    });
-    renderWeaverScreen();
   });
   document.querySelectorAll('#screen-weaver [data-popup-gnome]').forEach(btn => {
     if (btn.disabled) return;
