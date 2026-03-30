@@ -3100,26 +3100,26 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
 }
 
 /* Weaver v2 takeover overrides (late in stylesheet so legacy Weaver passes do not override). */
-body.weaver-overlay-v2 #screen-weaver{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver{
   z-index:42 !important;
   padding:16px 24px 20px !important;
   pointer-events:none !important;
 }
-body.weaver-overlay-v2 #screen-weaver .screen-backdrop{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .screen-backdrop{
   background:rgba(9,7,6,.56) !important;
   backdrop-filter:blur(6px) !important;
   -webkit-backdrop-filter:blur(6px) !important;
   pointer-events:auto !important;
 }
-body.weaver-overlay-v2 #screen-weaver.weaver-mode-between .screen-backdrop{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver.weaver-mode-between .screen-backdrop{
   background:linear-gradient(180deg, rgba(24,17,12,.94), rgba(12,9,7,.98)) !important;
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
 }
-body.weaver-overlay-v2 #screen-weaver .weaver-vendor{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-vendor{
   display:none !important;
 }
-body.weaver-overlay-v2 #screen-weaver .weaver-shell{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-shell{
   position:relative !important;
   z-index:2 !important;
   width:min(1060px, calc(100vw - 68px)) !important;
@@ -3131,25 +3131,25 @@ body.weaver-overlay-v2 #screen-weaver .weaver-shell{
   gap:16px !important;
   pointer-events:auto !important;
 }
-body.weaver-overlay-v2 #screen-weaver .weaver-goodies-panel{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-goodies-panel{
   grid-column:1 !important;
 }
-body.weaver-overlay-v2 #screen-weaver .weaver-roster{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-roster{
   grid-column:2 !important;
   width:320px !important;
   max-width:320px !important;
   min-width:320px !important;
 }
-body.weaver-overlay-v2 #screen-weaver .weaver-hats-panel{
+body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-hats-panel{
   display:none !important;
 }
 @media (max-width: 980px){
-  body.weaver-overlay-v2 #screen-weaver .weaver-shell{
+  body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-shell{
     width:min(760px, calc(100vw - 24px)) !important;
     max-width:min(760px, calc(100vw - 24px)) !important;
     grid-template-columns:1fr !important;
   }
-  body.weaver-overlay-v2 #screen-weaver .weaver-roster{
+  body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-roster{
     grid-column:auto !important;
     width:100% !important;
     max-width:none !important;
