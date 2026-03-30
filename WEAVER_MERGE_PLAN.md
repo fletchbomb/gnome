@@ -139,27 +139,3 @@ If these are confirmed, implementation can proceed with low ambiguity.
 Your previous GPT guidance is directionally correct and sufficient as a plan.
 
 The key to success is **strict namespacing + phased integration in the real file**. If you follow that, this merge is very achievable.
-
-## What’s next (immediate execution order)
-
-1. **Stabilize this visual scaffold in live play**  
-   - Verify opening/closing Weaver in both contexts repeatedly (mid-house and between-houses) with no class/z-index drift.
-   - Confirm board remains non-interactive while overlay is open, while counters + initiative remain visible.
-
-2. **Polish compact stack behavior**  
-   - Confirm active gnome appears exactly like a normal non-active card while Weaver is open.
-   - Confirm between-house shopper highlight is visible and shopper switching feels clear.
-
-3. **Data/UX parity pass (still low-risk)**  
-   - Ensure offer cards, costs, disabled states, reroll, and leave flow all reflect current live state correctly.
-   - Add final copy polish to the right-side Weaver helper panel.
-
-4. **Targeted transaction pass (incremental order)**  
-   - Validate reroll end-to-end.
-   - Validate simple purchases end-to-end.
-   - Validate mixed payment consumption and destruction behavior.
-   - Validate revive/reduce edge cases.
-
-5. **Cleanup pass (after parity)**  
-   - Remove or retire unused v2-only Weaver styling/markup paths.
-   - Keep the rollback flag until at least one full house cycle is verified without regression.

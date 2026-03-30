@@ -1327,9 +1327,8 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
     backdrop-filter:none;
     -webkit-backdrop-filter:none;
   }
-  body.weaver-overlay-v3.weaver-manage-open #top-left-shell{z-index:540;pointer-events:none;opacity:1;}
-  body.weaver-overlay-v3.weaver-manage-open #bottom-dock{z-index:540;opacity:1;}
-  body.weaver-overlay-v3.weaver-manage-open #actions-shell{display:none !important;pointer-events:none !important;}
+  body.weaver-overlay-v3.weaver-manage-open #top-left-shell{position:relative;z-index:540;pointer-events:none;opacity:1;}
+  body.weaver-overlay-v3.weaver-manage-open #bottom-dock{position:relative;z-index:540;opacity:1;}
   body.weaver-overlay-v3.weaver-manage-open #gnome-panels .gnome-card.weaver-shopper{
     border-color:color-mix(in srgb, var(--gnome-accent, var(--gold)) 68%, #f7e3a4);
     box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 12px 24px rgba(0,0,0,.28),0 0 16px color-mix(in srgb, var(--gnome-accent, var(--gold)) 34%, transparent);
