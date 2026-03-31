@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v260">
+<html lang="en" data-game-version="v270">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v260</title>
+  <title>Gnome Invasion v270</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -1286,73 +1286,6 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
   body.weaver-manage-open #current-gnome-info{pointer-events:none;opacity:.6;}
   body.weaver-manage-open #gnome-panels{position:relative;z-index:120;}
   body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px #4dd0e133;}
-  body.weaver-overlay-v2.weaver-manage-open #header,
-  body.weaver-overlay-v2.weaver-manage-open #gnome-panels,
-  body.weaver-overlay-v2.weaver-manage-open #top-left-shell,
-  body.weaver-overlay-v2.weaver-manage-open #bottom-dock{opacity:1;pointer-events:auto;}
-  body.weaver-overlay-v2.weaver-manage-open #board-area,
-  body.weaver-overlay-v2.weaver-manage-open #actions-shell,
-  body.weaver-overlay-v2.weaver-manage-open #hamper-display,
-  body.weaver-overlay-v2.weaver-manage-open #patrol-display,
-  body.weaver-overlay-v2.weaver-manage-open #room-detail,
-  body.weaver-overlay-v2.weaver-manage-open .legend,
-  body.weaver-overlay-v2.weaver-manage-open #log-area{pointer-events:none;opacity:.24;filter:saturate(.7);}
-  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card.active{
-    width:128px;
-    min-width:128px;
-    max-width:128px;
-    box-shadow:0 0 0 1px color-mix(in srgb, var(--gnome-accent, var(--gold)) 45%, transparent), 0 10px 18px rgba(0,0,0,.3);
-  }
-  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card .gnome-portrait-chip{
-    width:52px;
-    height:64px;
-    flex-basis:52px;
-  }
-  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card .gnome-card-body{
-    display:none !important;
-  }
-  body.weaver-overlay-v2.weaver-manage-open #gnome-panels .gnome-card .hat-slot-inline{
-    display:none !important;
-  }
-  #weaver-play-mask{display:none;position:fixed;inset:0;z-index:440;}
-  body.weaver-overlay-v3.weaver-manage-open #weaver-play-mask{
-    display:block;
-    pointer-events:auto;
-    background:rgba(8,11,16,.58);
-    backdrop-filter:blur(6px) saturate(.72);
-    -webkit-backdrop-filter:blur(6px) saturate(.72);
-  }
-  body.weaver-overlay-v3.weaver-manage-open.weaver-mode-between #weaver-play-mask{
-    background:radial-gradient(circle at top, rgba(70,49,35,.18), transparent 36%), rgba(18,13,10,.86);
-    backdrop-filter:none;
-    -webkit-backdrop-filter:none;
-  }
-  body.weaver-overlay-v3.weaver-manage-open #top-left-shell{position:relative;z-index:540;pointer-events:none;opacity:1;}
-  body.weaver-overlay-v3.weaver-manage-open #bottom-dock{position:relative;z-index:540;opacity:1;}
-  body.weaver-overlay-v3.weaver-manage-open #gnome-panels .gnome-card.weaver-shopper{
-    border-color:color-mix(in srgb, var(--gnome-accent, var(--gold)) 68%, #f7e3a4);
-    box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 12px 24px rgba(0,0,0,.28),0 0 16px color-mix(in srgb, var(--gnome-accent, var(--gold)) 34%, transparent);
-  }
-  body.weaver-overlay-v3.weaver-manage-open.weaver-mode-between #gnome-panels .gnome-card:not(.ko){cursor:pointer;}
-  body.weaver-overlay-v3.weaver-manage-open #gnome-panels .gnome-card.active{
-    width:128px;
-    min-width:128px;
-    max-width:128px;
-    border-color:transparent;
-    box-shadow:0 10px 24px rgba(0,0,0,.28);
-    transform:none;
-    animation:none;
-  }
-  body.weaver-overlay-v3.weaver-manage-open #gnome-panels .gnome-card.active .gnome-portrait-chip{
-    flex-basis:34px;
-    width:34px;
-    height:43px;
-    animation:none;
-  }
-  body.weaver-overlay-v3.weaver-manage-open #gnome-panels .gnome-card.active .gnome-card-body,
-  body.weaver-overlay-v3.weaver-manage-open #gnome-panels .gnome-card .hat-slot-inline{
-    display:none !important;
-  }
   #modal h2{color:var(--gold);margin-bottom:8px;}
   #modal p{font-size:.82rem;margin-bottom:7px;line-height:1.5;}
   .modal-btn{padding:7px 14px;border-radius:7px;border:none;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;margin:3px;font-size:.82rem;}
@@ -2185,26 +2118,6 @@ body.scry-open #modal{width:fit-content;max-width:calc(100vw - 28px);min-width:m
 .game-screen.screen-weaver .weaver-active-card{align-self:stretch;}
 .game-screen.screen-weaver .weaver-active-card.active{width:272px;min-width:272px;max-width:272px;}
 .game-screen.screen-weaver .weaver-active-card .weaver-active-pips{margin-top:8px;}
-
-.game-screen.screen-weaver.weaver-overlay-v2{
-  z-index:42;
-  padding:16px 24px 20px;
-  pointer-events:none;
-}
-.game-screen.screen-weaver.weaver-overlay-v2 .screen-backdrop{
-  pointer-events:auto;
-  background:rgba(9,7,6,.52);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-}
-.game-screen.screen-weaver.weaver-overlay-v2.weaver-mode-between .screen-backdrop{
-  background:linear-gradient(180deg, rgba(22,16,12,.9) 0%, rgba(12,9,7,.96) 100%);
-  backdrop-filter:none;
-  -webkit-backdrop-filter:none;
-}
-.game-screen.screen-weaver.weaver-overlay-v2 .weaver-shell{
-  pointer-events:auto;
-}
 
 .game-screen.screen-weaver .weaver-marketboard-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
 .game-screen.screen-weaver .weaver-header-bank{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:82px;height:36px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg, rgba(214,166,82,.16), rgba(255,245,224,.07));border:1px solid rgba(214,166,82,.20);box-shadow:0 12px 24px rgba(0,0,0,.22), 0 0 18px rgba(242,192,107,.18);overflow:visible;isolation:isolate;}
@@ -3099,101 +3012,150 @@ body.weaver-manage-open #gnome-panels .gnome-card{box-shadow:0 0 0 1px rgba(214,
   animation: none !important;
 }
 
-/* Weaver v2 takeover overrides (late in stylesheet so legacy Weaver passes do not override). */
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver{
-  z-index:42 !important;
-  padding:16px 24px 20px !important;
+
+
+/* === Weaver overlay v262 === */
+body.weaver-overlay-open #app{z-index:1201;isolation:isolate;}
+body.weaver-overlay-open #app::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:1302;
+  pointer-events:none;
+  background:rgba(9,7,6,.42);
+  backdrop-filter:blur(7px) saturate(.82);
+  -webkit-backdrop-filter:blur(7px) saturate(.82);
+}
+body.weaver-overlay-open #screen-weaver{
+  padding:0;
+  overflow:visible;
+  align-items:center;
+  justify-content:center;
+  z-index:1306;
+  pointer-events:none;
+  background:transparent !important;
+}
+body.weaver-overlay-open #screen-weaver .screen-backdrop{display:none !important;}
+body.weaver-overlay-open #screen-weaver .screen-backdrop::before,
+body.weaver-overlay-open #screen-weaver .screen-backdrop::after{display:none !important;}
+body.weaver-overlay-open #screen-weaver .weaver-vendor{display:none !important;}
+body.weaver-overlay-open #top-left-shell,
+body.weaver-overlay-open #bottom-dock{
+  z-index:1308 !important;
+  pointer-events:auto;
+  filter:none !important;
+  opacity:1 !important;
+}
+body.weaver-overlay-open #header,
+body.weaver-overlay-open #sidebar,
+body.weaver-overlay-open #log-area,
+body.weaver-overlay-open #screen-edge-vignette,
+body.weaver-overlay-open #board-area,
+body.weaver-overlay-open #actions-shell{
   pointer-events:none !important;
 }
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .screen-backdrop{
-  background:rgba(9,7,6,.56) !important;
-  backdrop-filter:blur(6px) !important;
-  -webkit-backdrop-filter:blur(6px) !important;
-  pointer-events:auto !important;
+body.weaver-overlay-open #board-area,
+body.weaver-overlay-open #sidebar,
+body.weaver-overlay-open #log-area{
+  filter:brightness(.58) saturate(.76);
 }
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver.weaver-mode-between .screen-backdrop{
-  background:linear-gradient(180deg, rgba(24,17,12,.94), rgba(12,9,7,.98)) !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
+body.weaver-overlay-open #top-left-shell #header{
+  filter:none !important;
+  opacity:1 !important;
 }
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-vendor{
-  display:none !important;
+
+body.weaver-overlay-open #screen-weaver .weaver-overlay-shell{
+  position:relative;
+  z-index:2;
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  justify-content:center;
+  width:min(844px,calc(100vw - 220px));
+  max-width:calc(100vw - 220px);
+  min-width:320px;
+  padding:0 18px;
+  pointer-events:auto;
 }
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-shell{
-  position:relative !important;
-  z-index:2 !important;
-  width:min(1060px, calc(100vw - 68px)) !important;
-  max-width:calc(100vw - 68px) !important;
-  margin:0 auto !important;
-  left:auto !important;
-  transform:none !important;
-  grid-template-columns:minmax(0, 1fr) 320px !important;
-  gap:16px !important;
-  pointer-events:auto !important;
+body.weaver-overlay-open #screen-weaver .weaver-drawer-slot{
+  position:relative;
+  width:252px;
+  min-width:252px;
+  min-height:1px;
+  align-self:flex-start;
 }
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-goodies-panel{
-  grid-column:1 !important;
-}
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-roster{
-  grid-column:2 !important;
-  width:320px !important;
-  max-width:320px !important;
-  min-width:320px !important;
-}
-body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-hats-panel{
-  display:none !important;
-}
-@media (max-width: 980px){
-  body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-shell{
-    width:min(760px, calc(100vw - 24px)) !important;
-    max-width:min(760px, calc(100vw - 24px)) !important;
-    grid-template-columns:1fr !important;
-  }
-  body.weaver-overlay-v2:not(.weaver-overlay-v3) #screen-weaver .weaver-roster{
-    grid-column:auto !important;
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-  }
-}
-body.weaver-overlay-v3 #screen-weaver{
-  z-index:560 !important;
-  padding:20px !important;
-  pointer-events:none !important;
-}
-body.weaver-overlay-v3 #screen-weaver .screen-backdrop,
-body.weaver-overlay-v3 #screen-weaver .weaver-vendor{
-  display:none !important;
-}
-body.weaver-overlay-v3 #screen-weaver .weaver-shell{
-  width:min(900px, calc(100vw - 36px)) !important;
-  max-width:calc(100vw - 36px) !important;
-  margin:0 auto !important;
-  left:auto !important;
-  transform:none !important;
-  grid-template-columns:minmax(460px,1fr) minmax(0,260px) !important;
-  gap:14px !important;
-  align-items:start !important;
-  pointer-events:auto !important;
-}
-body.weaver-overlay-v3 #screen-weaver .weaver-hats-panel{
-  display:none !important;
-}
-body.weaver-overlay-v3 #screen-weaver .weaver-roster{
-  display:flex !important;
-  flex-direction:column;
-  gap:10px;
-}
-body.weaver-overlay-v3 #screen-weaver .weaver-sidebar-card{
-  background:linear-gradient(180deg, rgba(67,47,33,.96), rgba(35,24,17,.98));
-  border:1px solid rgba(214,166,82,.12);
-  border-radius:16px;
-  padding:12px;
-}
-@media (max-width: 980px){
-  body.weaver-overlay-v3 #screen-weaver .weaver-shell{
-    grid-template-columns:1fr !important;
-  }
+body.weaver-overlay-open #screen-weaver .weaver-stage{padding:16px;background:linear-gradient(180deg, rgba(60,42,30,.94), rgba(41,29,22,.97));border:1px solid rgba(214,166,82,.14);border-radius:20px;box-shadow:0 18px 32px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04);}
+body.weaver-overlay-open #screen-weaver .weaver-leave-wrap{display:flex;justify-content:center;padding-top:12px;}
+body.weaver-overlay-open #screen-weaver .weaver-leave-btn{min-height:36px;padding:9px 14px;border-radius:12px;border:1px solid rgba(214,166,82,.18);background:rgba(255,245,224,.08);color:var(--ui-text);font:800 .78rem/1 var(--font-body);cursor:pointer;box-shadow:0 10px 18px rgba(0,0,0,.22);}
+body.weaver-overlay-open #screen-weaver .weaver-leave-btn:hover{transform:translateY(-1px);border-color:#e7c17c;background:rgba(255,245,224,.12);}
+body.weaver-overlay-open #screen-weaver .weaver-store-grid{display:grid;grid-template-columns:repeat(3,96px);grid-auto-rows:96px;gap:12px;}
+body.weaver-overlay-open #screen-weaver .weaver-store-tile{position:relative;width:96px;height:96px;border-radius:18px;border:1px solid rgba(214,166,82,.11);background:linear-gradient(180deg, rgba(111,76,52,.98), rgba(58,40,27,.99));color:var(--text);cursor:pointer;text-align:center;box-shadow:0 14px 24px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.06);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,opacity .16s ease,filter .16s ease;overflow:hidden;padding:12px 8px 8px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;}
+body.weaver-overlay-open #screen-weaver .weaver-store-tile:hover:not(.is-disabled):not(.is-empty){transform:translateY(-4px) scale(1.02);border-color:rgba(231,193,124,.34);box-shadow:0 18px 30px rgba(0,0,0,.30),0 0 0 1px rgba(255,255,255,.06) inset;}
+body.weaver-overlay-open #screen-weaver .weaver-store-tile.is-selected{transform:translateY(-5px) scale(1.03);border-color:var(--gold);background:linear-gradient(180deg, rgba(137,95,62,.98), rgba(72,49,31,.99));box-shadow:0 18px 30px rgba(0,0,0,.30),0 0 0 2px rgba(242,192,107,.92),0 0 24px rgba(242,192,107,.34), inset 0 0 0 1px rgba(255,255,255,.1);}
+body.weaver-overlay-open #screen-weaver .weaver-store-tile.is-action{background:linear-gradient(180deg, rgba(98,69,95,.98), rgba(54,39,57,.99));}
+body.weaver-overlay-open #screen-weaver .weaver-store-tile.is-disabled{opacity:.46;cursor:not-allowed;filter:saturate(.6);}
+body.weaver-overlay-open #screen-weaver .weaver-store-tile.is-empty{background:transparent;border:1px dashed rgba(214,166,82,.10);box-shadow:none;cursor:default;}
+body.weaver-overlay-open #screen-weaver .weaver-store-cost{position:absolute;top:7px;right:7px;padding:3px 6px;border-radius:999px;background:rgba(214,166,82,.10);border:1px solid rgba(214,166,82,.10);font:800 .54rem/1 var(--font-body);letter-spacing:.04em;color:#fff7d7;}
+body.weaver-overlay-open #screen-weaver .weaver-store-icon{font-size:2rem;line-height:1;display:flex;align-items:center;justify-content:center;height:28px;margin-top:12px;}
+body.weaver-overlay-open #screen-weaver .weaver-store-icon .ui-icon{width:1.6rem;height:1.6rem;}
+body.weaver-overlay-open #screen-weaver .weaver-store-name{font:800 .8rem/1.02 var(--font-body);letter-spacing:.02em;color:var(--text);max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;}
+body.weaver-overlay-open #screen-weaver .weaver-store-note{margin-top:auto;font-size:.56rem;line-height:1;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;min-height:.7rem;}
+body.weaver-overlay-open #screen-weaver .weaver-payment-drawer,
+body.weaver-overlay-open #screen-weaver .weaver-revive-drawer{position:absolute;top:0;left:0;width:252px;padding:10px 10px 12px;border-radius:20px;background:linear-gradient(180deg, rgba(60,42,30,.98), rgba(35,25,19,.995));box-shadow:0 20px 36px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04);transform:translateX(-18px) scale(.985);opacity:0;pointer-events:none;transition:transform .16s cubic-bezier(.2,.9,.22,1), opacity .16s cubic-bezier(.2,.9,.22,1);display:flex;flex-direction:column;gap:8px;overflow:hidden;}
+body.weaver-overlay-open #screen-weaver .weaver-payment-drawer{border:1px solid rgba(214,166,82,.14);}
+body.weaver-overlay-open #screen-weaver .weaver-revive-drawer{border:1px solid rgba(192,132,252,.24);}
+body.weaver-overlay-open #screen-weaver .weaver-revive-drawer.open{transform:translateX(0) scale(1);opacity:1;pointer-events:auto;}
+body.weaver-overlay-open #screen-weaver .weaver-revive-title{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#c084fc;font-weight:900;}
+body.weaver-overlay-open #screen-weaver .weaver-revive-note{font-size:.66rem;line-height:1.3;color:var(--text-dim);}
+
+body.weaver-overlay-open #screen-weaver .weaver-payment-drawer.open{transform:translateX(0) scale(1);opacity:1;pointer-events:auto;}
+body.weaver-overlay-open #screen-weaver .weaver-drawer-head{display:flex;justify-content:flex-start;align-items:flex-start;gap:6px;}
+body.weaver-overlay-open #screen-weaver .weaver-drawer-title{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:900;}
+body.weaver-overlay-open #screen-weaver .weaver-progress-box{padding:8px 9px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);}
+body.weaver-overlay-open #screen-weaver .weaver-progress-row{display:flex;justify-content:space-between;gap:6px;font-size:.7rem;line-height:1.1;}
+body.weaver-overlay-open #screen-weaver .weaver-progress-bar{margin-top:6px;height:7px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;}
+body.weaver-overlay-open #screen-weaver .weaver-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg, var(--brass-500), var(--gold));width:0%;}
+body.weaver-overlay-open #screen-weaver .weaver-compare-row{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
+body.weaver-overlay-open #screen-weaver .weaver-compare-mini{display:flex;align-items:center;gap:6px;min-width:0;flex:1;}
+body.weaver-overlay-open #screen-weaver .weaver-compare-icon{width:28px;height:28px;border-radius:9px;background:#3a2a1f;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:.95rem;}
+body.weaver-overlay-open #screen-weaver .weaver-compare-name{font-size:.66rem;font-weight:800;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+body.weaver-overlay-open #screen-weaver .weaver-compare-sub{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);font-weight:800;}
+body.weaver-overlay-open #screen-weaver .weaver-compare-arrow{font-size:.9rem;color:var(--gold);flex:0 0 auto;}
+body.weaver-overlay-open #screen-weaver .weaver-pay-group{display:flex;flex-direction:column;gap:5px;}
+body.weaver-overlay-open #screen-weaver .weaver-pay-label{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:900;}
+body.weaver-overlay-open #screen-weaver .weaver-pay-row{display:flex;gap:6px;flex-wrap:wrap;}
+body.weaver-overlay-open #screen-weaver .weaver-pay-slot{width:36px;height:36px;border-radius:8px;border:1px solid rgba(214,166,82,.24);background:#3a2a1f;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,245,224,.04), 0 1px 3px rgba(0,0,0,.18);font-size:1rem;transition:border-color .12s ease, transform .12s ease, background .12s ease;}
+body.weaver-overlay-open #screen-weaver .weaver-pay-slot:hover:not(.is-empty){border-color:rgba(231,193,124,.34);transform:translateY(-1px);}
+body.weaver-overlay-open #screen-weaver .weaver-pay-slot.is-selected{border-color:var(--gold);background:linear-gradient(180deg, rgba(111,82,45,.95), rgba(72,49,31,.98));box-shadow:0 0 0 1px rgba(255,255,255,.08) inset, 0 0 14px rgba(242,192,107,.14);}
+body.weaver-overlay-open #screen-weaver .weaver-pay-slot.is-empty{color:rgba(205,187,148,.44);background:#2f221a;cursor:default;}
+body.weaver-overlay-open #screen-weaver .weaver-drawer-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;}
+body.weaver-overlay-open #screen-weaver .weaver-drawer-btn{min-height:32px;padding:7px 10px;border-radius:10px;border:1px solid rgba(214,166,82,.22);background:linear-gradient(180deg, rgba(78,59,47,.92), rgba(45,32,24,.98));color:var(--text);cursor:pointer;font-weight:800;}
+body.weaver-overlay-open #screen-weaver .weaver-drawer-btn.is-primary{background:linear-gradient(180deg, var(--brass-500), #b7863a);color:#2b1e16;border-color:#8c6626;}
+body.weaver-overlay-open #screen-weaver .weaver-drawer-btn:disabled{background:linear-gradient(180deg, rgba(78,59,47,.75), rgba(45,32,24,.82));color:rgba(218,197,162,.54);cursor:not-allowed;opacity:.9;}
+body.weaver-overlay-open #screen-weaver .weaver-revive-chooser{padding:8px;border-radius:12px;background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.22);display:flex;flex-direction:column;gap:8px;}
+body.weaver-overlay-open #screen-weaver .weaver-revive-target{border:1px solid rgba(192,132,252,.22);border-radius:12px;background:rgba(255,255,255,.04);color:var(--text);padding:7px;display:flex;gap:8px;align-items:center;cursor:pointer;text-align:left;}
+body.weaver-overlay-open #screen-weaver .weaver-revive-target em{display:block;font-size:.62rem;color:var(--text-dim);font-style:normal;}
+body.weaver-overlay-open #screen-weaver .weaver-revive-target:hover{border-color:#c084fc;transform:translateY(-1px);}
+body.weaver-overlay-open #gnome-panels{gap:8px;}
+body.weaver-overlay-open #gnome-panels .gnome-card{width:128px !important;min-width:128px !important;max-width:128px !important;box-shadow:0 10px 24px rgba(0,0,0,.28);transform:none !important;}
+body.weaver-overlay-open #gnome-panels .gnome-card.weaver-shopper-highlight{border-color:color-mix(in srgb, var(--gnome-accent, var(--gold)) 70%, #f7e3a4);box-shadow:0 12px 24px rgba(0,0,0,.30),0 0 0 2px color-mix(in srgb, var(--gnome-accent, var(--gold)) 58%, rgba(255,255,255,.25)),0 0 18px color-mix(in srgb, var(--gnome-accent, var(--gold)) 38%, transparent);}
+body.weaver-overlay-open #gnome-panels .gnome-card-actions,
+body.weaver-overlay-open #actions-shell{display:none !important;}
+body.weaver-overlay-open #gnome-panels .gnome-card .gnome-action-track,
+body.weaver-overlay-open #gnome-panels .gnome-card .gnome-card-body{display:none !important;}
+body.weaver-overlay-open #gnome-panels .gnome-card:not(.weaver-shopper-highlight){cursor:default;}
+body.weaver-overlay-open.weaver-mode-between #gnome-panels .gnome-card{cursor:pointer;}
+body.weaver-overlay-open.weaver-mode-between #gnome-panels .gnome-card:hover{transform:translateY(-2px) !important;}
+@media (max-width: 1100px){
+  body.weaver-overlay-open #screen-weaver .weaver-overlay-shell{width:min(340px,calc(100vw - 32px));max-width:calc(100vw - 32px);padding:0;flex-direction:column;}
+  body.weaver-overlay-open #screen-weaver .weaver-stage{padding:14px;}
+  body.weaver-overlay-open #screen-weaver .weaver-store-grid{grid-template-columns:repeat(3,92px);grid-auto-rows:92px;gap:10px;}
+  body.weaver-overlay-open #screen-weaver .weaver-store-tile{width:92px;height:92px;}
+  body.weaver-overlay-open #screen-weaver .weaver-drawer-slot{width:100%;min-width:0;}
+  body.weaver-overlay-open #screen-weaver .weaver-payment-drawer,
+  body.weaver-overlay-open #screen-weaver .weaver-revive-drawer{position:relative;left:auto;top:auto;width:100%;transform:translateY(-10px) scale(.99);margin-top:0;}
+  body.weaver-overlay-open #screen-weaver .weaver-payment-drawer.open,
+  body.weaver-overlay-open #screen-weaver .weaver-revive-drawer.open{transform:translateY(0) scale(1);}
 }
 
 </style>
@@ -3201,7 +3163,7 @@ body.weaver-overlay-v3 #screen-weaver .weaver-sidebar-card{
 
 </head>
 <body>
-<!-- GPT build: v169 -->
+<!-- GPT build: v268 -->
 <div id="screen-setup" class="game-screen screen-setup show">
   <div class="screen-backdrop"></div>
   <div class="screen-ui screen-setup-ui">
@@ -3293,15 +3255,19 @@ body.weaver-overlay-v3 #screen-weaver .weaver-sidebar-card{
 <div id="screen-weaver" class="game-screen screen-weaver">
   <div class="screen-backdrop"></div>
   <div class="weaver-vendor" aria-hidden="true"></div>
-  <div class="weaver-shell">
-    <div class="weaver-panel weaver-goodies-panel"></div>
-    <div class="weaver-panel weaver-hats-panel"></div>
-    <div id="weaver-roster" class="weaver-roster"></div>
+  <div class="weaver-overlay-shell">
+    <div class="weaver-stage">
+      <div id="weaver-store-grid" class="weaver-store-grid"></div>
+      <div class="weaver-leave-wrap"><button id="weaver-leave-btn" class="weaver-leave-btn" type="button">Leave Weaver</button></div>
+    </div>
+    <div class="weaver-drawer-slot">
+      <aside id="weaver-payment-drawer" class="weaver-payment-drawer"></aside>
+      <aside id="weaver-revive-drawer" class="weaver-revive-drawer"></aside>
+    </div>
   </div>
 </div>
 
 <div id="app">
-  <div id="weaver-play-mask" aria-hidden="true"></div>
   <div id="top-left-shell" class="floating-panel">
     <div id="header" class="floating-panel">
       <div id="header-summary">
@@ -5413,13 +5379,12 @@ const V3_EVENT_CARDS_PENDING = [
 // ─────────────────────────────────────────────
 var G = {};
 
-const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v260';
+const GAME_VERSION = document.documentElement.dataset.gameVersion || 'v259';
 
 const GAME_BUILD = Object.freeze({
   boardCellSize: 162,
   boardGap: 4,
 });
-const USE_NEW_WEAVER_OVERLAY = true;
 
 function applyBuildMetadata() {
   document.title = `Gnome Invasion ${GAME_VERSION}`;
@@ -7516,6 +7481,10 @@ function mountUnifiedTurnDock() {
   layoutActionButtons();
 }
 
+function betweenHouseTradeForDock() {
+  return !!G.weaverModal && (G.weaverModal.mode || 'room') === 'between';
+}
+
 function renderGnomePanels() {
   const container = document.getElementById('gnome-panels');
   const actionsShell = document.getElementById('actions-shell');
@@ -7540,21 +7509,19 @@ function renderGnomePanels() {
 
   let activeCard = null;
   let activeGnome = null;
-  const weaverCtx = G.weaverModal || null;
-  const weaverBetween = weaverCtx?.mode === 'between';
-  const weaverShopperIdx = Number.isInteger(weaverCtx?.shopperIdx) ? weaverCtx.shopperIdx : G.currentGnomeIdx;
 
   G.gnomes.forEach((g, i) => {
-    const isActive = !weaverCtx && i === G.currentGnomeIdx && G.phase === 'gnome' && !isInterruptActive();
+    const isShopperHighlight = !!G.weaverModal && ((G.weaverModal.mode === 'between' ? (Number.isInteger(G.weaverModal.shopperIdx) ? G.weaverModal.shopperIdx : G.currentGnomeIdx) : G.currentGnomeIdx) === i);
+    const isActive = !G.weaverModal && i === G.currentGnomeIdx && G.phase === 'gnome' && !isInterruptActive();
     const hat = HAT_DEF_BY_ID[g.hat] || null;
     const size = getSatchelSize(g);
     const canAct = isActive && !g.ko;
     const canManageInventory = !g.ko && (canAct || !!G.weaverModal);
 
     const card = document.createElement('div');
-    card.className = `gnome-card floating-panel ${isActive?'active':''} ${g.ko?'ko':''}`;
+    const weaverShopperClass = G.weaverModal && isShopperHighlight ? 'weaver-shopper-highlight' : '';
+    card.className = `gnome-card floating-panel ${isActive ? 'active' : ''} ${weaverShopperClass} ${g.ko?'ko':''}`;
     card.style.setProperty('--gnome-accent', g.color || 'var(--gold)');
-    if (weaverBetween && i === weaverShopperIdx) card.classList.add('weaver-shopper');
     const main = createElement('div', { className: 'gnome-card-main' });
     const portraitChip = createElement('div', { className: 'gnome-portrait-chip' });
     const portraitImg = createElement('img', { attrs: { src: getGnomePortraitUrl(g), alt: `${g.name} portrait`, loading: 'eager' } });
@@ -7660,21 +7627,22 @@ function renderGnomePanels() {
     main.appendChild(content);
     card.appendChild(main);
     container.appendChild(card);
-    if (weaverBetween && !g.ko) {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.slot.clickable')) return;
-        if (!G.weaverModal || G.weaverModal.mode !== 'between') return;
-        if (G.weaverModal.shopperIdx === i) return;
+
+    if (G.weaverModal && betweenHouseTradeForDock()) {
+      card.addEventListener('click', () => {
+        if (i === (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : G.currentGnomeIdx)) return;
         setWeaverModalContext({
           kind:'shop',
           mode:'between',
-          offers: G.weaverModal.offers || null,
+          offers: G.weaverModal?.offers || null,
           shopperIdx: i,
-          selectedOfferType: '',
-          selectedOfferIndex: -1
+          selectedTileId:'',
+          selectedPayment:{ banked:[], satchel:[] },
+          pendingRevive:false,
+          reviveTargetPhase:false
         });
+        renderAll();
         renderWeaverScreen();
-        renderGnomePanels();
       });
     }
 
@@ -8369,7 +8337,7 @@ function renderActions() {
   const nearHamper = !!(g && G.hamper.row === g.row && G.hamper.col === g.col);
   const inLaundryForWeaver = !!(tile?.roomId === 1);
   const inWeaver = !!(tile?.weaver || inLaundryForWeaver);
-  const canAffordAnyTrade = G.SocksBanked >= 1;
+  const canAffordAnyTrade = (G.SocksBanked >= 1) || !!(g && Array.isArray(g.satchel) && g.satchel.some(item => item && (item.type === 'Socks' || item.type === 'goodie')));
   const ventDestinations = g ? getVentRooms().filter(([vr, vc]) => !(vr === g.row && vc === g.col)) : [];
   const inVent = !!tile?.vent;
   const freeMoveReady = isFreeMoveAvailable(g);
@@ -8463,7 +8431,7 @@ function renderActions() {
     disabled: actionLocked || !canAffordAnyTrade,
     label: UI_TEXT.action.weaver.replace(/^🧌\s*/, ''),
     icon: '🧌',
-    title: canAffordAnyTrade ? 'Trade socks for goodies or hats' : 'Need at least 1 banked Socks to trade',
+    title: canAffordAnyTrade ? 'Trade socks or goodies for hats and other Weaver offers' : 'Need at least 1 banked sock, held sock, or held goodie to trade',
     commandName: 'openWeaver',
   });
 
@@ -9955,16 +9923,10 @@ function afterCards(fn) {
 function setWeaverModalContext(ctx) {
   G.weaverModal = ctx;
   document.body.classList.toggle('weaver-manage-open', !!ctx);
-  document.body.classList.toggle('weaver-overlay-v3', !!ctx && USE_NEW_WEAVER_OVERLAY);
-  if (!ctx) {
-    document.body.classList.remove('weaver-mode-room', 'weaver-mode-between');
-  }
+  document.body.classList.toggle('weaver-overlay-open', !!ctx);
   el('modal-overlay').classList.remove('show');
   const screen = el('screen-weaver');
-  if (screen) {
-    screen.classList.toggle('show', !!ctx);
-    screen.classList.toggle('weaver-overlay-v3', !!ctx && USE_NEW_WEAVER_OVERLAY);
-  }
+  if (screen) screen.classList.toggle('show', !!ctx);
 }
 
 function getWeaverItemLabel(item) {
@@ -10129,246 +10091,309 @@ function rerollWeaverOffers(mode) {
 
 function renderWeaverScreen() {
   if (!G.weaverModal) return;
-  const goodiesPanel = document.querySelector('#screen-weaver .weaver-goodies-panel');
-  const hatsPanel = document.querySelector('#screen-weaver .weaver-hats-panel');
-  const roster = el('weaver-roster');
-  if (!goodiesPanel || !hatsPanel || !roster) return;
+  const storeGrid = el('weaver-store-grid');
+  const drawer = el('weaver-payment-drawer');
+  const reviveDrawer = el('weaver-revive-drawer');
+  if (!storeGrid || !drawer || !reviveDrawer) return;
 
   const mode = G.weaverModal.mode || 'room';
   const inRoomTrade = mode === 'room';
   const betweenHouseTrade = mode === 'between';
-  const currentItem = G.weaverModal.item || null;
   const activeIdx = inRoomTrade
     ? G.currentGnomeIdx
     : (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : G.currentGnomeIdx);
-  const activeGnome = G.gnomes[activeIdx] || null;
-  const eligible = currentItem
-    ? G.gnomes.filter(g => (currentItem.type === 'hat' || canReceiveInSatchel(g, currentItem)) && (!inRoomTrade || g === activeGnome))
-    : [];
-  const offers = ensureWeaverOffers(G.weaverModal);
-  const selectedOfferType = G.weaverModal.selectedOfferType || '';
-  const selectedOfferIndex = Number.isInteger(G.weaverModal.selectedOfferIndex) ? G.weaverModal.selectedOfferIndex : -1;
-  const selectedOffer = !currentItem && selectedOfferType ? (offers?.[selectedOfferType]?.[selectedOfferIndex] || null) : null;
-  const socksEmpty = G.SocksBanked <= 0;
-  const anyTileSelected = !currentItem && !!selectedOffer;
+  const shopper = G.gnomes[activeIdx] || null;
+  if (!shopper) return;
 
-  const buildTokenMarkup = (offer, type, { index = 0, selected = false, disabled = false, dimmed = false, poor = false, appearing = false } = {}) => {
-    const cost = offer.cost ?? getWeaverOfferCost(type);
-    const title = `${offer.name}: ${offer.desc || ''}`;
-    const classes = ['weaver-token-shell', type === 'hat' ? 'is-hat' : 'is-goodie'];
-    if (selected) classes.push('is-flipped', 'is-selected');
-    if (dimmed) classes.push('is-dimmed');
-    if (disabled) classes.push('is-disabled');
-    if (poor) classes.push('is-poor');
-    if (appearing) classes.push('is-appearing');
-    return `<div class="${classes.join(' ')}" data-buy-type="${type}" data-buy-index="${index}" title="${title}" style="--token-rot:${offer.rotation};--spill-delay:${offer.delay};">
-      <div class="weaver-token-card">
-        <div class="weaver-token-face weaver-token-front">
-          <span class="weaver-token-cost">🧦 ${cost}</span>
-          <span class="weaver-token-icon">${getIconHTML({ iconKey: offer.iconKey, emoji: offer.emoji, fallbackEmoji: type === 'hat' ? '🎩' : '🍄', alt: offer.name })}</span>
-          <span class="weaver-token-name">${offer.name}</span>
-        </div>
-        <div class="weaver-token-face weaver-token-back">
-          <button class="weaver-token-action is-trade" type="button" data-trade-type="${type}" data-trade-index="${index}" ${disabled ? 'disabled' : ''}>Trade</button>
-          <button class="weaver-token-action is-cancel" type="button" data-cancel-type="${type}" data-cancel-index="${index}">Cancel</button>
-        </div>
-      </div>
-    </div>`;
+  const modal = G.weaverModal;
+  const offers = ensureWeaverOffers(modal);
+  const selectedTileId = modal.selectedTileId || '';
+  const selectedPayment = modal.selectedPayment || { banked: [], satchel: [] };
+  const pendingRevive = !!modal.pendingRevive;
+  const reviveTargetPhase = !!modal.reviveTargetPhase;
+
+  const selectedTile = (() => {
+    if (!selectedTileId) return null;
+    for (const type of ['hat', 'goodie']) {
+      const found = (offers?.[type] || []).find(o => o && !o.soldOut && `offer:${type}:${o.id}` === selectedTileId);
+      if (found) return { kind: 'offer', type, id: found.id, offer: found };
+    }
+    if (selectedTileId === 'action:reroll') return { kind: 'action', action: 'reroll', name: 'Reroll', desc: 'Refresh the available hat and goodie offers.', cost: 1, icon: '🔄' };
+    if (selectedTileId === 'action:revive') return { kind: 'action', action: 'revive', name: 'Revive KO Gnome', desc: 'Revive a KO gnome where they fell. If more than one is KO\'d, choose which gnome after paying.', cost: 2, icon: '💖' };
+    if (selectedTileId === 'action:reduce') return { kind: 'action', action: 'reduce', name: 'Reduce Trouble', desc: 'Lower Trouble by 1.', cost: 1, icon: '🕸️' };
+    return null;
+  })();
+
+  const activeSatchelSlots = shopper.satchel
+    .map((item, idx) => ({ item, idx }))
+    .filter(({ item }) => item && (item.type === 'Socks' || item.type === 'goodie'));
+  const heldSockSlots = activeSatchelSlots.filter(({ item }) => item.type === 'Socks');
+  const heldGoodieSlots = activeSatchelSlots.filter(({ item }) => item.type === 'goodie');
+  const selectedBanked = Array.isArray(selectedPayment.banked) ? selectedPayment.banked : [];
+  const selectedSatchel = Array.isArray(selectedPayment.satchel) ? selectedPayment.satchel : [];
+  const paymentCount = selectedBanked.length + selectedSatchel.length;
+  const koTargets = G.gnomes.filter(g => g && g.ko);
+
+  const getTileCost = (tile) => {
+    if (!tile) return 0;
+    if (tile.kind === 'offer') return tile.offer.cost ?? getWeaverOfferCost(tile.type);
+    return tile.cost || 0;
   };
 
-  const renderTokenGrid = (type, title) => {
-    const typeOffers = offers?.[type] || [];
-    return `
-      <section class="weaver-market-section">
-        <div class="weaver-market-head">
-          <div class="weaver-market-title">${title}</div>
-        </div>
-        <div class="weaver-token-grid" data-token-type="${type}">
-          ${typeOffers.map((offer, idx) => {
-            const afford = G.SocksBanked >= (offer.cost ?? getWeaverOfferCost(type));
-            const canReceive = !inRoomTrade || type === 'hat' || (activeGnome && canReceiveInSatchel(activeGnome, { type, id: offer.id }));
-            const poor = !afford;
-            const disabled = !!currentItem || !afford || !canReceive;
-            const selected = !currentItem && selectedOfferType === type && selectedOfferIndex === idx;
-            const dimmed = !currentItem && anyTileSelected && !selected;
-            const appearing = !!offer.appearing;
-            return buildTokenMarkup(offer, type, { index: idx, selected, disabled, dimmed, poor, appearing });
-          }).join('')}
-        </div>
-      </section>`;
+  const getMaxPaymentValue = () => G.SocksBanked + heldSockSlots.length + heldGoodieSlots.length;
+
+  const tileState = (tile) => {
+    if (!tile) return { disabled: true, reason: 'Missing' };
+    const cost = getTileCost(tile);
+    if (tile.kind === 'offer' && tile.offer?.soldOut) return { disabled: true, reason: 'Sold Out' };
+    if (tile.kind === 'action' && tile.action === 'revive' && koTargets.length === 0) return { disabled: true, reason: 'No KO' };
+    if (tile.kind === 'action' && tile.action === 'reduce' && G.trouble <= 0) return { disabled: true, reason: 'At 0' };
+    if (getMaxPaymentValue() < cost) return { disabled: true, reason: `Need ${cost}` };
+    if (tile.kind === 'offer' && tile.type === 'goodie' && !canReceiveInSatchel(shopper, { type: 'goodie', id: tile.offer.id })) return { disabled: true, reason: 'Satchel Full' };
+    if (tile.kind === 'offer' && tile.type === 'hat') {
+      const hatResult = shopper.hat ? findFirstFreeSatchelSlot(shopper) !== -1 : true;
+      if (!hatResult) return { disabled: true, reason: 'No Hat Room' };
+    }
+    return { disabled: false, reason: '' };
   };
 
-  goodiesPanel.innerHTML = `
-    <div class="weaver-marketboard${socksEmpty ? ' is-socks-empty' : ''}">
-      <div class="weaver-marketboard-header">
-        <div class="weaver-kicker">Weaver's Table</div>
-        <div class="weaver-header-bank${socksEmpty ? ' is-empty' : ''}" title="${G.SocksBanked} socks available to trade">
-          <span class="weaver-header-bank-ring" aria-hidden="true"></span>
-          <span class="weaver-header-bank-icon">🧦</span>
-          <strong>${G.SocksBanked}</strong>
-        </div>
-      </div>
-      ${currentItem ? `
-        <div class="weaver-selection-banner">
-          <div class="weaver-selection-banner-icon">${getItemEmoji(currentItem)}</div>
-          <div class="weaver-selection-banner-copy">
-            <strong>${getItemName(currentItem)}</strong>
-            <span>${getItemDesc(currentItem) || ''}</span>
-          </div>
-        </div>` : ''}
-      <div class="weaver-market-grid">
-        ${renderTokenGrid('goodie', 'Goodies')}
-        ${renderTokenGrid('hat', 'Hats')}
-      </div>
-      ${!currentItem ? `<button id="weaver-reroll-btn" class="weaver-buy-btn weaver-reroll-wide" type="button" ${(selectedOffer || G.SocksBanked < 1) ? 'disabled' : ''}><span>Reroll Items</span><span class="weaver-inline-cost">🧦 1</span></button>` : ''}
-    </div>`;
-  hatsPanel.innerHTML = '';
-  hatsPanel.style.display = 'none';
-  goodiesPanel.classList.add('weaver-marketboard-panel');
+  const clearSelection = () => {
+    setWeaverModalContext({
+      kind: 'shop',
+      mode,
+      offers,
+      shopperIdx: betweenHouseTrade ? activeIdx : undefined,
+      selectedTileId: '',
+      selectedPayment: { banked: [], satchel: [] },
+      pendingRevive: false,
+      reviveTargetPhase: false
+    });
+    renderWeaverScreen();
+  };
 
-  const renderSatchel = (g, idx, forceClickable = false) => {
-    const size = getSatchelSize(g);
-    const allowPopup = forceClickable || !!G.weaverModal;
-    return Array.from({ length: size }, (_, s) => {
-      const item = g.satchel[s];
-      const clickable = !!item && allowPopup;
-      const classes = `slot${clickable ? ' clickable' : ''}${item ? '' : ' empty'}`;
-      return `<div class="${classes}" data-popup-gnome="${clickable ? idx : ''}" data-popup-type="${clickable && item ? item.type : ''}" data-popup-slot="${clickable && item ? s : ''}" title="${item ? getItemName(item) : 'Empty'}">${item ? getItemEmoji(item) : ''}</div>`;
+  const updateSelection = (patch = {}) => {
+    setWeaverModalContext({
+      kind: 'shop',
+      mode,
+      offers,
+      shopperIdx: betweenHouseTrade ? activeIdx : undefined,
+      selectedTileId,
+      selectedPayment,
+      pendingRevive,
+      reviveTargetPhase: modal.reviveTargetPhase || false,
+      ...patch
+    });
+    renderWeaverScreen();
+  };
+
+  const spendSelectedPayment = () => {
+    const uniqueBanked = [...selectedBanked].sort((a, b) => b - a);
+    const uniqueSatchel = [...selectedSatchel].sort((a, b) => b - a);
+    G.SocksBanked = Math.max(0, G.SocksBanked - uniqueBanked.length);
+    uniqueSatchel.forEach(slotIdx => {
+      if (Number.isInteger(slotIdx) && slotIdx >= 0 && shopper.satchel[slotIdx]) shopper.satchel[slotIdx] = null;
+    });
+  };
+
+  const finalizeSelectedTile = (reviveIdx = null) => {
+    if (!selectedTile) return;
+    spendSelectedPayment();
+    if (selectedTile.kind === 'offer') {
+      const item = { type: selectedTile.type, id: selectedTile.offer.id };
+      if (selectedTile.type === 'hat') {
+        const result = giveHatToGnome(shopper, selectedTile.offer.id);
+        addLog(`${getWeaverItemLabel(item)} goes to ${shopper.name}${result === 'equipped' ? ' (auto-equipped!)' : ''}!`, 'good');
+      } else {
+        giveItemToGnomeSatchel(shopper, item);
+        addLog(`${getWeaverItemLabel(item)} goes to ${shopper.name}!`, 'good');
+      }
+      const arr = offers[selectedTile.type] || [];
+      const match = arr.find(o => o && o.id === selectedTile.offer.id && !o.soldOut);
+      if (match) match.soldOut = true;
+    } else if (selectedTile.action === 'reroll') {
+      offers.goodie = buildWeaverOfferSet('goodie', 3).map(o => ({ ...o, soldOut: false }));
+      offers.hat = buildWeaverOfferSet('hat', 3).map(o => ({ ...o, soldOut: false }));
+      addLog('🧶 The Weaver refreshes the table.', 'good');
+    } else if (selectedTile.action === 'reduce') {
+      const before = G.trouble;
+      G.trouble = Math.max(0, G.trouble - 1);
+      if (G.trouble < before) addLog('🕸️ Trouble reduced by 1.', 'good');
+    } else if (selectedTile.action === 'revive') {
+      const target = Number.isInteger(reviveIdx) ? G.gnomes[reviveIdx] : koTargets[0];
+      if (target?.ko) {
+        target.ko = false;
+        addLog(`💖 ${target.name} is revived!`, 'good');
+      }
+    }
+    setWeaverModalContext({
+      kind: 'shop',
+      mode,
+      offers,
+      shopperIdx: betweenHouseTrade ? activeIdx : undefined,
+      selectedTileId: '',
+      selectedPayment: { banked: [], satchel: [] },
+      pendingRevive: false,
+      reviveTargetPhase: false
+    });
+    renderWeaverScreen();
+    renderAll();
+  };
+
+  const buildStoreTile = (tile, state, extra = {}) => {
+    const cost = getTileCost(tile);
+    const isSelected = selectedTileId && extra.key === selectedTileId;
+    const icon = extra.icon || tile.offer?.emoji || tile.offer?.iconKey || tile.icon || '🧵';
+    const name = extra.name || tile.offer?.name || tile.name || 'Unknown';
+    const desc = extra.desc || tile.offer?.desc || tile.desc || '';
+    const note = state.reason || '\u00A0';
+    const tileClasses = ['weaver-store-tile'];
+    if (tile.kind === 'action') tileClasses.push('is-action');
+    if (isSelected) tileClasses.push('is-selected');
+    if (state.disabled) tileClasses.push('is-disabled');
+    if (tile.kind === 'offer' && tile.offer?.soldOut) tileClasses.push('is-sold');
+    return `<button class="${tileClasses.join(' ')}" type="button" data-weaver-tile="${extra.key}" title="${name}: ${desc}">
+      <span class="weaver-store-cost">🧦 ${cost}</span>
+      <span class="weaver-store-icon">${typeof icon === 'string' && icon.length <= 2 ? icon : getIconHTML({ iconKey: tile.offer?.iconKey || '', emoji: tile.offer?.emoji || tile.icon || '🧵', fallbackEmoji: tile.kind === 'action' ? tile.icon : (tile.kind === 'offer' && tile.type === 'hat' ? '🎩' : '🍄'), alt: name })}</span>
+      <span class="weaver-store-name">${name}</span>
+      <span class="weaver-store-note">${note}</span>
+    </button>`;
+  };
+
+  const hats = (offers.hat || []).slice(0, 3);
+  const goodies = (offers.goodie || []).slice(0, 3);
+  const tileMatrix = [
+    hats[0] ? { kind: 'offer', type: 'hat', id: hats[0].id, offer: hats[0] } : null,
+    goodies[0] ? { kind: 'offer', type: 'goodie', id: goodies[0].id, offer: goodies[0] } : null,
+    { kind: 'action', action: 'reroll', name: 'Reroll', desc: 'Refresh all six hat and goodie offers.', cost: 1, icon: '🔄' },
+    hats[1] ? { kind: 'offer', type: 'hat', id: hats[1].id, offer: hats[1] } : null,
+    goodies[1] ? { kind: 'offer', type: 'goodie', id: goodies[1].id, offer: goodies[1] } : null,
+    { kind: 'action', action: 'revive', name: 'Revive KO Gnome', desc: 'Revive any KO gnome in the room where they were knocked out.', cost: 2, icon: '💖' },
+    hats[2] ? { kind: 'offer', type: 'hat', id: hats[2].id, offer: hats[2] } : null,
+    goodies[2] ? { kind: 'offer', type: 'goodie', id: goodies[2].id, offer: goodies[2] } : null,
+    { kind: 'action', action: 'reduce', name: 'Reduce Trouble', desc: 'Lower Trouble by 1.', cost: 1, icon: '🕸️' }
+  ];
+
+  storeGrid.innerHTML = tileMatrix.map(tile => {
+    if (!tile) return `<div class="weaver-store-tile is-empty"></div>`;
+    const key = tile.kind === 'offer' ? `offer:${tile.type}:${tile.id}` : `action:${tile.action}`;
+    return buildStoreTile(tile, tileState(tile), { key });
+  }).join('');
+
+  const cost = getTileCost(selectedTile);
+  const progressPct = cost ? Math.max(0, Math.min(100, (paymentCount / cost) * 100)) : 0;
+  const compareHtml = selectedTile?.kind === 'offer' && selectedTile.type === 'hat'
+    ? `<div class="weaver-compare-row">
+        <div class="weaver-compare-mini">
+          <div class="weaver-compare-icon">${shopper.hat ? getItemEmoji({ type: 'hat', id: shopper.hat }) : '—'}</div>
+          <div><div class="weaver-compare-sub">Current</div><div class="weaver-compare-name">${shopper.hat ? getItemName({ type: 'hat', id: shopper.hat }) : 'No Hat Equipped'}</div></div>
+        </div>
+        <div class="weaver-compare-arrow">→</div>
+        <div class="weaver-compare-mini">
+          <div class="weaver-compare-icon">${getItemEmoji({ type: 'hat', id: selectedTile.offer.id })}</div>
+          <div><div class="weaver-compare-sub">New</div><div class="weaver-compare-name">${selectedTile.offer.name}</div></div>
+        </div>
+      </div>` : '';
+
+  const buildPaySlots = (items, kind) => {
+    if (!items.length) return '<div class="weaver-pay-slot is-empty">—</div>';
+    return items.map((entry, idx) => {
+      const slotIndex = kind === 'banked' ? idx : entry.idx;
+      const selected = kind === 'banked' ? selectedBanked.includes(idx) : selectedSatchel.includes(entry.idx);
+      const icon = kind === 'banked' ? '🧦' : getItemEmoji(entry.item);
+      const title = kind === 'banked' ? 'Spend 1 banked sock.' : `${getItemName(entry.item)} — ${getItemDesc(entry.item) || 'Trade away this item.'}`;
+      return `<button class="weaver-pay-slot${selected ? ' is-selected' : ''}" type="button" data-pay-kind="${kind}" data-pay-slot="${slotIndex}" title="${title}">${icon}</button>`;
     }).join('');
   };
 
-  const renderWeaverGnomeCard = (g, idx, { active = false, shopperSelectable = false } = {}) => {
-    const hat = HAT_DEF_BY_ID[g.hat] || null;
-    const size = getSatchelSize(g);
-    const canReceive = !!currentItem && eligible.includes(g);
-    const canSwitchShopper = betweenHouseTrade && !currentItem && !active && shopperSelectable;
-    const recipientAttrs = canReceive ? ` data-recipient-idx="${idx}"` : (canSwitchShopper ? ` data-weaver-shopper-idx="${idx}"` : '');
-    const recipientClass = canReceive ? ' is-recipient' : (canSwitchShopper ? ' is-shopper-switch' : '');
-    const statusStack = (g.hidden || g.stickyBlocked || g.distractActive)
-      ? `<span class="gnome-status-stack">${g.hidden ? '<span class="gnome-status-badge hidden">🫣</span>' : ''}${g.stickyBlocked ? '<span class="gnome-status-badge sticky">🫟</span>' : ''}${g.distractActive ? '<span class="gnome-status-badge distract">🤢</span>' : ''}</span>`
-      : '';
-    const title = hat ? `${hat.name}: ${hat.desc}${showHatCancelled(g) ? ' (cancelled this round)' : ''}` : 'No hat equipped';
-    return `
-      <div class="gnome-card floating-panel ${active ? 'active weaver-active-card' : 'weaver-preview-card'} weaver-card${recipientClass}${g.ko ? ' ko' : ''}" style="--gnome-accent:${g.color || 'var(--gold)'}"${recipientAttrs}>
-        <div class="gnome-card-main">
-          <div class="gnome-portrait-chip">
-            <img src="${getGnomePortraitUrl(g)}" alt="${g.name} portrait" loading="eager">
-          </div>
-          <div class="gnome-card-content">
-            <div class="gnome-header">
-              <span class="gnome-emoji-wrap">
-                <span class="gnome-emoji">${g.emoji || '🧝'}</span>
-                ${statusStack}
-              </span>
-              <span class="gnome-name-text">${g.name}</span>
-              <div class="gnome-header-status">${g.ko ? '<span style="color:#ff6b6b;font-size:.7rem">💀KO</span>' : ''}</div>
-            </div>
-            <div class="gnome-card-body">
-              <div style="font-size:.6rem;color:var(--muted);margin-bottom:2px;">Hat</div>
-              <div class="satchel-slots" style="margin-bottom:6px;"><div class="slot hat-slot ui-icon-host${hat ? ' clickable' : ' empty'}" data-popup-gnome="${hat ? idx : ''}" data-popup-type="${hat ? 'hat' : ''}" data-popup-slot="${hat ? -1 : ''}" title="${title}">${hat ? getIconHTML({ ...getHatIconProps(hat), alt: hat.name }) : '—'}</div></div>
-              <div style="font-size:.6rem;color:var(--muted);margin-bottom:2px;">Satchel (${g.satchel.slice(0,size).filter(Boolean).length}/${size})</div>
-              <div class="satchel-slots">${renderSatchel(g, idx, true)}</div>
-              ${active && inRoomTrade ? renderWeaverActionPips(g) : ''}
-            </div>
-          </div>
-        </div>
-      </div>`;
+  const canConfirm = !!selectedTile && paymentCount === cost;
+  const needsReviveTarget = reviveTargetPhase && selectedTile?.kind === 'action' && selectedTile.action === 'revive' && koTargets.length > 1;
+  const getReviveRoomName = (g) => {
+    if (!g) return 'Current room';
+    const row = Number.isInteger(g.row) ? g.row : null;
+    const col = Number.isInteger(g.col) ? g.col : null;
+    const cell = row != null && col != null && G.grid?.[row]?.[col] ? G.grid[row][col] : null;
+    const roomId = cell?.roomId || null;
+    return roomId ? (ROOM_DEF_BY_ID[roomId]?.name || 'Current room') : 'Current room';
   };
 
-  roster.innerHTML = `
-    <div class="weaver-sidebar-card">
-      <div class="weaver-active-label">${inRoomTrade ? 'Current Trader' : 'Shopping Gnome'}</div>
-      <div style="font:800 .92rem/1.2 var(--font-body);color:var(--ui-text);">${activeGnome?.name || '—'}</div>
-      <div style="font-size:.72rem;line-height:1.35;color:var(--color-text-soft);">
-        ${betweenHouseTrade
-          ? 'Use the live gnome initiative stack below to choose who shops.'
-          : 'Mid-house Weaver visit: initiative stack stays visible but locked.'}
-      </div>
+  drawer.innerHTML = selectedTile ? `
+    <div class="weaver-drawer-head"><div class="weaver-drawer-title">Trade</div></div>
+    <div class="weaver-progress-box">
+      <div class="weaver-progress-row"><span>Selected</span><strong>${paymentCount} / ${cost}</strong></div>
+      <div class="weaver-progress-bar"><div class="weaver-progress-fill" style="width:${progressPct}%"></div></div>
     </div>
-    <button id="weaver-close-btn" class="weaver-buy-btn weaver-leave-btn${socksEmpty ? ' is-empty' : ''}" type="button">${inRoomTrade ? 'Leave' : `Leave — Begin House ${G.house+1}`}</button>`;
+    ${compareHtml}
+    <div class="weaver-pay-group"><div class="weaver-pay-label">Banked Socks</div><div class="weaver-pay-row">${buildPaySlots(Array.from({ length: G.SocksBanked }, (_, idx) => idx), 'banked')}</div></div>
+    <div class="weaver-pay-group"><div class="weaver-pay-label">Held Socks</div><div class="weaver-pay-row">${buildPaySlots(heldSockSlots, 'satchel')}</div></div>
+    <div class="weaver-pay-group"><div class="weaver-pay-label">Held Goodies</div><div class="weaver-pay-row">${buildPaySlots(heldGoodieSlots, 'satchel')}</div></div>
+    <div class="weaver-drawer-actions">
+      <button id="weaver-confirm-btn" class="weaver-drawer-btn is-primary" type="button" ${canConfirm ? '' : 'disabled'}>Trade</button>
+      <button id="weaver-cancel-btn" class="weaver-drawer-btn" type="button">Cancel</button>
+    </div>
+  ` : '';
+  reviveDrawer.innerHTML = needsReviveTarget ? `
+    <div class="weaver-drawer-head"><div class="weaver-revive-title">Revive Target</div></div>
+    <div class="weaver-revive-note">Choose which KO'd gnome to bring back.</div>
+    <div class="weaver-drawer-actions"><button id="weaver-revive-back-btn" class="weaver-drawer-btn" type="button">Back</button></div>
+    <div class="weaver-revive-chooser">${koTargets.map((g) => `<button class="weaver-revive-target" type="button" data-revive-idx="${G.gnomes.indexOf(g)}"><span>💀</span><span><strong>${g.name}</strong><em>${getReviveRoomName(g)}</em></span></button>`).join('')}</div>
+  ` : '';
+  drawer.classList.toggle('open', !!selectedTile && !needsReviveTarget);
+  reviveDrawer.classList.toggle('open', !!needsReviveTarget);
+  el('screen-weaver')?.classList.toggle('drawer-open', !!selectedTile || !!needsReviveTarget);
 
-  document.querySelectorAll('#screen-weaver .weaver-token-shell').forEach(tile => {
-    if (tile.classList.contains('is-flipped') || tile.classList.contains('is-disabled') || currentItem) return;
-    tile.addEventListener('click', (e) => {
-      if (e.target.closest('button')) return;
-      const type = tile.dataset.buyType;
-      const index = Number(tile.dataset.buyIndex || 0);
-      setWeaverModalContext({
-        kind:'shop',
-        mode,
-        offers: G.weaverModal?.offers || offers,
-        shopperIdx: mode === 'between'
-          ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
-          : undefined,
-        selectedOfferType: type,
-        selectedOfferIndex: index
-      });
-      renderWeaverScreen();
-    });
-  });
-  document.querySelectorAll('#screen-weaver [data-trade-type]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const type = btn.dataset.tradeType;
-      const index = Number(btn.dataset.tradeIndex || 0);
-      startWeaverRoll(type, mode, index);
-    });
-  });
-  document.querySelectorAll('#screen-weaver [data-cancel-type]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      setWeaverModalContext({
-        kind:'shop',
-        mode,
-        offers: G.weaverModal?.offers || offers,
-        shopperIdx: mode === 'between'
-          ? (Number.isInteger(G.weaverModal?.shopperIdx) ? G.weaverModal.shopperIdx : activeIdx)
-          : undefined,
-        selectedOfferType: '',
-        selectedOfferIndex: -1
-      });
-      renderWeaverScreen();
-    });
-  });
-  document.getElementById('weaver-reroll-btn')?.addEventListener('click', () => {
-    rerollWeaverOffers(mode);
-  });
-  document.querySelectorAll('#screen-weaver [data-popup-gnome]').forEach(btn => {
-    if (btn.disabled) return;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const idx = Number(btn.dataset.popupGnome);
-      const type = btn.dataset.popupType;
-      const slot = Number(btn.dataset.popupSlot);
-      const g = G.gnomes[idx];
-      if (!g || !type) return;
-      showInventoryItemPopup(btn, g, idx, type, slot);
-    });
-  });
-  document.querySelectorAll('#screen-weaver [data-recipient-idx]').forEach(btn => {
+  document.querySelectorAll('#screen-weaver [data-weaver-tile]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = Number(btn.dataset.recipientIdx);
-      const g = G.gnomes[idx];
-      if (!g || !currentItem || !eligible.includes(g)) return;
-      applyWeaverItemToGnome(g, currentItem, mode);
+      const key = btn.dataset.weaverTile;
+      const tile = tileMatrix.find(candidate => candidate && ((candidate.kind === 'offer' ? `offer:${candidate.type}:${candidate.id}` : `action:${candidate.action}`) === key));
+      if (!tile) return;
+      const state = tileState(tile);
+      if (state.disabled) return;
+      updateSelection({ selectedTileId: key, selectedPayment: { banked: [], satchel: [] }, pendingRevive: false, reviveTargetPhase: false });
     });
   });
-  document.getElementById('weaver-close-btn')?.addEventListener('click', () => { G.weaverRoll = null; setWeaverModalContext(null); syncWeaverScreenMode(''); if (!inRoomTrade) advanceHouse(); else renderAll(); });
-  if (G.weaverModal?.offers) {
-    ['goodie','hat'].forEach(t => {
-      (G.weaverModal.offers[t] || []).forEach(o => { if (o) o.appearing = false; });
+
+  drawer.querySelectorAll('[data-pay-kind]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!selectedTile) return;
+      const payKind = btn.dataset.payKind;
+      const slot = Number(btn.dataset.paySlot);
+      const nextBanked = [...selectedBanked];
+      const nextSatchel = [...selectedSatchel];
+      const targetArr = payKind === 'banked' ? nextBanked : nextSatchel;
+      const idx = targetArr.indexOf(slot);
+      if (idx >= 0) targetArr.splice(idx, 1);
+      else if ((nextBanked.length + nextSatchel.length) < cost) targetArr.push(slot);
+      updateSelection({ selectedPayment: { banked: nextBanked, satchel: nextSatchel } });
     });
-  }
+  });
+
+  drawer.querySelector('#weaver-cancel-btn')?.addEventListener('click', clearSelection);
+  const leaveBtn = el('weaver-leave-btn');
+  if (leaveBtn) leaveBtn.onclick = () => { setWeaverModalContext(null); syncWeaverScreenMode(''); renderAll(); };
+  drawer.querySelector('#weaver-confirm-btn')?.addEventListener('click', () => {
+    if (!selectedTile || paymentCount !== cost) return;
+    if (selectedTile.kind === 'action' && selectedTile.action === 'revive' && koTargets.length > 1 && !reviveTargetPhase) {
+      updateSelection({ pendingRevive: true, reviveTargetPhase: true });
+      return;
+    }
+    finalizeSelectedTile();
+  });
+  reviveDrawer.querySelector('#weaver-revive-back-btn')?.addEventListener('click', () => updateSelection({ pendingRevive: false, reviveTargetPhase: false }));
+  reviveDrawer.querySelectorAll('[data-revive-idx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.reviveIdx);
+      finalizeSelectedTile(idx);
+    });
+  });
 }
 
 function syncWeaverScreenMode(mode = '') {
   const screen = document.getElementById('screen-weaver');
   if (!screen) return;
   screen.classList.remove('weaver-mode-room','weaver-mode-between');
-  document.body.classList.remove('weaver-mode-room', 'weaver-mode-between');
-  if (mode === 'room') screen.classList.add('weaver-mode-room');
-  if (mode === 'between') screen.classList.add('weaver-mode-between');
-  if (mode === 'room' || mode === 'between') document.body.classList.add(`weaver-mode-${mode}`);
+  document.body.classList.remove('weaver-mode-room','weaver-mode-between');
+  if (mode === 'room') { screen.classList.add('weaver-mode-room'); document.body.classList.add('weaver-mode-room'); }
+  if (mode === 'between') { screen.classList.add('weaver-mode-between'); document.body.classList.add('weaver-mode-between'); }
 }
 
 function showWeaverShopModal(mode) {
@@ -10384,11 +10409,13 @@ function showWeaverShopModal(mode) {
   ensureWeaverOffers(ctx);
   setWeaverModalContext(ctx);
   syncWeaverScreenMode(mode);
+  renderAll();
   renderWeaverScreen();
 }
 
 function showWeaverRecipientModal(item, mode) {
   setWeaverModalContext({kind:'recipient', mode, item});
+  renderAll();
   renderWeaverScreen();
 }
 
@@ -12489,3 +12516,5 @@ refreshDebugForkUi();
 <script src="multiplayer.js"></script>
 </body>
 </html>
+
+
