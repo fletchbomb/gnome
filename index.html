@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v311">
+<html lang="en" data-game-version="v312">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v311</title>
+  <title>Gnome Invasion v312</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -55,6 +55,20 @@
 #turn-portrait-card.turn-handoff-glow .turn-portrait-frame{box-shadow:0 16px 34px rgba(0,0,0,.38),0 0 0 2px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 42%,rgba(255,255,255,.14)),0 0 26px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 24%,transparent)}
 #turn-portrait-card.turn-handoff-glow .turn-portrait-label{box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 0 1px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 44%,rgba(255,255,255,.14)),0 0 18px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 24%,transparent)}
 body.turn-owner-overlay-active #turn-handoff-banner{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.96)}body.turn-owner-overlay-active #board-area{filter:saturate(.82) brightness(.92);pointer-events:none}body.turn-owner-overlay-active #actions-shell{opacity:.26;pointer-events:none}body.turn-owner-overlay-active #bottom-dock,body.turn-owner-overlay-active #sidebar{pointer-events:none}body.turn-owner-overlay-active #log-area{opacity:.46}body.turn-owner-overlay-active #gnome-panels .gnome-card:not(.active),body.turn-owner-overlay-active #patrol-tray .patrol-ref-card:not(.active){opacity:.66}body.turn-owner-overlay-active #gnome-panels .gnome-card.active,body.turn-owner-overlay-active #patrol-tray .patrol-ref-card.active{box-shadow:0 14px 28px rgba(0,0,0,.34),0 0 0 2px color-mix(in srgb,var(--turn-owner-accent,#d64545) 48%,rgba(255,255,255,.18)),0 0 22px color-mix(in srgb,var(--turn-owner-accent,#d64545) 26%,transparent)}body.turn-owner-overlay-patrol{--turn-owner-accent:#d64545}body.turn-owner-overlay-remote{--turn-owner-accent:var(--turn-owner-remote-color,#8d63c7)}body.turn-owner-overlay-patrol #screen-edge-vignette::before{background:linear-gradient(to bottom,color-mix(in srgb,var(--turn-owner-accent) 30%,rgba(26,14,8,.86)) 0,rgba(26,14,8,.16) 170px),linear-gradient(to top,color-mix(in srgb,var(--turn-owner-accent) 18%,rgba(26,14,8,.72)) 0,rgba(26,14,8,0) 150px),linear-gradient(to right,color-mix(in srgb,var(--turn-owner-accent) 15%,rgba(26,14,8,.5)) 0,rgba(26,14,8,0) 140px),linear-gradient(to left,color-mix(in srgb,var(--turn-owner-accent) 15%,rgba(26,14,8,.5)) 0,rgba(26,14,8,0) 140px)}body.turn-owner-overlay-remote #screen-edge-vignette::before{background:linear-gradient(to bottom,color-mix(in srgb,var(--turn-owner-accent) 24%,rgba(26,14,8,.84)) 0,rgba(26,14,8,.14) 170px),linear-gradient(to top,color-mix(in srgb,var(--turn-owner-accent) 16%,rgba(26,14,8,.68)) 0,rgba(26,14,8,0) 150px),linear-gradient(to right,color-mix(in srgb,var(--turn-owner-accent) 12%,rgba(26,14,8,.46)) 0,rgba(26,14,8,0) 140px),linear-gradient(to left,color-mix(in srgb,var(--turn-owner-accent) 12%,rgba(26,14,8,.46)) 0,rgba(26,14,8,0) 140px)}.room-corner.tl.reveal-marker{opacity:.96 !important;filter:none !important;text-shadow:0 2px 6px rgba(0,0,0,.45);transition:filter .18s ease,opacity .18s ease,transform .18s ease}.room-corner.tl.reveal-marker.is-patrol,.room-corner.tl.reveal-marker.room-feature-live,.room-static-icon.room-feature-live{opacity:1 !important;filter:none !important}.room-corner.tl.reveal-marker.is-event-live{animation:eventRoomMarkerPulse 1.9s ease-in-out infinite}.room-corner.tl.reveal-marker.room-feature-disabled,.room-static-icon.room-feature-disabled{opacity:.56 !important;filter:grayscale(1) saturate(0) brightness(.78) !important;text-shadow:none;animation:none !important}.room-static-icon.room-feature-disabled{cursor:default}.room-static-icon.room-feature-live{filter:none !important}.room-static-icon.room-feature-static{opacity:.96}.room-corner.tl.reveal-marker.is-event-spent{animation:none !important}@keyframes eventRoomMarkerPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,111,97,0))}50%{transform:scale(1.08);filter:drop-shadow(0 0 8px rgba(255,111,97,.35))}}.sticky-room-overlay{position:absolute;inset:10px 12px 14px;border-radius:18px;pointer-events:none;z-index:2;overflow:hidden}.sticky-room-blob{position:absolute;display:block;width:52px;height:34px;border-radius:58% 42% 55% 45%/50% 42% 58% 50%;background:radial-gradient(ellipse at 34% 32%,rgba(255,236,255,.34) 0%,rgba(221,160,255,.24) 18%,rgba(161,77,232,.42) 46%,rgba(95,28,152,.72) 100%);box-shadow:0 0 0 1px rgba(75,22,116,.24) inset,0 8px 16px rgba(37,10,60,.22);opacity:.92}.sticky-room-blob::after{content:'';position:absolute;inset:20% 24% auto auto;width:36%;height:26%;border-radius:999px;background:rgba(255,242,255,.18);filter:blur(1px)}.sticky-room-blob.blob-b{width:38px;height:26px}.sticky-room-blob.blob-c{width:64px;height:38px}.sticky-room-blob.blob-d{width:28px;height:20px}.sticky-room-blob.blob-e{width:22px;height:16px}.cell.room.room-reveal-pop .sticky-room-blob{animation:stickyBlobReveal .34s cubic-bezier(.2,.9,.22,1) both}.cell.room.sticky-splat-anim .sticky-room-blob{animation:stickyBlobImpact .9s cubic-bezier(.2,.9,.22,1) forwards}.cell.room.sticky-splat-anim::after{content:'🫟';position:absolute;left:50%;top:50%;z-index:6;transform:translate(-50%,-50%) scale(.5);opacity:0;font-size:2.4rem;filter:drop-shadow(0 6px 8px rgba(24,6,42,.35));pointer-events:none;animation:stickyBurstImpact .85s cubic-bezier(.15,.88,.22,1) forwards}@keyframes stickyBlobReveal{0%{opacity:0;filter:blur(3px);transform:translate(-50%,-50%) scale(.28) rotate(var(--sticky-rot,0deg))}100%{opacity:.92;filter:blur(0);transform:translate(-50%,-50%) scale(1) rotate(var(--sticky-rot,0deg))}}@keyframes stickyBlobImpact{0%{opacity:.18;filter:blur(3px);transform:translate(-50%,-50%) scale(.2) rotate(var(--sticky-rot,0deg))}55%{opacity:1;filter:blur(0);transform:translate(-50%,-50%) scale(1.16) rotate(calc(var(--sticky-rot,0deg) + 5deg))}100%{opacity:.92;transform:translate(-50%,-50%) scale(1) rotate(var(--sticky-rot,0deg))}}@keyframes stickyBurstImpact{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}18%{opacity:.95;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.34)}}.token-status-ring.status-distract{--status-ring-color:#84cc16}.token-status-ring.status-frozen{--status-ring-color:#67c6ff}.token-status-ring.status-revealed{--status-ring-color:#f0d257}.actor-portrait-status-badge.distract,.gnome-status-badge.distract,.actor-status-pill.distract,.patrol-ref-pill.distract{background:linear-gradient(180deg,rgba(88,124,24,.92),rgba(48,70,12,.96));border-color:rgba(163,230,53,.34)}.actor-portrait-status-badge.frozen,.gnome-status-badge.frozen,.actor-status-pill.frozen,.patrol-ref-pill.frozen{background:linear-gradient(180deg,rgba(52,104,148,.92),rgba(24,58,88,.96));border-color:rgba(103,198,255,.34)}.actor-portrait-status-badge.revealed,.gnome-status-badge.revealed,.actor-status-pill.revealed,.patrol-ref-pill.revealed{background:linear-gradient(180deg,rgba(150,120,24,.94),rgba(96,73,8,.98));border-color:rgba(240,210,87,.42)}.actor-portrait-status-badge.hidden,.gnome-status-badge.hidden,.actor-status-pill.hidden,.patrol-ref-pill.hidden{background:linear-gradient(180deg,rgba(60,60,66,.92),rgba(24,24,30,.96));border-color:rgba(196,200,209,.24)}.actor-portrait-status-pills{position:absolute;left:8px;right:8px;bottom:8px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;z-index:3;pointer-events:none}.actor-portrait-status-pills .actor-status-pill{font-size:.62rem;padding:3px 7px;max-width:calc(100% - 6px);box-shadow:0 4px 12px rgba(0,0,0,.28);background:linear-gradient(180deg,rgba(72,50,35,.96),rgba(43,30,22,.98));backdrop-filter:blur(2px)}.actor-portrait-status-pills .actor-status-pill+ .actor-status-pill{margin-left:0}.log-entry.trouble{color:#ffcfbf;font-weight:900;letter-spacing:.02em;text-shadow:0 0 10px rgba(255,91,78,.12)}
+
+
+#shared-decision-overlay{display:none;position:fixed;inset:0;z-index:145;align-items:flex-start;justify-content:center;padding-top:58px;background:rgba(0,0,0,.36);pointer-events:none}
+#shared-decision-overlay.show{display:flex}
+#shared-decision-modal{width:min(420px,calc(100vw - 28px));max-height:min(78vh,680px);overflow:auto;pointer-events:auto;background:linear-gradient(180deg,rgba(63,44,31,.985),rgba(34,24,18,.995));border:1px solid rgba(214,166,82,.28);border-radius:20px;padding:18px 18px 16px;box-shadow:0 24px 42px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,245,224,.05)}
+#shared-decision-title{margin:0;color:var(--color-text-strong);font-size:1.02rem}
+#shared-decision-meta{margin-top:4px;font-size:.74rem;line-height:1.35;color:var(--color-text-muted)}
+#shared-decision-note{margin-top:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(214,166,82,.14);font-size:.7rem;line-height:1.35;color:var(--color-text-soft)}
+#shared-decision-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.shared-decision-btn{display:block;width:100%;padding:10px 12px;background:linear-gradient(180deg,#6a4a32,#4b3425);border:1px solid rgba(214,166,82,.22);border-radius:10px;color:var(--color-text-primary);font:800 .78rem/1.25 var(--font-body);text-align:left;cursor:pointer;transition:background .15s,border-color .15s,transform .12s,box-shadow .15s}
+.shared-decision-btn:hover:not(:disabled){background:linear-gradient(180deg,#7a563a,#5a3f2b);border-color:var(--color-accent-primary);transform:translateY(-1px)}
+.shared-decision-btn:disabled{background:rgba(43,30,22,.82);border-color:rgba(140,112,73,.3);color:rgba(244,230,200,.42);cursor:not-allowed;box-shadow:none;transform:none}
+.shared-decision-btn.is-muted{font-weight:700}
+body.turn-owner-overlay-active #shared-decision-overlay{background:rgba(0,0,0,.46)}
 
 </style>
 
@@ -2841,6 +2855,10 @@ function getInterruptBannerText() {
   return '';
 }
 
+function notifyMultiplayerUiStateChanged(delay = 40) {
+  try { return !!window.__gnomeMPApi?.notifyUiStateChanged?.(delay); } catch (_err) { return false; }
+}
+
 function syncInterruptUi() {
   const panicOverlay = document.getElementById('panic-overlay');
   const panicBanner = document.getElementById('panic-banner');
@@ -2873,6 +2891,7 @@ function clearInterruptMode({ render = true } = {}) {
   if (!G) return;
   G.eventMode = null;
   syncInterruptUi();
+  notifyMultiplayerUiStateChanged(40);
   if (render) renderAll();
 }
 
@@ -2883,6 +2902,7 @@ function setInterruptMode(mode, { render = true } = {}) {
   }
   G.eventMode = mode;
   syncInterruptUi();
+  notifyMultiplayerUiStateChanged(40);
   if (render) renderAll();
 }
 
@@ -2996,6 +3016,7 @@ function createCoreState({ house = 1, roomDeck, goodiePool, hatPool, gnomes = []
     stickyAnimated: new Set(),
     crackedRooms: new Set(),
     eventMode:null,
+    sharedDecisionPopup:null,
     gameEnded:false,
   };
 }
@@ -4024,6 +4045,7 @@ function renderAll() {
   document.body.classList.toggle('patrol-turn-state', shouldShowPatrolTurnUi());
   UI_LAYERS.render.full();
   syncTurnOwnerUi();
+  syncSharedDecisionUi();
   syncTurnHandoffCue();
   const roomsInline = el('rooms-count-inline');
   if (roomsInline) roomsInline.textContent = String(G.tilesRevealed || 1);
@@ -5273,37 +5295,389 @@ function getQuirkPopupSummary(quirkType, ctx) {
   return byType[quirkType] || { title: capitalize(String(quirkType || 'Room Action')), meta: roomName };
 }
 
+function shouldDelegateSharedDecisionPopupToHost(state) {
+  try { return !!window.__gnomeMPApi?.requestSharedDecisionPopup?.(state); } catch (_err) { return false; }
+}
+
+function shouldDelegateSharedDecisionActionToHost(actionKey) {
+  try { return !!window.__gnomeMPApi?.requestSharedDecisionAction?.(actionKey); } catch (_err) { return false; }
+}
+
+function shouldDelegateSharedDecisionClearToHost() {
+  try { return !!window.__gnomeMPApi?.requestSharedDecisionClear?.(); } catch (_err) { return false; }
+}
+
+function normalizeSharedDecisionPopupState(state) {
+  if (!state || typeof state !== 'object') return null;
+  return JSON.parse(JSON.stringify(state));
+}
+
+function setSharedDecisionPopup(state, { render = true } = {}) {
+  if (!G) return null;
+  removeLegacyItemPopupDom();
+  G.sharedDecisionPopup = normalizeSharedDecisionPopupState(state);
+  notifyMultiplayerUiStateChanged(40);
+  if (render) renderAll();
+  return G.sharedDecisionPopup;
+}
+
+function clearSharedDecisionPopup({ render = true } = {}) {
+  if (!G) return;
+  removeLegacyItemPopupDom();
+  G.sharedDecisionPopup = null;
+  notifyMultiplayerUiStateChanged(40);
+  if (render) renderAll();
+}
+
+function openSharedDecisionPopup(state, { render = true } = {}) {
+  if (!state) {
+    clearSharedDecisionPopup({ render });
+    return null;
+  }
+  if (shouldDelegateSharedDecisionPopupToHost(state)) return true;
+  return setSharedDecisionPopup(state, { render });
+}
+
+function createSharedDecisionActionSpec(key, label, perform, disabled = false, options = {}) {
+  return { key, label, perform, disabled: !!disabled, tone: options.tone || '', detail: options.detail || '' };
+}
+
+function getSharedDecisionOccupant(state) {
+  if (!state) return null;
+  if (state.occupantType === 'gnome') {
+    return G.gnomes?.[Number(state.targetGnomeIdx)] || null;
+  }
+  if (state.occupantType === 'patrol') {
+    return (G.patrols || []).find(p => p.type === state.targetPatrolType && p.row === state.targetPatrolRow && p.col === state.targetPatrolCol) || null;
+  }
+  return null;
+}
+
+function buildSharedDecisionRoomItemSpec(state) {
+  const ctx = buildRoomItemPopupContext(null, state.r, state.c, state.itemType, state.idx);
+  const actions = [];
+  if (!ctx.tile) return { title: 'Unavailable', meta: '', actions: [createSharedDecisionActionSpec('__close__', 'Close', () => clearSharedDecisionPopup())] };
+  if (state.itemType === 'Socks') {
+    const freeSlot = ctx.inRoom ? findFirstFreeSatchelSlot(ctx.gnome) : -1;
+    actions.push(createSharedDecisionActionSpec('pickup-socks', '🤏 Pick Up 🧦 Socks', () => {
+      clearSharedDecisionPopup({ render: false });
+      ctx.gnome.satchel[freeSlot] = { type: 'Socks' };
+      ctx.tile.Socks--;
+      GAME_EVENTS.emit('item.pickedUp', { itemType: 'Socks' });
+      spendAction();
+      G.selectedAction = null;
+      renderAll();
+    }, !(freeSlot !== -1 && ctx.hasActions)));
+    const dests = getPopupKickDestinations(ctx);
+    actions.push(createSharedDecisionActionSpec('kick-socks', '👟 Kick', () => {
+      clearSharedDecisionPopup({ render: false });
+      G.kickMode = { target: { label:'🧦 Socks', emoji:'🧦', type:'Socks', ref:ctx.tile }, destinations:dests };
+      addLog(UI_TEXT.kickChooseRoom('Socks'), 'system');
+      renderAll();
+    }, !(dests.length && G.actionsLeft > 0)));
+  } else if (state.itemType === 'goodie') {
+    const gid = ctx.tile.goodieIds?.[ctx.idx];
+    const freeSlot = ctx.inRoom ? findFirstFreeSatchelSlot(ctx.gnome) : -1;
+    const gdef = GOODIES_DEFS.find(d => d.id === gid);
+    actions.push(createSharedDecisionActionSpec('pickup-goodie', `🤏 Pick Up ${gdef?.emoji || '🎁'} ${gdef?.name || 'Goodie'}`, () => {
+      clearSharedDecisionPopup({ render: false });
+      ctx.tile.goodieIds.splice(ctx.idx, 1);
+      ctx.gnome.satchel[freeSlot] = { type:'goodie', id:gid };
+      addLog(`${ctx.gnome.name} picks up ${gdef?.name || 'Goodie'}.`, 'good');
+      spendAction();
+      G.selectedAction = null;
+      renderAll();
+    }, !(freeSlot !== -1 && ctx.hasActions)));
+    const dests = getPopupKickDestinations(ctx);
+    actions.push(createSharedDecisionActionSpec('kick-goodie', '👟 Kick', () => {
+      clearSharedDecisionPopup({ render: false });
+      G.kickMode = { target: { label:`🍄 ${gdef?.name || 'Goodie'}`, emoji:'🍄', type:'goodie', ref:{ tile:ctx.tile, idx:ctx.idx } }, destinations:dests };
+      addLog(UI_TEXT.kickChooseRoom(gdef?.name || 'Goodie'), 'system');
+      renderAll();
+    }, !(dests.length && G.actionsLeft > 0)));
+  } else if (state.itemType === 'hat') {
+    const hid = ctx.tile.hatIds?.[ctx.idx];
+    const hdef = HAT_DEF_BY_ID[hid] || HATS_DEFS.find(h => h.id === hid);
+    const freeSlot = ctx.inRoom ? findFirstFreeSatchelSlot(ctx.gnome) : -1;
+    const hatSlotEmpty = ctx.inRoom && !ctx.gnome.hat;
+    const canPick = ctx.hasActions && (freeSlot !== -1 || hatSlotEmpty);
+    const pickLabel = `🤏 Pick Up ${hdef?.name || 'Hat'}${!canPick && ctx.inRoom && ctx.hasActions ? ' (satchel full)' : ''}`;
+    actions.push(createSharedDecisionActionSpec('pickup-hat', pickLabel, () => {
+      clearSharedDecisionPopup({ render: false });
+      ctx.tile.hatIds.splice(ctx.idx, 1);
+      const result = giveHatToGnome(ctx.gnome, hid);
+      addLog(result === 'equipped' ? `${ctx.gnome.name} picks up and equips ${hdef?.name || 'Hat'}!` : `${ctx.gnome.name} picks up ${hdef?.name || 'Hat'}.`, 'good');
+      spendAction();
+      G.selectedAction = null;
+      renderAll();
+    }, !canPick));
+    const dests = getPopupKickDestinations(ctx);
+    actions.push(createSharedDecisionActionSpec('kick-hat', '👟 Kick', () => {
+      clearSharedDecisionPopup({ render: false });
+      G.kickMode = { target: { label:`${hdef?.emoji || '🎩'} ${hdef?.name || 'Hat'}`, emoji:hdef?.emoji || '🎩', type:'hat', ref:{ tile:ctx.tile, idx:ctx.idx } }, destinations:dests };
+      addLog(UI_TEXT.kickChooseRoom(hdef?.name || 'Hat'), 'system');
+      renderAll();
+    }, !(dests.length && G.actionsLeft > 0)));
+  }
+  return { ...getRoomItemPopupSummary(ctx), actions };
+}
+
+function buildSharedDecisionOccupantSpec(state) {
+  const obj = getSharedDecisionOccupant(state);
+  const ctx = buildOccupantPopupContext(null, obj, state.occupantType, state.r, state.c);
+  const actions = [];
+  if (!obj) return { title: 'Unavailable', meta: '', actions: [createSharedDecisionActionSpec('__close__', 'Close', () => clearSharedDecisionPopup())] };
+  if (state.occupantType === 'gnome') {
+    if (obj.id === G.currentGnomeIdx) {
+      actions.push(createSharedDecisionActionSpec('remove-sticky', UI_TEXT.action.removeSticky, () => {
+        clearSharedDecisionPopup({ render: false });
+        removeStickyForActiveGnome();
+      }, !(G.actionsLeft > 0 && obj.stickyBlocked)));
+    } else if (ctx.inRoom) {
+      const dests = getPopupKickDestinations(ctx);
+      actions.push(createSharedDecisionActionSpec('kick-gnome', '👟 Kick', () => {
+        clearSharedDecisionPopup({ render: false });
+        G.kickMode = { target:{ label:`${obj.emoji} ${obj.name}`, emoji:obj.emoji, type:'gnome', ref:obj }, destinations:dests };
+        addLog(UI_TEXT.kickChooseRoom(obj.name), 'system');
+        renderAll();
+      }, !(dests.length && G.actionsLeft > 0)));
+    }
+  } else if (state.occupantType === 'patrol' && ctx.inRoom) {
+    const em = patrolEmoji(obj.type);
+    const dests = getPopupKickDestinations(ctx);
+    actions.push(createSharedDecisionActionSpec('kick-patrol', '👟 Kick', () => {
+      clearSharedDecisionPopup({ render: false });
+      G.kickMode = { target:{ label:`${em} ${capitalize(obj.type)}`, emoji:em, type:'patrol', ref:obj }, destinations:dests };
+      addLog(UI_TEXT.kickChooseRoom(capitalize(obj.type)), 'system');
+      renderAll();
+    }, !(dests.length && G.actionsLeft > 0)));
+  }
+  return { ...getOccupantPopupSummary(ctx), actions };
+}
+
+function buildSharedDecisionQuirkSpec(state) {
+  const ctx = getPopupActorContext(null, state.r, state.c);
+  const actions = [];
+  if (state.quirkType === 'hide') {
+    actions.push(createSharedDecisionActionSpec('quirk-hide', UI_TEXT.action.hide, () => { clearSharedDecisionPopup({ render:false }); doHide(); }, !(ctx.inRoom && canGnomeHideNow(ctx.gnome))));
+  } else if (state.quirkType === 'vent') {
+    const ventDestinations = ctx.gnome ? getVentDestinations(ctx.gnome) : [];
+    actions.push(createSharedDecisionActionSpec('quirk-vent', UI_TEXT.action.vent, () => { clearSharedDecisionPopup({ render:false }); doVent(); }, !(ctx.inRoom && G.actionsLeft > 0 && ventDestinations.length > 0)));
+  } else if (state.quirkType === 'weaver') {
+    actions.push(createSharedDecisionActionSpec('quirk-weaver', UI_TEXT.action.weaver, () => { clearSharedDecisionPopup({ render:false }); openWeaver(); }, !(ctx.inRoom && ctx.hasActions && canOpenWeaverNow(ctx.gnome))));
+  } else if (state.quirkType === 'chute') {
+    const hasSocks = ctx.inRoom && ctx.gnome.satchel.some(s => s?.type === 'Socks');
+    actions.push(createSharedDecisionActionSpec('quirk-deposit', UI_TEXT.action.deposit, () => { clearSharedDecisionPopup({ render:false }); depositSocks(); }, !hasSocks));
+  } else if (state.quirkType === 'mothEggs') {
+    const canKickEggs = ctx.inRoom && G.actionsLeft > 0 && getKickTargetsForGnome(ctx.gnome).some(t => t.type === 'moth_eggs');
+    actions.push(createSharedDecisionActionSpec('quirk-kick-eggs', '👟 Kick', () => { clearSharedDecisionPopup({ render:false }); doKick(); }, !canKickEggs));
+  }
+  return { ...getQuirkPopupSummary(state.quirkType, ctx), actions };
+}
+
+function buildSharedDecisionInventorySpec(state) {
+  const gnome = G.gnomes?.[Number(state.gnomeIdx)] || null;
+  if (!gnome) return { title: 'Unavailable', meta: '', actions: [createSharedDecisionActionSpec('__close__', 'Close', () => clearSharedDecisionPopup())] };
+  const slotIdx = Number(state.slotIdx);
+  const isHatSlot = slotIdx === -1;
+  const item = isHatSlot ? (gnome.hat ? { type:'hat', id:gnome.hat } : null) : gnome.satchel[slotIdx];
+  const context = { anchor:null, gnome, gnomeIdx:Number(state.gnomeIdx), itemType:state.itemType, slotIdx, isHatSlot, item, tile:G.grid[gnome.row]?.[gnome.col], inWeaverScreen:!!G.weaverModal };
+  const actions = [];
+  if (!item && !isHatSlot) return { title: 'Unavailable', meta: '', actions: [createSharedDecisionActionSpec('__close__', 'Close', () => clearSharedDecisionPopup())] };
+  if (state.itemType === 'goodie') {
+    const usable = isGoodieUsable(gnome, normalizeGoodieId(item.id));
+    const canUse = usable && G.actionsLeft > 0;
+    actions.push(createSharedDecisionActionSpec('use-goodie', `${getGoodieEmoji(item.id)} Use ${getGoodieName(item.id)}`, () => { clearSharedDecisionPopup({ render:false }); useGoodieFromSlot(slotIdx); }, !canUse));
+    actions.push(createSharedDecisionActionSpec('drop-goodie', UI_TEXT.action.drop, () => {
+      clearSharedDecisionPopup({ render:false });
+      gnome.satchel[slotIdx] = null;
+      spendAction();
+      if (!context.tile.goodieIds) context.tile.goodieIds = [];
+      context.tile.goodieIds.push(item.id);
+      GAME_EVENTS.emit('item.dropped', { itemType:'goodie', id:item.id });
+      addLog(`${gnome.name} dropped ${getGoodieLabel(item.id)}.`);
+      renderAll();
+    }, G.actionsLeft <= 0));
+    if (context.inWeaverScreen) actions.push(createSharedDecisionActionSpec('destroy-goodie', '🗑️ Destroy', () => { clearSharedDecisionPopup({ render:false }); destroyInventoryPopupItem({ ...context, label:getGoodieName(item.id) }); }));
+  } else if (state.itemType === 'Socks') {
+    const dropLabel = context.tile?.roomId === 1 || context.tile?.chute ? UI_TEXT.action.deposit : UI_TEXT.action.drop;
+    actions.push(createSharedDecisionActionSpec('drop-socks', dropLabel, () => {
+      clearSharedDecisionPopup({ render:false });
+      gnome.satchel[slotIdx] = null;
+      spendAction();
+      if (context.tile?.roomId === 1 || context.tile?.chute) {
+        G.SocksBanked++;
+        GAME_EVENTS.emit('item.dropped', { itemType:'Socks', mode:'deposit' });
+        addLog(`${gnome.name} deposited 🧦! Total: ${G.SocksBanked}/${getHouseGoal()}`, 'good');
+        checkGoalMet();
+      } else {
+        context.tile.Socks++;
+        GAME_EVENTS.emit('item.dropped', { itemType:'Socks', mode:'floor' });
+        addLog(`${gnome.name} dropped 🧦 in ${ROOM_DEFS[context.tile.roomId].name}.`);
+      }
+      renderAll();
+    }, G.actionsLeft <= 0));
+    if (context.inWeaverScreen) actions.push(createSharedDecisionActionSpec('destroy-socks', '🗑️ Destroy', () => { clearSharedDecisionPopup({ render:false }); destroyInventoryPopupItem({ ...context, label:'Socks 🧦' }); }));
+  } else if (state.itemType === 'hat') {
+    if (isHatSlot) {
+      const hatsInSatchel = gnome.satchel.map((s,i)=>s?.type==='hat'?{item:s,idx:i}:null).filter(Boolean);
+      const freeSlot = findFirstFreeSatchelSlot(gnome);
+      actions.push(createSharedDecisionActionSpec('move-hat-to-satchel', '📦 Move to Satchel', () => {
+        clearSharedDecisionPopup({ render:false });
+        const oldHat = gnome.hat;
+        gnome.hat = null;
+        gnome.satchel[freeSlot] = { type:'hat', id:oldHat };
+        addLog(`${gnome.name} moves their hat to satchel.`);
+        clearDistractState({ reason:' because the hat was unequipped.', log:true });
+        updateActionsForHat();
+        reconcileSatchelOverflow(gnome);
+        renderAll();
+      }, freeSlot === -1));
+      hatsInSatchel.forEach(({ item:hItem, idx:hIdx }) => {
+        const hdef = HATS_DEFS.find(h => h.id === hItem.id);
+        actions.push(createSharedDecisionActionSpec(`equip-hat-${hIdx}`, `🔄 Equip ${hdef?.name || 'Hat'}`, () => {
+          clearSharedDecisionPopup({ render:false });
+          const oldHat = gnome.hat;
+          gnome.hat = hItem.id;
+          gnome.satchel[hIdx] = { type:'hat', id:oldHat };
+          addLog(`${gnome.name} equips ${hdef?.name}!`, 'good');
+          clearDistractState({ reason:' because the old hat was replaced.', log:!!gnome.distractActive });
+          updateActionsForHat();
+          reconcileSatchelOverflow(gnome);
+          renderAll();
+        }));
+      });
+      actions.push(createSharedDecisionActionSpec('drop-equipped-hat', UI_TEXT.action.drop, () => {
+        clearSharedDecisionPopup({ render:false });
+        const oldHat = gnome.hat;
+        gnome.hat = null;
+        const dropTile = G.grid[gnome.row][gnome.col];
+        if (!dropTile.hatIds) dropTile.hatIds = [];
+        dropTile.hatIds.push(oldHat);
+        GAME_EVENTS.emit('item.dropped', { itemType:'hat', mode:'floor' });
+        addLog(`${gnome.name} drops their hat on the floor.`);
+        clearDistractState({ reason:' because the hat was dropped.', log:true });
+        updateActionsForHat();
+        reconcileSatchelOverflow(gnome);
+        renderAll();
+      }));
+      if (context.inWeaverScreen) actions.push(createSharedDecisionActionSpec('destroy-equipped-hat', '🗑️ Destroy', () => { clearSharedDecisionPopup({ render:false }); destroyInventoryPopupItem({ ...context, label:HAT_DEF_BY_ID[item.id]?.name || 'Hat' }); }));
+    } else {
+      const hdef = HATS_DEFS.find(h => h.id === item.id);
+      actions.push(createSharedDecisionActionSpec('equip-satchel-hat', `🎩 Equip ${hdef?.name || 'Hat'} (replace current)`, () => {
+        clearSharedDecisionPopup({ render:false });
+        const oldHat = gnome.hat;
+        gnome.hat = item.id;
+        gnome.satchel[slotIdx] = oldHat ? { type:'hat', id:oldHat } : null;
+        addLog(`${gnome.name} equips ${hdef?.name}!`, 'good');
+        updateActionsForHat();
+        renderAll();
+      }));
+      actions.push(createSharedDecisionActionSpec('drop-satchel-hat', UI_TEXT.action.drop, () => {
+        clearSharedDecisionPopup({ render:false });
+        gnome.satchel[slotIdx] = null;
+        const dropTile2 = G.grid[gnome.row][gnome.col];
+        if (!dropTile2.hatIds) dropTile2.hatIds = [];
+        dropTile2.hatIds.push(item.id);
+        GAME_EVENTS.emit('item.dropped', { itemType:'hat', id:item.id, mode:'floor' });
+        addLog(`${gnome.name} drops ${hdef?.name || 'Hat'} on the floor.`);
+        renderAll();
+      }));
+      if (context.inWeaverScreen) actions.push(createSharedDecisionActionSpec('destroy-satchel-hat', '🗑️ Destroy', () => { clearSharedDecisionPopup({ render:false }); destroyInventoryPopupItem({ ...context, label:hdef?.name || 'Hat' }); }));
+    }
+  }
+  return { ...getInventoryPopupSummary(context), actions };
+}
+
+function getSharedDecisionPopupSpec(state = G?.sharedDecisionPopup) {
+  if (!state) return null;
+  let spec = null;
+  if (state.kind === 'inventory') spec = buildSharedDecisionInventorySpec(state);
+  else if (state.kind === 'roomItem') spec = buildSharedDecisionRoomItemSpec(state);
+  else if (state.kind === 'occupant') spec = buildSharedDecisionOccupantSpec(state);
+  else if (state.kind === 'quirk') spec = buildSharedDecisionQuirkSpec(state);
+  if (!spec) return null;
+  const actions = Array.isArray(spec.actions) ? spec.actions.filter(Boolean) : [];
+  if (!actions.length) actions.push(createSharedDecisionActionSpec('__close__', '(no actions)', () => clearSharedDecisionPopup(), true, { tone:'muted' }));
+  actions.push(createSharedDecisionActionSpec('__close__', 'Close', () => clearSharedDecisionPopup()));
+  spec.actions = actions;
+  return spec;
+}
+
+function ensureSharedDecisionUiElements() {
+  if (document.getElementById('shared-decision-overlay')) return;
+  const overlay = createElement('div', { attrs:{ id:'shared-decision-overlay', 'aria-hidden':'true' } });
+  overlay.innerHTML = '<div id="shared-decision-modal"><h2 id="shared-decision-title"></h2><div id="shared-decision-meta"></div><div id="shared-decision-note" hidden></div><div id="shared-decision-actions"></div></div>';
+  document.body.appendChild(overlay);
+}
+
+function renderSharedDecisionButtons(actions, lockState) {
+  const actionsEl = el('shared-decision-actions');
+  if (!actionsEl) return;
+  actionsEl.innerHTML = '';
+  actions.forEach(action => {
+    const btn = buildButton(action.label, () => {
+      if (action.key === '__close__') {
+        if (shouldDelegateSharedDecisionClearToHost()) return;
+        clearSharedDecisionPopup();
+        return;
+      }
+      if (shouldDelegateSharedDecisionActionToHost(action.key)) return;
+      if (typeof action.perform === 'function') action.perform();
+    }, {
+      className: `shared-decision-btn${action.tone === 'muted' ? ' is-muted' : ''}`,
+      disabled: !!action.disabled || !!lockState?.active,
+      emitClick: true,
+      stopPropagation: true,
+    });
+    if (action.detail) btn.title = action.detail;
+    actionsEl.appendChild(btn);
+  });
+}
+
+function syncSharedDecisionUi() {
+  ensureSharedDecisionUiElements();
+  const overlay = el('shared-decision-overlay');
+  const titleEl = el('shared-decision-title');
+  const metaEl = el('shared-decision-meta');
+  const noteEl = el('shared-decision-note');
+  const spec = getSharedDecisionPopupSpec();
+  if (!overlay || !titleEl || !metaEl || !noteEl) return;
+  if (!spec || !G?.sharedDecisionPopup) {
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    return;
+  }
+  const lockState = getMultiplayerInputLockState();
+  titleEl.textContent = spec.title || 'Choose an Action';
+  metaEl.textContent = spec.meta || '';
+  if (lockState.active) {
+    noteEl.hidden = false;
+    noteEl.textContent = lockState.message || 'Waiting for the active player.';
+  } else {
+    noteEl.hidden = true;
+    noteEl.textContent = '';
+  }
+  renderSharedDecisionButtons(spec.actions || [], lockState);
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+function resolveAndPerformSharedDecisionAction(actionKey) {
+  const spec = getSharedDecisionPopupSpec();
+  if (!spec) return false;
+  const action = (spec.actions || []).find(entry => entry && entry.key === actionKey);
+  if (!action || action.disabled || typeof action.perform !== 'function') return false;
+  action.perform();
+  return true;
+}
+
 function showInventoryItemPopup(anchor, gnome, gnomeIdx, itemType, slotIdx) {
   if (isGameplayInputLocked()) { if (getInteractionLockState().active) addLog(getInteractionLockMessage(), 'system'); return; }
-  closeItemPopup();
-  const popup = createPopupShell({ variant: 'action' });
-
-  const isHatSlot = slotIdx === -1;
-  const item = isHatSlot ? (gnome.hat ? {type:'hat', id: gnome.hat} : null) : gnome.satchel[slotIdx];
+  const isHatSlot = Number(slotIdx) === -1;
+  const item = isHatSlot ? (gnome.hat ? { type:'hat', id: gnome.hat } : null) : gnome.satchel[slotIdx];
   if (!item && !isHatSlot) return;
-
-  const context = {
-    anchor,
-    gnome,
-    gnomeIdx,
-    itemType,
-    slotIdx,
-    isHatSlot,
-    item,
-    tile: G.grid[gnome.row][gnome.col],
-    inWeaverScreen: !!G.weaverModal,
-  };
-
-  setPopupSummary(popup, getInventoryPopupSummary(context));
-
-  if (itemType === 'goodie') buildGoodieInventoryPopup(popup, context);
-  else if (itemType === 'Socks') buildSocksInventoryPopup(popup, context);
-  else if (itemType === 'hat') {
-    if (isHatSlot) buildEquippedHatInventoryPopup(popup, context);
-    else buildSatchelHatInventoryPopup(popup, context);
-  }
-
-  mountPopupNearAnchor(anchor, popup);
+  openSharedDecisionPopup({ kind:'inventory', gnomeIdx:Number(gnomeIdx), itemType, slotIdx:Number(slotIdx) });
 }
 
 
@@ -5458,12 +5832,7 @@ function buildRoomItemPopupActions(ctx) {
 
 function showRoomItemPopup(anchor, r, c, type, idx) {
   if (isGameplayInputLocked()) { if (getInteractionLockState().active) addLog(getInteractionLockMessage(), 'system'); return; }
-  closeItemPopup();
-  const popup = createPopupShell({ variant: 'action' });
-  const ctx = buildRoomItemPopupContext(anchor, r, c, type, idx);
-  setPopupSummary(popup, getRoomItemPopupSummary(ctx));
-  appendPopupActionDescriptors(popup, buildRoomItemPopupActions(ctx));
-  mountPopupNearAnchor(anchor, popup);
+  openSharedDecisionPopup({ kind:'roomItem', r:Number(r), c:Number(c), itemType:type, idx:Number(idx) });
 }
 
 function addPopupBtn(popup, label, action, disabled=false) {
@@ -5472,9 +5841,14 @@ function addPopupBtn(popup, label, action, disabled=false) {
   appendPopupAction(list, label, action, disabled);
 }
 
-function closeItemPopup() {
+function removeLegacyItemPopupDom() {
   const p = document.getElementById('active-item-popup');
   if (p) p.remove();
+}
+
+function closeItemPopup() {
+  removeLegacyItemPopupDom();
+  if (G?.sharedDecisionPopup) G.sharedDecisionPopup = null;
 }
 
 function mountPopupNearAnchor(anchor, popup, { align = 'center', preferAbove = true } = {}) {
@@ -5605,12 +5979,10 @@ function buildOccupantPopupActions(ctx) {
 
 function showOccupantPopup(anchor, obj, type, r, c) {
   if (isGameplayInputLocked()) { if (getInteractionLockState().active) addLog(getInteractionLockMessage(), 'system'); return; }
-  closeItemPopup();
-  const popup = createPopupShell({ variant: 'action' });
-  const ctx = buildOccupantPopupContext(anchor, obj, type, r, c);
-  setPopupSummary(popup, getOccupantPopupSummary(ctx));
-  appendPopupActionDescriptors(popup, buildOccupantPopupActions(ctx), { emptyLabel: '(no actions)' });
-  mountPopupNearAnchor(anchor, popup, { align: 'left' });
+  const popupState = { kind:'occupant', occupantType:type, r:Number(r), c:Number(c) };
+  if (type === 'gnome') popupState.targetGnomeIdx = Number(obj?.id);
+  else if (type === 'patrol') { popupState.targetPatrolType = obj?.type || ''; popupState.targetPatrolRow = Number(obj?.row); popupState.targetPatrolCol = Number(obj?.col); }
+  openSharedDecisionPopup(popupState);
 }
 
 function buildHideQuirkPopupActions(ctx) {
@@ -5681,13 +6053,7 @@ const QUIRK_POPUP_ACTION_BUILDERS = Object.freeze({
 
 function showQuirkPopup(anchor, quirkType, r, c) {
   if (isGameplayInputLocked()) { if (getInteractionLockState().active) addLog(getInteractionLockMessage(), 'system'); return; }
-  closeItemPopup();
-  const popup = createPopupShell({ variant: 'action' });
-  const ctx = getPopupActorContext(anchor, r, c);
-  const builder = QUIRK_POPUP_ACTION_BUILDERS[quirkType];
-  setPopupSummary(popup, getQuirkPopupSummary(quirkType, ctx));
-  appendPopupActionDescriptors(popup, builder ? builder(ctx) : [], { emptyLabel: '(no actions)' });
-  mountPopupNearAnchor(anchor, popup, { align: 'left' });
+  openSharedDecisionPopup({ kind:'quirk', quirkType, r:Number(r), c:Number(c) });
 }
 
 function clearDynamicGoodieButtons() {
@@ -7386,6 +7752,7 @@ const SEQ = (() => {
         void inner.offsetWidth;
         document.body.classList.add('card-showing');
         overlay.classList.add('show');
+        notifyMultiplayerUiStateChanged(40);
 
         requestAnimationFrame(() => {
           inner.style.animation = step.stackBehind
@@ -7549,6 +7916,7 @@ function dismissCard() {
       back.style.animation = 'none';
     }
     SEQ.resume();
+    notifyMultiplayerUiStateChanged(40);
   };
   inner.classList.add('dismissing');
   if (back && back.classList.contains('show')) back.classList.add('dismissing');
@@ -10708,6 +11076,31 @@ bootGameApp();
     safeSend(MP.hostConn, { type: 'command_request', command, args: serializePayload(args) });
   }
 
+  function requestSharedDecisionPopup(state) {
+    if (window.setupMode !== 'online' || !hasSession() || !MP.isClient) return false;
+    requestHostCommand('openSharedDecisionPopup', [state]);
+    return true;
+  }
+
+  function requestSharedDecisionAction(actionKey) {
+    if (window.setupMode !== 'online' || !hasSession() || !MP.isClient) return false;
+    requestHostCommand('applySharedDecisionAction', [actionKey]);
+    return true;
+  }
+
+  function requestSharedDecisionClear() {
+    if (window.setupMode !== 'online' || !hasSession() || !MP.isClient) return false;
+    requestHostCommand('clearSharedDecisionPopup', []);
+    return true;
+  }
+
+  function notifyUiStateChanged(delayMs = 40) {
+    if (!MP.isHost || !isGameStarted()) return false;
+    scheduleHostSnapshot(delayMs);
+    if (delayMs < 140) scheduleHostSnapshot(delayMs + 120);
+    return true;
+  }
+
   function invokeHostCommand(command, args = []) {
     switch (command) {
       case 'dismissCard':
@@ -10718,6 +11111,15 @@ bootGameApp();
         return false;
       case 'cancelTempActionMode':
         if (typeof MP.originals.cancelTempActionMode === 'function') return MP.originals.cancelTempActionMode.apply(window, args);
+        return false;
+      case 'openSharedDecisionPopup':
+        if (typeof window.setSharedDecisionPopup === 'function') return window.setSharedDecisionPopup(deserializePayload(args[0]), { render: true });
+        return false;
+      case 'clearSharedDecisionPopup':
+        if (typeof window.clearSharedDecisionPopup === 'function') return window.clearSharedDecisionPopup({ render: true });
+        return false;
+      case 'applySharedDecisionAction':
+        if (typeof window.resolveAndPerformSharedDecisionAction === 'function') return window.resolveAndPerformSharedDecisionAction(args[0]);
         return false;
       default:
         return false;
@@ -11314,10 +11716,24 @@ bootGameApp();
     getOnlineUiState,
     getSetupCardMeta,
     getTurnOwnerState,
-    getInputLockState
+    getInputLockState,
+    requestSharedDecisionPopup,
+    requestSharedDecisionAction,
+    requestSharedDecisionClear,
+    notifyUiStateChanged
   };
 })();
 </script>
+
+<div id="shared-decision-overlay" aria-hidden="true">
+  <div id="shared-decision-modal">
+    <h2 id="shared-decision-title"></h2>
+    <div id="shared-decision-meta"></div>
+    <div id="shared-decision-note" hidden></div>
+    <div id="shared-decision-actions"></div>
+  </div>
+</div>
+
 </body>
 </html>
 
