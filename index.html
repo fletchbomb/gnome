@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v309">
+<html lang="en" data-game-version="v310">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v309</title>
+  <title>Gnome Invasion v310</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -10241,13 +10241,13 @@ bootGameApp();
 
 
 <script>
-/* === Multiplayer subsystem (inlined in v309) === */
+/* === Multiplayer subsystem (inlined in v310) === */
 // multiplayer.js - integrated online menu + host-authoritative click replication
 (function () {
   'use strict';
 
   const MP = {
-    version: '5.2.0',
+    version: '6.0.0',
     debug: false,
     peerLibLoading: false,
     peerLibReady: false,
@@ -10273,13 +10273,21 @@ bootGameApp();
       startGame: false,
       resetGame: false,
       renderAll: false,
-      renderAllNoBoard: false
+      renderAllNoBoard: false,
+      executeGameAction: false,
+      dismissCard: false,
+      cancelPendingBoardAction: false,
+      cancelTempActionMode: false
     },
     originals: {
       startGame: null,
       resetGame: null,
       renderAll: null,
-      renderAllNoBoard: null
+      renderAllNoBoard: null,
+      executeGameAction: null,
+      dismissCard: null,
+      cancelPendingBoardAction: null,
+      cancelTempActionMode: null
     }
   };
 
@@ -10638,6 +10646,88 @@ bootGameApp();
     return out;
   }
 
+  const CLIENT_OPTIMISTIC_ACTIONS = new Set(['move', 'kick', 'vent']);
+
+  function serializePayload(value) {
+    return deepSerialize(value);
+  }
+
+  function deserializePayload(value) {
+    return deepDeserialize(value);
+  }
+
+  function getCardOverlaySnapshot() {
+    const overlay = el('card-overlay');
+    const inner = el('game-card-inner');
+    if (!overlay || !inner) return { show: false };
+    return {
+      show: overlay.classList.contains('show'),
+      bodyCardShowing: document.body.classList.contains('card-showing'),
+      cardType: inner.querySelector('.card-type-band')?.textContent || '',
+      emoji: inner.querySelector('.card-emoji-big')?.textContent || '',
+      name: inner.querySelector('.card-name-big')?.textContent || '',
+      desc: inner.querySelector('.card-desc-body')?.textContent || '',
+      cls: Array.from(inner.classList || []).filter(cls => cls !== 'game-card' && cls !== 'dismissing' && cls !== 'stacked-front' && cls !== 'no-dismiss').join(' ')
+    };
+  }
+
+  function applyCardOverlaySnapshot(snapshot) {
+    const overlay = el('card-overlay');
+    const inner = el('game-card-inner');
+    const back = el('game-card-back');
+    if (!overlay || !inner) return;
+    if (!snapshot || !snapshot.show) {
+      overlay.classList.remove('show');
+      document.body.classList.remove('card-showing');
+      inner.className = 'game-card';
+      inner.style.animation = 'none';
+      inner.dataset.stackPending = '0';
+      inner.dataset.command = 'dismissCard';
+      if (back) {
+        back.classList.remove('show', 'dismissing');
+        back.style.animation = 'none';
+      }
+      return;
+    }
+    if (typeof window.setOverlayCardContent === 'function') {
+      window.setOverlayCardContent(inner, snapshot);
+    }
+    inner.className = 'game-card' + (snapshot.cls ? ` ${snapshot.cls}` : '');
+    inner.style.animation = '';
+    inner.dataset.stackPending = '0';
+    inner.dataset.command = 'dismissCard';
+    if (back) {
+      back.classList.remove('show', 'dismissing');
+      back.style.animation = 'none';
+    }
+    overlay.classList.add('show');
+    document.body.classList.toggle('card-showing', snapshot.bodyCardShowing !== false);
+  }
+
+  function requestHostAction(actionId, payload) {
+    safeSend(MP.hostConn, { type: 'action_request', actionId, payload: serializePayload(payload) });
+  }
+
+  function requestHostCommand(command, args = []) {
+    safeSend(MP.hostConn, { type: 'command_request', command, args: serializePayload(args) });
+  }
+
+  function invokeHostCommand(command, args = []) {
+    switch (command) {
+      case 'dismissCard':
+        if (typeof MP.originals.dismissCard === 'function') return MP.originals.dismissCard.apply(window, args);
+        return false;
+      case 'cancelPendingBoardAction':
+        if (typeof MP.originals.cancelPendingBoardAction === 'function') return MP.originals.cancelPendingBoardAction.apply(window, args);
+        return false;
+      case 'cancelTempActionMode':
+        if (typeof MP.originals.cancelTempActionMode === 'function') return MP.originals.cancelTempActionMode.apply(window, args);
+        return false;
+      default:
+        return false;
+    }
+  }
+
   function makeSnapshotPayload() {
     return {
       type: 'snapshot',
@@ -10645,7 +10735,8 @@ bootGameApp();
       selectedProfiles: getSelectedProfiles(),
       rosterOwners: MP.rosterOwners.slice(),
       gnomeOwners: Object.assign({}, MP.gnomeOwners),
-      playerOrder: MP.playerOrder.slice()
+      playerOrder: MP.playerOrder.slice(),
+      cardOverlay: getCardOverlaySnapshot()
     };
   }
 
@@ -10910,6 +11001,7 @@ bootGameApp();
       } else if (typeof window.renderSetupUi === 'function') {
         window.renderSetupUi();
       }
+      applyCardOverlaySnapshot(data.cardOverlay);
     } catch (err) {
       log('snapshot apply failed', err);
     } finally {
@@ -10941,11 +11033,14 @@ bootGameApp();
       case 'start_signal':
         handleStartSignal(data);
         break;
-      case 'click_request':
-        if (MP.isHost) handleRemoteClickRequest(fromId, data.descriptor);
+      case 'action_request':
+        if (MP.isHost) handleRemoteActionRequest(fromId, data);
         break;
+      case 'command_request':
+        if (MP.isHost) handleRemoteCommandRequest(fromId, data);
+        break;
+      case 'click_request':
       case 'replay_click':
-        if (MP.isClient) replayRemoteClick(data.descriptor);
         break;
       case 'snapshot':
         if (MP.isClient) applySnapshot(data);
@@ -10953,6 +11048,40 @@ bootGameApp();
       default:
         break;
     }
+  }
+
+  function handleRemoteActionRequest(playerId, data) {
+    if (!MP.isHost || !data) return;
+    if (getCurrentControllerId() !== playerId) {
+      safeSend(MP.clients.get(playerId), { type: 'status', message: 'It is not your turn!', alert: true });
+      scheduleHostSnapshot(80);
+      return;
+    }
+    try {
+      MP.originals.executeGameAction?.call(window, data.actionId, deserializePayload(data.payload));
+    } catch (err) {
+      log('remote action failed', err);
+    }
+    scheduleHostSnapshot(80);
+    scheduleHostSnapshot(220);
+    scheduleHostSnapshot(550);
+  }
+
+  function handleRemoteCommandRequest(playerId, data) {
+    if (!MP.isHost || !data) return;
+    if (getCurrentControllerId() !== playerId) {
+      safeSend(MP.clients.get(playerId), { type: 'status', message: 'It is not your turn!', alert: true });
+      scheduleHostSnapshot(80);
+      return;
+    }
+    try {
+      invokeHostCommand(data.command, deserializePayload(data.args) || []);
+    } catch (err) {
+      log('remote command failed', err);
+    }
+    scheduleHostSnapshot(80);
+    scheduleHostSnapshot(220);
+    scheduleHostSnapshot(550);
   }
 
   function getCurrentControllerId() {
@@ -11022,176 +11151,12 @@ bootGameApp();
     alert('It is not your turn!');
   }
 
-  function getReplicableElement(target) {
-    if (!(target instanceof Element)) return null;
-    if (target.closest('#screen-setup')) return null;
-    if (target.closest('#debug-panel') || target.closest('#debug-toggle')) return null;
-    const selector = '.action-btn, .cell, .card-ok, [data-command], button, [role="button"]';
-    const found = target.closest(selector);
-    if (!found) return null;
-    if (found.matches('input, textarea, select, option')) return null;
-    return found;
-  }
-
-  function buildDescriptor(elm) {
-    if (!(elm instanceof Element)) return null;
-    const dataset = {};
-    ['command', 'commandArg', 'r', 'c', 'popupGnome', 'popupType', 'popupSlot'].forEach(key => {
-      if (typeof elm.dataset[key] !== 'undefined') dataset[key] = elm.dataset[key];
-    });
-    return {
-      id: elm.id || null,
-      tag: elm.tagName,
-      text: normalizeText(elm.textContent || ''),
-      classes: Array.from(elm.classList || []).slice(0, 8),
-      dataset,
-      path: buildDomPath(elm)
-    };
-  }
-
-  function buildDomPath(elm) {
-    const path = [];
-    let node = elm;
-    while (node && node !== document.body) {
-      const parent = node.parentElement;
-      if (!parent) break;
-      path.unshift(Array.prototype.indexOf.call(parent.children, node));
-      node = parent;
-    }
-    return path;
-  }
-
-  function resolveDomPath(path) {
-    let node = document.body;
-    for (const idx of path || []) {
-      if (!node || !node.children || !node.children[idx]) return null;
-      node = node.children[idx];
-    }
-    return node;
-  }
-
-  function resolveDescriptor(descriptor) {
-    if (!descriptor) return null;
-
-    if (descriptor.id) {
-      const byId = document.getElementById(descriptor.id);
-      if (byId) return byId;
-    }
-
-    const ds = descriptor.dataset || {};
-    if (typeof ds.r !== 'undefined' && typeof ds.c !== 'undefined') {
-      const byCell = document.querySelector(`[data-r="${CSS.escape(String(ds.r))}"][data-c="${CSS.escape(String(ds.c))}"]`);
-      if (byCell) return byCell;
-    }
-
-    if (typeof ds.command !== 'undefined') {
-      let selector = `[data-command="${CSS.escape(String(ds.command))}"]`;
-      if (typeof ds.commandArg !== 'undefined') selector += `[data-command-arg="${CSS.escape(String(ds.commandArg))}"]`;
-      const byCommand = document.querySelector(selector);
-      if (byCommand) return byCommand;
-    }
-
-    if (Array.isArray(descriptor.path)) {
-      const byPath = resolveDomPath(descriptor.path);
-      if (byPath) return byPath;
-    }
-
-    if (descriptor.tag) {
-      const candidates = Array.from(document.querySelectorAll(descriptor.tag)).filter(node => {
-        if (!(node instanceof Element)) return false;
-        const style = window.getComputedStyle(node);
-        return style.display !== 'none' && style.visibility !== 'hidden';
-      });
-      const wantedText = normalizeText(descriptor.text || '');
-      return candidates.find(node => {
-        const classesOk = Array.isArray(descriptor.classes) && descriptor.classes.length
-          ? descriptor.classes.every(cls => node.classList.contains(cls))
-          : true;
-        const textOk = wantedText ? normalizeText(node.textContent || '') === wantedText : true;
-        return classesOk && textOk;
-      }) || null;
-    }
-
-    return null;
-  }
-
-  function replayRemoteClick(descriptor) {
-    const target = resolveDescriptor(descriptor);
-    if (!target) {
-      log('replay target not found', descriptor);
-      return false;
-    }
-
-    MP.replayingClick = true;
-    try {
-      const event = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      });
-      target.dispatchEvent(event);
-      return true;
-    } catch (err) {
-      log('replay click failed', err);
-      return false;
-    } finally {
-      window.setTimeout(() => { MP.replayingClick = false; }, 0);
-    }
-  }
-
-  function handleRemoteClickRequest(playerId, descriptor) {
-    if (!MP.isHost) return;
-    if (getCurrentControllerId() !== playerId) {
-      safeSend(MP.clients.get(playerId), { type: 'status', message: 'It is not your turn!', alert: true });
-      scheduleHostSnapshot(80);
-      return;
-    }
-
-    const ok = replayRemoteClick(descriptor);
-    if (!ok) {
-      scheduleHostSnapshot(80);
-      return;
-    }
-
-    broadcast({ type: 'replay_click', descriptor, seq: ++MP.lastReplaySeq });
-    scheduleHostSnapshot(80);
-    scheduleHostSnapshot(550);
-  }
-
   function handleClickCapture(event) {
-    if (!hasSession() || MP.syncingSnapshot || MP.replayingClick) return;
-    if (isSetupVisible()) return;
+    if (!hasSession() || isSetupVisible()) return;
     if (!(event.target instanceof Element)) return;
-
-    const actionable = getReplicableElement(event.target);
+    const actionable = event.target.closest('.action-btn, .cell, .card-ok, [data-command], button, [role="button"]');
     if (!actionable) return;
-    if (actionable.id === 'start-game-btn') return;
-
-    if (!localPlayerMayAct()) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      maybeTurnAlert();
-      return;
-    }
-
-    const descriptor = buildDescriptor(actionable);
-    if (!descriptor) return;
-
-    if (MP.isClient) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      safeSend(MP.hostConn, { type: 'click_request', descriptor });
-      return;
-    }
-
-    if (MP.isHost) {
-      window.setTimeout(() => {
-        if (!MP.isHost || MP.replayingClick || MP.syncingSnapshot) return;
-        broadcast({ type: 'replay_click', descriptor, seq: ++MP.lastReplaySeq });
-        scheduleHostSnapshot(80);
-        scheduleHostSnapshot(550);
-      }, 0);
-    }
+    if (!localPlayerMayAct()) maybeTurnAlert();
   }
 
   function wrapGameFunctions() {
@@ -11268,6 +11233,69 @@ bootGameApp();
     }
   }
 
+    if (!MP.wrapped.executeGameAction && typeof window.executeGameAction === 'function') {
+      MP.originals.executeGameAction = window.executeGameAction;
+      window.executeGameAction = function wrappedExecuteGameAction(actionId, payload) {
+        if (window.setupMode !== 'online' || !hasSession() || MP.syncingSnapshot) {
+          return MP.originals.executeGameAction.apply(this, arguments);
+        }
+        if (MP.isClient) {
+          requestHostAction(actionId, payload);
+          if (CLIENT_OPTIMISTIC_ACTIONS.has(actionId)) {
+            return MP.originals.executeGameAction.call(this, actionId, payload);
+          }
+          return true;
+        }
+        return MP.originals.executeGameAction.apply(this, arguments);
+      };
+      MP.wrapped.executeGameAction = true;
+    }
+
+    if (!MP.wrapped.dismissCard && typeof window.dismissCard === 'function') {
+      MP.originals.dismissCard = window.dismissCard;
+      window.dismissCard = function wrappedDismissCard(...args) {
+        if (window.setupMode !== 'online' || !hasSession() || MP.syncingSnapshot) {
+          return MP.originals.dismissCard.apply(this, args);
+        }
+        if (MP.isClient) {
+          requestHostCommand('dismissCard', args);
+          return true;
+        }
+        return MP.originals.dismissCard.apply(this, args);
+      };
+      MP.wrapped.dismissCard = true;
+    }
+
+    if (!MP.wrapped.cancelPendingBoardAction && typeof window.cancelPendingBoardAction === 'function') {
+      MP.originals.cancelPendingBoardAction = window.cancelPendingBoardAction;
+      window.cancelPendingBoardAction = function wrappedCancelPendingBoardAction(...args) {
+        if (window.setupMode !== 'online' || !hasSession() || MP.syncingSnapshot) {
+          return MP.originals.cancelPendingBoardAction.apply(this, args);
+        }
+        if (MP.isClient) {
+          requestHostCommand('cancelPendingBoardAction', args);
+          return MP.originals.cancelPendingBoardAction.apply(this, args);
+        }
+        return MP.originals.cancelPendingBoardAction.apply(this, args);
+      };
+      MP.wrapped.cancelPendingBoardAction = true;
+    }
+
+    if (!MP.wrapped.cancelTempActionMode && typeof window.cancelTempActionMode === 'function') {
+      MP.originals.cancelTempActionMode = window.cancelTempActionMode;
+      window.cancelTempActionMode = function wrappedCancelTempActionMode(...args) {
+        if (window.setupMode !== 'online' || !hasSession() || MP.syncingSnapshot) {
+          return MP.originals.cancelTempActionMode.apply(this, args);
+        }
+        if (MP.isClient) {
+          requestHostCommand('cancelTempActionMode', args);
+          return MP.originals.cancelTempActionMode.apply(this, args);
+        }
+        return MP.originals.cancelTempActionMode.apply(this, args);
+      };
+      MP.wrapped.cancelTempActionMode = true;
+    }
+
   function bindUi() {
     const joinInput = el('setup-join-code-input');
 
@@ -11291,7 +11319,6 @@ bootGameApp();
   ready(() => {
     bindUi();
     wrapGameFunctions();
-    document.addEventListener('click', handleClickCapture, true);
     loadPeerJs();
     refreshUi();
   });
