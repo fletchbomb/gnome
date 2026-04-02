@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v310">
+<html lang="en" data-game-version="v311">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v310</title>
+  <title>Gnome Invasion v311</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -10242,7 +10242,7 @@ bootGameApp();
 
 <script>
 /* === Multiplayer subsystem (inlined in v310) === */
-// multiplayer.js - integrated online menu + host-authoritative click replication
+// multiplayer.js - integrated online menu + host-authoritative action adapter
 (function () {
   'use strict';
 
@@ -10264,10 +10264,8 @@ bootGameApp();
     rosterOwners: [],
     statusText: '',
     syncingSnapshot: false,
-    replayingClick: false,
+    executingRemoteActionFor: null,
     suppressStartWrap: false,
-    lastDeniedAlertAt: 0,
-    lastReplaySeq: 0,
     syncTimers: new Set(),
     wrapped: {
       startGame: false,
@@ -10540,7 +10538,6 @@ bootGameApp();
     MP.playerOrder = [];
     MP.gnomeOwners = {};
     MP.rosterOwners = [];
-    MP.lastReplaySeq = 0;
     MP.statusText = '';
     syncSetupSelectionsFromClaims({ render: false });
 
@@ -10646,7 +10643,6 @@ bootGameApp();
     return out;
   }
 
-  const CLIENT_OPTIMISTIC_ACTIONS = new Set(['move', 'kick', 'vent']);
 
   function serializePayload(value) {
     return deepSerialize(value);
@@ -11039,9 +11035,6 @@ bootGameApp();
       case 'command_request':
         if (MP.isHost) handleRemoteCommandRequest(fromId, data);
         break;
-      case 'click_request':
-      case 'replay_click':
-        break;
       case 'snapshot':
         if (MP.isClient) applySnapshot(data);
         break;
@@ -11058,9 +11051,12 @@ bootGameApp();
       return;
     }
     try {
+      MP.executingRemoteActionFor = playerId;
       MP.originals.executeGameAction?.call(window, data.actionId, deserializePayload(data.payload));
     } catch (err) {
       log('remote action failed', err);
+    } finally {
+      MP.executingRemoteActionFor = null;
     }
     scheduleHostSnapshot(80);
     scheduleHostSnapshot(220);
@@ -11075,9 +11071,12 @@ bootGameApp();
       return;
     }
     try {
+      MP.executingRemoteActionFor = playerId;
       invokeHostCommand(data.command, deserializePayload(data.args) || []);
     } catch (err) {
       log('remote command failed', err);
+    } finally {
+      MP.executingRemoteActionFor = null;
     }
     scheduleHostSnapshot(80);
     scheduleHostSnapshot(220);
@@ -11096,12 +11095,6 @@ bootGameApp();
       return MP.rosterOwners[currentIdx] || MP.hostPeerId || MP.myPlayerId || null;
     }
     return MP.hostPeerId || MP.myPlayerId || null;
-  }
-
-  function localPlayerMayAct() {
-    const controller = getCurrentControllerId();
-    if (!controller) return true;
-    return controller === MP.myPlayerId;
   }
 
   function getTurnOwnerState() {
@@ -11126,6 +11119,10 @@ bootGameApp();
 
   function getInputLockState(actionId = '', commandName = '', commandArg = undefined) {
     const turnState = getTurnOwnerState();
+    const authorizedRemoteController = MP.isHost ? (MP.executingRemoteActionFor || null) : null;
+    if (authorizedRemoteController && turnState.controllerId === authorizedRemoteController) {
+      return { active: false, ownerButtonId: '', message: '' };
+    }
     if (!turnState.active || !turnState.isRemoteTurn) {
       return { active: false, ownerButtonId: '', message: '' };
     }
@@ -11142,21 +11139,6 @@ bootGameApp();
       currentGnomeIdx: turnState.currentGnomeIdx,
       message: `Waiting for ${ownerLabel} — ${gnomeName} is not yours right now.`
     };
-  }
-
-  function maybeTurnAlert() {
-    const now = Date.now();
-    if (now - MP.lastDeniedAlertAt < 1200) return;
-    MP.lastDeniedAlertAt = now;
-    alert('It is not your turn!');
-  }
-
-  function handleClickCapture(event) {
-    if (!hasSession() || isSetupVisible()) return;
-    if (!(event.target instanceof Element)) return;
-    const actionable = event.target.closest('.action-btn, .cell, .card-ok, [data-command], button, [role="button"]');
-    if (!actionable) return;
-    if (!localPlayerMayAct()) maybeTurnAlert();
   }
 
   function wrapGameFunctions() {
@@ -11241,9 +11223,6 @@ bootGameApp();
         }
         if (MP.isClient) {
           requestHostAction(actionId, payload);
-          if (CLIENT_OPTIMISTIC_ACTIONS.has(actionId)) {
-            return MP.originals.executeGameAction.call(this, actionId, payload);
-          }
           return true;
         }
         return MP.originals.executeGameAction.apply(this, arguments);
@@ -11274,7 +11253,7 @@ bootGameApp();
         }
         if (MP.isClient) {
           requestHostCommand('cancelPendingBoardAction', args);
-          return MP.originals.cancelPendingBoardAction.apply(this, args);
+          return true;
         }
         return MP.originals.cancelPendingBoardAction.apply(this, args);
       };
@@ -11289,7 +11268,7 @@ bootGameApp();
         }
         if (MP.isClient) {
           requestHostCommand('cancelTempActionMode', args);
-          return MP.originals.cancelTempActionMode.apply(this, args);
+          return true;
         }
         return MP.originals.cancelTempActionMode.apply(this, args);
       };
