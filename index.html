@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-game-version="v312">
+<html lang="en" data-game-version="v313">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gnome Invasion v312</title>
+  <title>Gnome Invasion v313</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
@@ -54,7 +54,7 @@
 #turn-handoff-banner.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}.gnome-card.turn-handoff-glow{box-shadow:0 16px 34px rgba(0,0,0,.34),0 0 0 2px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 42%,rgba(255,255,255,.14)),0 0 24px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 28%,transparent)}.gnome-card.turn-handoff-glow .gnome-name-text{color:color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 62%,#fff2cf)}
 #turn-portrait-card.turn-handoff-glow .turn-portrait-frame{box-shadow:0 16px 34px rgba(0,0,0,.38),0 0 0 2px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 42%,rgba(255,255,255,.14)),0 0 26px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 24%,transparent)}
 #turn-portrait-card.turn-handoff-glow .turn-portrait-label{box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 0 1px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 44%,rgba(255,255,255,.14)),0 0 18px color-mix(in srgb,var(--turn-handoff-accent,#d6a652) 24%,transparent)}
-body.turn-owner-overlay-active #turn-handoff-banner{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.96)}body.turn-owner-overlay-active #board-area{filter:saturate(.82) brightness(.92);pointer-events:none}body.turn-owner-overlay-active #actions-shell{opacity:.26;pointer-events:none}body.turn-owner-overlay-active #bottom-dock,body.turn-owner-overlay-active #sidebar{pointer-events:none}body.turn-owner-overlay-active #log-area{opacity:.46}body.turn-owner-overlay-active #gnome-panels .gnome-card:not(.active),body.turn-owner-overlay-active #patrol-tray .patrol-ref-card:not(.active){opacity:.66}body.turn-owner-overlay-active #gnome-panels .gnome-card.active,body.turn-owner-overlay-active #patrol-tray .patrol-ref-card.active{box-shadow:0 14px 28px rgba(0,0,0,.34),0 0 0 2px color-mix(in srgb,var(--turn-owner-accent,#d64545) 48%,rgba(255,255,255,.18)),0 0 22px color-mix(in srgb,var(--turn-owner-accent,#d64545) 26%,transparent)}body.turn-owner-overlay-patrol{--turn-owner-accent:#d64545}body.turn-owner-overlay-remote{--turn-owner-accent:var(--turn-owner-remote-color,#8d63c7)}body.turn-owner-overlay-patrol #screen-edge-vignette::before{background:linear-gradient(to bottom,color-mix(in srgb,var(--turn-owner-accent) 30%,rgba(26,14,8,.86)) 0,rgba(26,14,8,.16) 170px),linear-gradient(to top,color-mix(in srgb,var(--turn-owner-accent) 18%,rgba(26,14,8,.72)) 0,rgba(26,14,8,0) 150px),linear-gradient(to right,color-mix(in srgb,var(--turn-owner-accent) 15%,rgba(26,14,8,.5)) 0,rgba(26,14,8,0) 140px),linear-gradient(to left,color-mix(in srgb,var(--turn-owner-accent) 15%,rgba(26,14,8,.5)) 0,rgba(26,14,8,0) 140px)}body.turn-owner-overlay-remote #screen-edge-vignette::before{background:linear-gradient(to bottom,color-mix(in srgb,var(--turn-owner-accent) 24%,rgba(26,14,8,.84)) 0,rgba(26,14,8,.14) 170px),linear-gradient(to top,color-mix(in srgb,var(--turn-owner-accent) 16%,rgba(26,14,8,.68)) 0,rgba(26,14,8,0) 150px),linear-gradient(to right,color-mix(in srgb,var(--turn-owner-accent) 12%,rgba(26,14,8,.46)) 0,rgba(26,14,8,0) 140px),linear-gradient(to left,color-mix(in srgb,var(--turn-owner-accent) 12%,rgba(26,14,8,.46)) 0,rgba(26,14,8,0) 140px)}.room-corner.tl.reveal-marker{opacity:.96 !important;filter:none !important;text-shadow:0 2px 6px rgba(0,0,0,.45);transition:filter .18s ease,opacity .18s ease,transform .18s ease}.room-corner.tl.reveal-marker.is-patrol,.room-corner.tl.reveal-marker.room-feature-live,.room-static-icon.room-feature-live{opacity:1 !important;filter:none !important}.room-corner.tl.reveal-marker.is-event-live{animation:eventRoomMarkerPulse 1.9s ease-in-out infinite}.room-corner.tl.reveal-marker.room-feature-disabled,.room-static-icon.room-feature-disabled{opacity:.56 !important;filter:grayscale(1) saturate(0) brightness(.78) !important;text-shadow:none;animation:none !important}.room-static-icon.room-feature-disabled{cursor:default}.room-static-icon.room-feature-live{filter:none !important}.room-static-icon.room-feature-static{opacity:.96}.room-corner.tl.reveal-marker.is-event-spent{animation:none !important}@keyframes eventRoomMarkerPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,111,97,0))}50%{transform:scale(1.08);filter:drop-shadow(0 0 8px rgba(255,111,97,.35))}}.sticky-room-overlay{position:absolute;inset:10px 12px 14px;border-radius:18px;pointer-events:none;z-index:2;overflow:hidden}.sticky-room-blob{position:absolute;display:block;width:52px;height:34px;border-radius:58% 42% 55% 45%/50% 42% 58% 50%;background:radial-gradient(ellipse at 34% 32%,rgba(255,236,255,.34) 0%,rgba(221,160,255,.24) 18%,rgba(161,77,232,.42) 46%,rgba(95,28,152,.72) 100%);box-shadow:0 0 0 1px rgba(75,22,116,.24) inset,0 8px 16px rgba(37,10,60,.22);opacity:.92}.sticky-room-blob::after{content:'';position:absolute;inset:20% 24% auto auto;width:36%;height:26%;border-radius:999px;background:rgba(255,242,255,.18);filter:blur(1px)}.sticky-room-blob.blob-b{width:38px;height:26px}.sticky-room-blob.blob-c{width:64px;height:38px}.sticky-room-blob.blob-d{width:28px;height:20px}.sticky-room-blob.blob-e{width:22px;height:16px}.cell.room.room-reveal-pop .sticky-room-blob{animation:stickyBlobReveal .34s cubic-bezier(.2,.9,.22,1) both}.cell.room.sticky-splat-anim .sticky-room-blob{animation:stickyBlobImpact .9s cubic-bezier(.2,.9,.22,1) forwards}.cell.room.sticky-splat-anim::after{content:'🫟';position:absolute;left:50%;top:50%;z-index:6;transform:translate(-50%,-50%) scale(.5);opacity:0;font-size:2.4rem;filter:drop-shadow(0 6px 8px rgba(24,6,42,.35));pointer-events:none;animation:stickyBurstImpact .85s cubic-bezier(.15,.88,.22,1) forwards}@keyframes stickyBlobReveal{0%{opacity:0;filter:blur(3px);transform:translate(-50%,-50%) scale(.28) rotate(var(--sticky-rot,0deg))}100%{opacity:.92;filter:blur(0);transform:translate(-50%,-50%) scale(1) rotate(var(--sticky-rot,0deg))}}@keyframes stickyBlobImpact{0%{opacity:.18;filter:blur(3px);transform:translate(-50%,-50%) scale(.2) rotate(var(--sticky-rot,0deg))}55%{opacity:1;filter:blur(0);transform:translate(-50%,-50%) scale(1.16) rotate(calc(var(--sticky-rot,0deg) + 5deg))}100%{opacity:.92;transform:translate(-50%,-50%) scale(1) rotate(var(--sticky-rot,0deg))}}@keyframes stickyBurstImpact{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}18%{opacity:.95;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.34)}}.token-status-ring.status-distract{--status-ring-color:#84cc16}.token-status-ring.status-frozen{--status-ring-color:#67c6ff}.token-status-ring.status-revealed{--status-ring-color:#f0d257}.actor-portrait-status-badge.distract,.gnome-status-badge.distract,.actor-status-pill.distract,.patrol-ref-pill.distract{background:linear-gradient(180deg,rgba(88,124,24,.92),rgba(48,70,12,.96));border-color:rgba(163,230,53,.34)}.actor-portrait-status-badge.frozen,.gnome-status-badge.frozen,.actor-status-pill.frozen,.patrol-ref-pill.frozen{background:linear-gradient(180deg,rgba(52,104,148,.92),rgba(24,58,88,.96));border-color:rgba(103,198,255,.34)}.actor-portrait-status-badge.revealed,.gnome-status-badge.revealed,.actor-status-pill.revealed,.patrol-ref-pill.revealed{background:linear-gradient(180deg,rgba(150,120,24,.94),rgba(96,73,8,.98));border-color:rgba(240,210,87,.42)}.actor-portrait-status-badge.hidden,.gnome-status-badge.hidden,.actor-status-pill.hidden,.patrol-ref-pill.hidden{background:linear-gradient(180deg,rgba(60,60,66,.92),rgba(24,24,30,.96));border-color:rgba(196,200,209,.24)}.actor-portrait-status-pills{position:absolute;left:8px;right:8px;bottom:8px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;z-index:3;pointer-events:none}.actor-portrait-status-pills .actor-status-pill{font-size:.62rem;padding:3px 7px;max-width:calc(100% - 6px);box-shadow:0 4px 12px rgba(0,0,0,.28);background:linear-gradient(180deg,rgba(72,50,35,.96),rgba(43,30,22,.98));backdrop-filter:blur(2px)}.actor-portrait-status-pills .actor-status-pill+ .actor-status-pill{margin-left:0}.log-entry.trouble{color:#ffcfbf;font-weight:900;letter-spacing:.02em;text-shadow:0 0 10px rgba(255,91,78,.12)}
+body.turn-owner-overlay-active #turn-handoff-banner{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.96)}body.turn-owner-overlay-active #board-area{filter:saturate(.82) brightness(.92)}body.turn-owner-overlay-active #actions-shell{opacity:.26;pointer-events:none}body.turn-owner-overlay-active #bottom-dock,body.turn-owner-overlay-active #sidebar{pointer-events:none}body.turn-owner-overlay-active #log-area{opacity:.46}body.turn-owner-overlay-active #gnome-panels .gnome-card:not(.active),body.turn-owner-overlay-active #patrol-tray .patrol-ref-card:not(.active){opacity:.66}body.turn-owner-overlay-active #gnome-panels .gnome-card.active,body.turn-owner-overlay-active #patrol-tray .patrol-ref-card.active{box-shadow:0 14px 28px rgba(0,0,0,.34),0 0 0 2px color-mix(in srgb,var(--turn-owner-accent,#d64545) 48%,rgba(255,255,255,.18)),0 0 22px color-mix(in srgb,var(--turn-owner-accent,#d64545) 26%,transparent)}body.turn-owner-overlay-patrol{--turn-owner-accent:#d64545}body.turn-owner-overlay-remote{--turn-owner-accent:var(--turn-owner-remote-color,#8d63c7)}body.turn-owner-overlay-patrol #screen-edge-vignette::before{background:linear-gradient(to bottom,color-mix(in srgb,var(--turn-owner-accent) 30%,rgba(26,14,8,.86)) 0,rgba(26,14,8,.16) 170px),linear-gradient(to top,color-mix(in srgb,var(--turn-owner-accent) 18%,rgba(26,14,8,.72)) 0,rgba(26,14,8,0) 150px),linear-gradient(to right,color-mix(in srgb,var(--turn-owner-accent) 15%,rgba(26,14,8,.5)) 0,rgba(26,14,8,0) 140px),linear-gradient(to left,color-mix(in srgb,var(--turn-owner-accent) 15%,rgba(26,14,8,.5)) 0,rgba(26,14,8,0) 140px)}body.turn-owner-overlay-remote #screen-edge-vignette::before{background:linear-gradient(to bottom,color-mix(in srgb,var(--turn-owner-accent) 24%,rgba(26,14,8,.84)) 0,rgba(26,14,8,.14) 170px),linear-gradient(to top,color-mix(in srgb,var(--turn-owner-accent) 16%,rgba(26,14,8,.68)) 0,rgba(26,14,8,0) 150px),linear-gradient(to right,color-mix(in srgb,var(--turn-owner-accent) 12%,rgba(26,14,8,.46)) 0,rgba(26,14,8,0) 140px),linear-gradient(to left,color-mix(in srgb,var(--turn-owner-accent) 12%,rgba(26,14,8,.46)) 0,rgba(26,14,8,0) 140px)}.room-corner.tl.reveal-marker{opacity:.96 !important;filter:none !important;text-shadow:0 2px 6px rgba(0,0,0,.45);transition:filter .18s ease,opacity .18s ease,transform .18s ease}.room-corner.tl.reveal-marker.is-patrol,.room-corner.tl.reveal-marker.room-feature-live,.room-static-icon.room-feature-live{opacity:1 !important;filter:none !important}.room-corner.tl.reveal-marker.is-event-live{animation:eventRoomMarkerPulse 1.9s ease-in-out infinite}.room-corner.tl.reveal-marker.room-feature-disabled,.room-static-icon.room-feature-disabled{opacity:.56 !important;filter:grayscale(1) saturate(0) brightness(.78) !important;text-shadow:none;animation:none !important}.room-static-icon.room-feature-disabled{cursor:default}.room-static-icon.room-feature-live{filter:none !important}.room-static-icon.room-feature-static{opacity:.96}.room-corner.tl.reveal-marker.is-event-spent{animation:none !important}@keyframes eventRoomMarkerPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,111,97,0))}50%{transform:scale(1.08);filter:drop-shadow(0 0 8px rgba(255,111,97,.35))}}.sticky-room-overlay{position:absolute;inset:10px 12px 14px;border-radius:18px;pointer-events:none;z-index:2;overflow:hidden}.sticky-room-blob{position:absolute;display:block;width:52px;height:34px;border-radius:58% 42% 55% 45%/50% 42% 58% 50%;background:radial-gradient(ellipse at 34% 32%,rgba(255,236,255,.34) 0%,rgba(221,160,255,.24) 18%,rgba(161,77,232,.42) 46%,rgba(95,28,152,.72) 100%);box-shadow:0 0 0 1px rgba(75,22,116,.24) inset,0 8px 16px rgba(37,10,60,.22);opacity:.92}.sticky-room-blob::after{content:'';position:absolute;inset:20% 24% auto auto;width:36%;height:26%;border-radius:999px;background:rgba(255,242,255,.18);filter:blur(1px)}.sticky-room-blob.blob-b{width:38px;height:26px}.sticky-room-blob.blob-c{width:64px;height:38px}.sticky-room-blob.blob-d{width:28px;height:20px}.sticky-room-blob.blob-e{width:22px;height:16px}.cell.room.room-reveal-pop .sticky-room-blob{animation:stickyBlobReveal .34s cubic-bezier(.2,.9,.22,1) both}.cell.room.sticky-splat-anim .sticky-room-blob{animation:stickyBlobImpact .9s cubic-bezier(.2,.9,.22,1) forwards}.cell.room.sticky-splat-anim::after{content:'🫟';position:absolute;left:50%;top:50%;z-index:6;transform:translate(-50%,-50%) scale(.5);opacity:0;font-size:2.4rem;filter:drop-shadow(0 6px 8px rgba(24,6,42,.35));pointer-events:none;animation:stickyBurstImpact .85s cubic-bezier(.15,.88,.22,1) forwards}@keyframes stickyBlobReveal{0%{opacity:0;filter:blur(3px);transform:translate(-50%,-50%) scale(.28) rotate(var(--sticky-rot,0deg))}100%{opacity:.92;filter:blur(0);transform:translate(-50%,-50%) scale(1) rotate(var(--sticky-rot,0deg))}}@keyframes stickyBlobImpact{0%{opacity:.18;filter:blur(3px);transform:translate(-50%,-50%) scale(.2) rotate(var(--sticky-rot,0deg))}55%{opacity:1;filter:blur(0);transform:translate(-50%,-50%) scale(1.16) rotate(calc(var(--sticky-rot,0deg) + 5deg))}100%{opacity:.92;transform:translate(-50%,-50%) scale(1) rotate(var(--sticky-rot,0deg))}}@keyframes stickyBurstImpact{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}18%{opacity:.95;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.34)}}.token-status-ring.status-distract{--status-ring-color:#84cc16}.token-status-ring.status-frozen{--status-ring-color:#67c6ff}.token-status-ring.status-revealed{--status-ring-color:#f0d257}.actor-portrait-status-badge.distract,.gnome-status-badge.distract,.actor-status-pill.distract,.patrol-ref-pill.distract{background:linear-gradient(180deg,rgba(88,124,24,.92),rgba(48,70,12,.96));border-color:rgba(163,230,53,.34)}.actor-portrait-status-badge.frozen,.gnome-status-badge.frozen,.actor-status-pill.frozen,.patrol-ref-pill.frozen{background:linear-gradient(180deg,rgba(52,104,148,.92),rgba(24,58,88,.96));border-color:rgba(103,198,255,.34)}.actor-portrait-status-badge.revealed,.gnome-status-badge.revealed,.actor-status-pill.revealed,.patrol-ref-pill.revealed{background:linear-gradient(180deg,rgba(150,120,24,.94),rgba(96,73,8,.98));border-color:rgba(240,210,87,.42)}.actor-portrait-status-badge.hidden,.gnome-status-badge.hidden,.actor-status-pill.hidden,.patrol-ref-pill.hidden{background:linear-gradient(180deg,rgba(60,60,66,.92),rgba(24,24,30,.96));border-color:rgba(196,200,209,.24)}.actor-portrait-status-pills{position:absolute;left:8px;right:8px;bottom:8px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;z-index:3;pointer-events:none}.actor-portrait-status-pills .actor-status-pill{font-size:.62rem;padding:3px 7px;max-width:calc(100% - 6px);box-shadow:0 4px 12px rgba(0,0,0,.28);background:linear-gradient(180deg,rgba(72,50,35,.96),rgba(43,30,22,.98));backdrop-filter:blur(2px)}.actor-portrait-status-pills .actor-status-pill+ .actor-status-pill{margin-left:0}.log-entry.trouble{color:#ffcfbf;font-weight:900;letter-spacing:.02em;text-shadow:0 0 10px rgba(255,91,78,.12)}
 
 
 #shared-decision-overlay{display:none;position:fixed;inset:0;z-index:145;align-items:flex-start;justify-content:center;padding-top:58px;background:rgba(0,0,0,.36);pointer-events:none}
@@ -4044,7 +4044,9 @@ function renderAll() {
   refreshPatrolIntentState(true);
   document.body.classList.toggle('patrol-turn-state', shouldShowPatrolTurnUi());
   UI_LAYERS.render.full();
+  syncInterruptUi();
   syncTurnOwnerUi();
+  syncCardOverlayInteraction();
   syncSharedDecisionUi();
   syncTurnHandoffCue();
   const roomsInline = el('rooms-count-inline');
@@ -4391,6 +4393,16 @@ function attachGoodieTileBehavior(span, gid, clickHandler) {
   span.textContent = emoji;
   span.title = title;
   span.addEventListener('click', clickHandler);
+}
+
+function placeGoodieOnTile(tile, gid, { logMessage = '', logClass = 'good', emitDrop = false } = {}) {
+  if (!tile) return false;
+  const normalizedId = normalizeGoodieId(gid);
+  tile.goodieIds = tile.goodieIds || [];
+  tile.goodieIds.push(normalizedId);
+  if (emitDrop) GAME_EVENTS.emit('item.dropped', { itemType:'goodie', id: normalizedId });
+  if (logMessage) addLog(logMessage, logClass);
+  return true;
 }
 
 function buildBoardActorToken({
@@ -5133,10 +5145,7 @@ function buildGoodieInventoryPopup(popup, context) {
     closeItemPopup();
     gnome.satchel[slotIdx] = null;
     spendAction();
-    if (!tile.goodieIds) tile.goodieIds = [];
-    tile.goodieIds.push(item.id);
-    GAME_EVENTS.emit('item.dropped', { itemType: 'goodie', id: item.id });
-    addLog(`${gnome.name} dropped ${goodieLabel}.`);
+    placeGoodieOnTile(tile, item.id, { emitDrop:true, logMessage:`${gnome.name} dropped ${goodieLabel}.` });
     renderAll();
   }, G.actionsLeft <= 0);
   if (inWeaverScreen) addPopupBtn(popup, '🗑️ Destroy', () => destroyInventoryPopupItem({ ...context, label: getGoodieName(item.id) }));
@@ -5492,10 +5501,7 @@ function buildSharedDecisionInventorySpec(state) {
       clearSharedDecisionPopup({ render:false });
       gnome.satchel[slotIdx] = null;
       spendAction();
-      if (!context.tile.goodieIds) context.tile.goodieIds = [];
-      context.tile.goodieIds.push(item.id);
-      GAME_EVENTS.emit('item.dropped', { itemType:'goodie', id:item.id });
-      addLog(`${gnome.name} dropped ${getGoodieLabel(item.id)}.`);
+      placeGoodieOnTile(context.tile, item.id, { emitDrop:true, logMessage:`${gnome.name} dropped ${getGoodieLabel(item.id)}.` });
       renderAll();
     }, G.actionsLeft <= 0));
     if (context.inWeaverScreen) actions.push(createSharedDecisionActionSpec('destroy-goodie', '🗑️ Destroy', () => { clearSharedDecisionPopup({ render:false }); destroyInventoryPopupItem({ ...context, label:getGoodieName(item.id) }); }));
@@ -5604,13 +5610,6 @@ function getSharedDecisionPopupSpec(state = G?.sharedDecisionPopup) {
   return spec;
 }
 
-function ensureSharedDecisionUiElements() {
-  if (document.getElementById('shared-decision-overlay')) return;
-  const overlay = createElement('div', { attrs:{ id:'shared-decision-overlay', 'aria-hidden':'true' } });
-  overlay.innerHTML = '<div id="shared-decision-modal"><h2 id="shared-decision-title"></h2><div id="shared-decision-meta"></div><div id="shared-decision-note" hidden></div><div id="shared-decision-actions"></div></div>';
-  document.body.appendChild(overlay);
-}
-
 function renderSharedDecisionButtons(actions, lockState) {
   const actionsEl = el('shared-decision-actions');
   if (!actionsEl) return;
@@ -5636,7 +5635,6 @@ function renderSharedDecisionButtons(actions, lockState) {
 }
 
 function syncSharedDecisionUi() {
-  ensureSharedDecisionUiElements();
   const overlay = el('shared-decision-overlay');
   const titleEl = el('shared-decision-title');
   const metaEl = el('shared-decision-meta');
@@ -6116,8 +6114,7 @@ function dropAllInventoryToCurrentRoom(gnome, { includeHat = true, log = true } 
     if (item.type === 'Socks') {
       tile.Socks = (tile.Socks || 0) + 1;
     } else if (item.type === 'goodie') {
-      if (!tile.goodieIds) tile.goodieIds = [];
-      tile.goodieIds.push(item.id);
+      placeGoodieOnTile(tile, item.id);
     } else if (item.type === 'hat') {
       if (!tile.hatIds) tile.hatIds = [];
       tile.hatIds.push(item.id);
@@ -6151,8 +6148,7 @@ function dropSingleCarriedItemToCurrentRoom(gnome, { log = true } = {}) {
   if (item.type === 'Socks') {
     tile.Socks = (tile.Socks || 0) + 1;
   } else if (item.type === 'goodie') {
-    tile.goodieIds = tile.goodieIds || [];
-    tile.goodieIds.push(item.id);
+    placeGoodieOnTile(tile, item.id);
   } else if (item.type === 'hat') {
     tile.hatIds = tile.hatIds || [];
     tile.hatIds.push(item.id);
@@ -9570,9 +9566,8 @@ function getPatrolSpawnRoomId(patrolType) {
 const EVENT_EFFECT_HANDLERS = Object.freeze({
   vent: ({ tile }) => { tile.vent = true; },
   goodie: ({ tile }) => {
-    if (!tile.goodieIds) tile.goodieIds = [];
     const gid = G.goodiePool.length ? G.goodiePool.pop() : 1;
-    tile.goodieIds.push(gid);
+    placeGoodieOnTile(tile, gid, { logMessage:'🎁 Boon! A goodie appears in this room.', logClass:'good' });
   },
   chute: ({ tile }) => { tile.chute = true; },
   weaver: ({ tile }) => { tile.weaver = true; },
@@ -11031,7 +11026,9 @@ bootGameApp();
       emoji: inner.querySelector('.card-emoji-big')?.textContent || '',
       name: inner.querySelector('.card-name-big')?.textContent || '',
       desc: inner.querySelector('.card-desc-body')?.textContent || '',
-      cls: Array.from(inner.classList || []).filter(cls => cls !== 'game-card' && cls !== 'dismissing' && cls !== 'stacked-front' && cls !== 'no-dismiss').join(' ')
+      cls: Array.from(inner.classList || []).filter(cls => cls !== 'game-card' && cls !== 'dismissing' && cls !== 'stacked-front' && cls !== 'no-dismiss').join(' '),
+      noDismiss: inner.classList.contains('no-dismiss'),
+      stackPending: inner.dataset.stackPending === '1'
     };
   }
 
@@ -11047,10 +11044,12 @@ bootGameApp();
       inner.style.animation = 'none';
       inner.dataset.stackPending = '0';
       inner.dataset.command = 'dismissCard';
+      inner.classList.remove('no-dismiss');
       if (back) {
         back.classList.remove('show', 'dismissing');
         back.style.animation = 'none';
       }
+      syncCardOverlayInteraction();
       return;
     }
     if (typeof window.setOverlayCardContent === 'function') {
@@ -11058,14 +11057,35 @@ bootGameApp();
     }
     inner.className = 'game-card' + (snapshot.cls ? ` ${snapshot.cls}` : '');
     inner.style.animation = '';
-    inner.dataset.stackPending = '0';
+    inner.dataset.stackPending = snapshot.stackPending ? '1' : '0';
     inner.dataset.command = 'dismissCard';
+    inner.classList.toggle('no-dismiss', !!snapshot.noDismiss);
     if (back) {
       back.classList.remove('show', 'dismissing');
       back.style.animation = 'none';
     }
     overlay.classList.add('show');
     document.body.classList.toggle('card-showing', snapshot.bodyCardShowing !== false);
+    syncCardOverlayInteraction();
+  }
+
+  function syncCardOverlayInteraction() {
+    const overlay = el('card-overlay');
+    const inner = el('game-card-inner');
+    if (!overlay || !inner) return;
+    const isShown = overlay.classList.contains('show');
+    const dismissBtns = overlay.querySelectorAll('[data-command="dismissCard"], .card-ok');
+    if (!isShown) {
+      dismissBtns.forEach(btn => { if ('disabled' in btn) btn.disabled = false; });
+      if (!inner.classList.contains('no-dismiss')) inner.dataset.command = 'dismissCard';
+      overlay.classList.remove('read-only');
+      return;
+    }
+    const lockState = getMultiplayerInputLockState('', 'dismissCard');
+    const canDismiss = !lockState.active && !inner.classList.contains('no-dismiss') && inner.dataset.stackPending !== '1';
+    inner.dataset.command = canDismiss ? 'dismissCard' : '';
+    dismissBtns.forEach(btn => { if ('disabled' in btn) btn.disabled = !canDismiss; });
+    overlay.classList.toggle('read-only', !canDismiss);
   }
 
   function requestHostAction(actionId, payload) {
@@ -11400,6 +11420,9 @@ bootGameApp();
         window.renderSetupUi();
       }
       applyCardOverlaySnapshot(data.cardOverlay);
+      syncInterruptUi();
+      syncTurnOwnerUi();
+      syncSharedDecisionUi();
     } catch (err) {
       log('snapshot apply failed', err);
     } finally {
@@ -11638,6 +11661,8 @@ bootGameApp();
         if (window.setupMode !== 'online' || !hasSession() || MP.syncingSnapshot) {
           return MP.originals.dismissCard.apply(this, args);
         }
+        const lockState = getInputLockState('', 'dismissCard');
+        if (lockState?.active) return false;
         if (MP.isClient) {
           requestHostCommand('dismissCard', args);
           return true;
